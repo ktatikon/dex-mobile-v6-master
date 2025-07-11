@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 0 0% 0%; /* #000000 */
+    --foreground: 0 0% 100%; /* #FFFFFF */
+
+    --card: 0 0% 11%; /* #1C1C1E */
+    --card-foreground: 0 0% 100%; /* #FFFFFF */
+
+    --popover: 0 0% 17%; /* #2C2C2E */
+    --popover-foreground: 0 0% 100%; /* #FFFFFF */
+
+    --primary: 18 89% 37%; /* #B1420A - Dark Orange */
+    --primary-foreground: 0 0% 100%; /* #FFFFFF */
+
+    --secondary: 0 0% 11%; /* #1C1C1E */
+    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+
+    --muted: 0 0% 17%; /* #2C2C2E */
+    --muted-foreground: 240 5% 57%; /* #8E8E93 - Light Gray */
+
+    --accent: 142 70% 49%; /* #34C759 - Green */
+    --accent-foreground: 0 0% 100%; /* #FFFFFF */
+
+    --destructive: 3 100% 59%; /* #FF3B30 - Red (kept for negative actions) */
+    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+
+    --border: 0 0% 11%; /* #1C1C1E */
+    --input: 0 0% 11%; /* #1C1C1E */
+    --ring: 3 100% 59%; /* #FF3B30 - Red */
+
+    --radius: 0.75rem; /* 12px for cards */
+
+    --sidebar-background: 0 0% 0%; /* #000000 */
+    --sidebar-foreground: 0 0% 100%; /* #FFFFFF */
+    --sidebar-primary: 3 100% 59%; /* #FF3B30 - Red */
+    --sidebar-primary-foreground: 0 0% 100%; /* #FFFFFF */
+    --sidebar-accent: 142 70% 49%; /* #34C759 - Green */
+    --sidebar-accent-foreground: 0 0% 100%; /* #FFFFFF */
+    --sidebar-border: 0 0% 11%; /* #1C1C1E */
+    --sidebar-ring: 3 100% 59%; /* #FF3B30 - Red */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+  }
+
+  /* Enhanced typography hierarchy with size variations instead of weight */
+  h1 {
+    @apply text-4xl font-medium font-poppins;
+  }
+
+  h2 {
+    @apply text-3xl font-medium font-poppins;
+  }
+
+  h3 {
+    @apply text-2xl font-medium font-poppins;
+  }
+
+  h4 {
+    @apply text-xl font-medium font-poppins;
+  }
+
+  h5 {
+    @apply text-lg font-medium font-poppins;
+  }
+
+  h6 {
+    @apply text-base font-medium font-poppins;
+  }
+
+  button {
+    @apply font-medium rounded-button;
+  }
+
+  .card, .rounded-card {
+    @apply rounded-lg;
+  }
+
+  /* Navigation bar styles */
+  .nav-item {
+    @apply flex flex-col items-center justify-center min-h-[44px] min-w-[44px] py-1 px-2 transition-colors duration-200 cursor-pointer;
+  }
+
+  .nav-icon {
+    @apply mb-1;
+  }
+
+  .nav-text {
+    @apply text-xs font-medium font-poppins;
+  }
+
+  .nav-indicator {
+    @apply h-1 w-6 bg-dex-primary rounded-full mt-1 shadow-[0_0_8px_rgba(177,66,10,0.4)];
+  }
+
+  /* Ensure proper touch targets for mobile */
+  @media (max-width: 640px) {
+    .nav-item {
+      @apply py-2;
+    }
+  }
+}
+
+/* Android-specific optimizations for chart modal */
+.android-optimized {
+  -webkit-overflow-scrolling: touch;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Landscape mode optimizations */
+.landscape-mode {
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+.landscape-mode .chart-container {
+  height: calc(100vh - 120px) !important;
+}
+
+/* Portrait mode optimizations */
+.portrait-mode .chart-container {
+  height: calc(100vh - 200px) !important;
+}
+
+/* Android WebView optimizations */
+@media screen and (max-width: 768px) {
+  .android-optimized {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  .android-optimized * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .android-optimized input,
+  .android-optimized textarea,
+  .android-optimized select {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
+/* Fullscreen fallback for mobile devices */
+.fullscreen-fallback {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  overflow: hidden !important;
+  background: #000000 !important;
+}
+
+.fullscreen-fallback * {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide browser UI elements in fullscreen fallback */
+.fullscreen-fallback .browser-ui,
+.fullscreen-fallback .navigation-bar,
+.fullscreen-fallback .status-bar {
+  display: none !important;
+}
+
+/* Ensure modal takes full space in fallback mode */
+.fullscreen-fallback [data-modal="chart"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+/* Mobile landscape optimizations */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .landscape-mode .chart-container {
+    height: calc(100vh - 80px) !important;
+  }
+
+  .landscape-mode .chart-controls {
+    height: 80px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+}
