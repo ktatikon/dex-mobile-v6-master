@@ -71,7 +71,7 @@ const KYCAMLPage: React.FC<KYCAMLPageProps> = React.memo(({
   }, [startKYC, toast]);
 
   // Handle AML check completion
-  const handleAMLCheckComplete = useCallback((check: any) => {
+  const handleAMLCheckComplete = useCallback((check: unknown) => {
     console.log('AML check completed:', check);
     // Trigger refresh of AML history
     setAmlRefreshTrigger(prev => prev + 1);

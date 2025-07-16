@@ -75,7 +75,7 @@ const WalletSettingsPage: React.FC = () => {
 
   const handleSettingChange = async (
     key: keyof Omit<WalletSettings, 'id' | 'user_id' | 'created_at' | 'updated_at'>,
-    value: any
+    value: unknown
   ) => {
     if (!user || !settings) return;
 

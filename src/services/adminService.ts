@@ -11,7 +11,7 @@ type UserStatusChange = Database['public']['Tables']['user_status_changes']['Row
 
 export interface UserWithKYC extends User {
   kyc?: KYC;
-  wallet_balances?: any[];
+  wallet_balances?: unknown[];
   login_history?: UserLoginHistory[];
 }
 
@@ -53,9 +53,7 @@ export const getUsers = async (
       *,
       kyc(*),
       wallet_balances(*)
-    `, { count: 'exact' });
-
-  // Apply filters
+    `, { count: 'exact' });// Apply filters
   if (filters.status) {
     query = query.eq('status', filters.status);
   }
@@ -167,9 +165,7 @@ export const getTransactions = async (
     .select(`
       *,
       users(id, full_name, email)
-    `, { count: 'exact' });
-
-  // Apply filters
+    `, { count: 'exact' });// Apply filters
   if (filters.type) {
     query = query.eq('transaction_type', filters.type);
   }
@@ -259,9 +255,7 @@ export const getUserRegistrationStats = async (
 ): Promise<{ date: string; count: number }[]> => {
   let query = supabase
     .from('users')
-    .select('created_at');
-
-  if (dateFrom) {
+    .select('created_at');if (dateFrom) {
     query = query.gte('created_at', dateFrom);
   }
 
@@ -330,9 +324,7 @@ export const getTransactionVolumeStats = async (
   let query = supabase
     .from('transactions')
     .select('timestamp, from_amount, status')
-    .eq('status', 'completed');
-
-  if (dateFrom) {
+    .eq('status', 'completed');if (dateFrom) {
     query = query.gte('timestamp', dateFrom);
   }
 

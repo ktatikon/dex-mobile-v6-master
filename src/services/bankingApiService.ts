@@ -131,9 +131,9 @@ export interface SwiftCorrespondentBank {
 export interface BankingApiConfig {
   indianBanking?: IndianBankingConfig;
   swift?: SwiftConfig;
-  achConfig?: any;
-  sepaConfig?: any;
-  fasterPaymentsConfig?: any;
+  achConfig?: unknown;
+  sepaConfig?: unknown;
+  fasterPaymentsConfig?: unknown;
 }
 
 // Bank verification request
@@ -371,8 +371,7 @@ class BankingApiService {
       const fees = await this.calculateTransferFees(request);
 
       // Calculate TDS if applicable
-      let tdsAmount = 0;
-      if (request.currency === 'INR') {
+      let tdsAmount = 0;if (request.currency === 'INR') {
         const tdsCalculation = await tdsComplianceService.calculateTDS(
           request.reference,
           request.amount,
@@ -707,7 +706,7 @@ class BankingApiService {
   /**
    * Make Indian banking API call
    */
-  private async makeIndianBankingApiCall(endpoint: string, data: any): Promise<any> {
+  private async makeIndianBankingApiCall(endpoint: string, data: unknown): Promise<any> {
     if (!this.config?.indianBanking) {
       throw new Error('Indian banking not configured');
     }
@@ -723,7 +722,7 @@ class BankingApiService {
   /**
    * Make SWIFT API call
    */
-  private async makeSwiftApiCall(endpoint: string, data: any): Promise<any> {
+  private async makeSwiftApiCall(endpoint: string, data: unknown): Promise<any> {
     if (!this.config?.swift) {
       throw new Error('SWIFT not configured');
     }

@@ -187,9 +187,7 @@ export const WebRealTimeQuoteDisplay: React.FC<WebRealTimeQuoteDisplayProps> = (
   // ==================== UTILITY FUNCTIONS ====================
 
   const calculateConfidence = (priceImpact: number, routeLength: number): number => {
-    let confidence = 1.0;
-    
-    // Reduce confidence based on price impact
+    const confidence = 1.0;// Reduce confidence based on price impact
     if (priceImpact > 5) confidence -= 0.3;
     else if (priceImpact > 2) confidence -= 0.2;
     else if (priceImpact > 1) confidence -= 0.1;

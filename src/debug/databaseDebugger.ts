@@ -8,9 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 export interface DatabaseDebugResult {
   testName: string;
   success: boolean;
-  data?: any;
-  error?: any;
-  details?: any;
+  data?: unknown;
+  error?: unknown;
+  details?: unknown;
 }
 
 /**

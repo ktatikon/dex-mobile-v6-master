@@ -221,7 +221,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
           onClose();
         }, 1500);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Failed to connect to ${walletId}:`, error);
       setError(error.message || `Failed to connect to ${walletId}`);
       await loadingOrchestrator.failLoading(`${componentId}_${walletId}`, error.message);
@@ -363,7 +363,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
           onClose();
         }, 1500);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Failed to connect to ${methodId}:`, error);
       setError(error.message || `Failed to connect to ${methodId}`);
       await loadingOrchestrator.failLoading(`${componentId}_fiat_${methodId}`, error.message);

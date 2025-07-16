@@ -22,13 +22,13 @@ export type WalletType = 'metamask' | 'walletconnect' | 'coinbase' | 'trust';
 class WalletService {
   private currentWallet: WalletType | null = null;
   private walletInfo: WalletInfo | null = null;
-  private eventListeners: Map<string, Function[]> = new Map();
-  private blockchainService: any = null;
+  private eventListeners: Map<string, ((data: unknown) => void)[]> = new Map();
+  private blockchainService: unknown = null;
 
   /**
    * Initialize wallet service with optional blockchain service injection
    */
-  async initialize(blockchainSvc?: any): Promise<void> {
+  async initialize(blockchainSvc?: unknown): Promise<void> {
     try {
       // Use dependency injection to avoid circular imports
       if (blockchainSvc) {
@@ -98,11 +98,11 @@ class WalletService {
 
     switch (walletType) {
       case 'metamask':
-        return !!(window as any).ethereum?.isMetaMask;
+        return !!(window as unknown as { ethereum?: { isMetaMask?: boolean } }).ethereum?.isMetaMask;
       case 'coinbase':
-        return !!(window as any).ethereum?.isCoinbaseWallet;
+        return !!(window as unknown as { ethereum?: { isCoinbaseWallet?: boolean } }).ethereum?.isCoinbaseWallet;
       case 'trust':
-        return !!(window as any).ethereum?.isTrust;
+        return !!(window as unknown as { ethereum?: { isTrust?: boolean } }).ethereum?.isTrust;
       case 'walletconnect':
         return true; // WalletConnect is always available via QR
       default:
@@ -262,9 +262,9 @@ class WalletService {
         .find(config => config?.chainId === chainIdDecimal);
 
       // Get balance
-      const provider = new ethers.ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
       const balance = await provider.getBalance(address);
-      const balanceFormatted = ethers.ethers.utils.formatEther(balance);
+      const balanceFormatted = ethers.utils.formatEther(balance);
 
       this.walletInfo = {
         address,
@@ -354,14 +354,14 @@ class WalletService {
   /**
    * Event emitter methods
    */
-  on(event: string, callback: Function): void {
+  on(event: string, callback: (data: unknown) => void): void {
     if (!this.eventListeners.has(event)) {
       this.eventListeners.set(event, []);
     }
     this.eventListeners.get(event)!.push(callback);
   }
 
-  off(event: string, callback: Function): void {
+  off(event: string, callback: (data: unknown) => void): void {
     const listeners = this.eventListeners.get(event);
     if (listeners) {
       const index = listeners.indexOf(callback);
@@ -371,7 +371,7 @@ class WalletService {
     }
   }
 
-  private emit(event: string, data: any): void {
+  private emit(event: string, data: unknown): void {
     const listeners = this.eventListeners.get(event);
     if (listeners) {
       listeners.forEach(callback => callback(data));

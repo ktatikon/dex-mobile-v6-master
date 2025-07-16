@@ -126,7 +126,7 @@ class PoolDataService {
     networks.forEach(chainId => {
       const networkConfig = getNetworkConfig(this.getNetworkName(chainId));
       if (networkConfig?.rpcUrl) {
-        const provider = new ethers.ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
+        const provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
         this.providers.set(chainId, provider);
       }
     });
@@ -155,7 +155,7 @@ class PoolDataService {
   ): Promise<T> {
     let lastError: Error;
     
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    for (let attempt = 0;attempt <= maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
@@ -435,7 +435,7 @@ class PoolDataService {
   /**
    * Convert PoolInfo to PoolData format
    */
-  private convertPoolInfoToPoolData(poolInfo: any, chainId: number): PoolData {
+  private convertPoolInfoToPoolData(poolInfo: unknown, chainId: number): PoolData {
     return {
       address: poolInfo.address,
       token0: poolInfo.token0,
@@ -556,9 +556,7 @@ class PoolDataService {
 
       if (result.success && result.data) {
         // Apply additional filters
-        let filteredPools = result.data;
-
-        if (options.feeTiers && options.feeTiers.length > 0) {
+        let filteredPools = result.data;if (options.feeTiers && options.feeTiers.length > 0) {
           filteredPools = filteredPools.filter(pool =>
             options.feeTiers!.includes(pool.fee)
           );

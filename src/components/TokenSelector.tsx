@@ -165,7 +165,7 @@ const EnhancedTokenSelector: React.FC<TokenSelectorProps> = ({
 
     // Zero balance filter
     if (filter.hideZeroBalances) {
-      const balance = parseFloat(token.balance || '0');
+      let balance = parseFloat(token.balance || '0');
       if (balance === 0) return false;
     }
 

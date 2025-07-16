@@ -199,9 +199,7 @@ class Phase6Validator {
   private async validateNetworkConfiguration(): Promise<void> {
     try {
       const networks = ['ethereum', 'bsc', 'polygon', 'arbitrum', 'goerli', 'mumbai'];
-      let validNetworks = 0;
-      
-      for (const network of networks) {
+      const validNetworks = 0;for (const network of networks) {
         const config = getNetworkConfig(network);
         if (config && config.chainId && config.contracts.weth) {
           validNetworks++;

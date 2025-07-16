@@ -151,7 +151,7 @@ export const WalletAddressSelector: React.FC<WalletAddressSelectorProps> = ({
       );
       
       if (provider) {
-        const address = await provider.connect();
+        let address = await provider.connect();
         await loadAvailableWallets(); // Refresh wallet list
         
         // Auto-select the newly connected wallet
@@ -356,7 +356,7 @@ function getWalletIcon(type: string): string {
   return icons[type] || '💼';
 }
 
-function getWalletTypeFromName(name: string): any {
+function getWalletTypeFromName(name: string): unknown {
   const typeMap: Record<string, string> = {
     'MetaMask': 'metamask',
     'WalletConnect': 'walletconnect',

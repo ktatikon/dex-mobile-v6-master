@@ -187,8 +187,7 @@ class CurrencyService {
     }
 
     // Special formatting for different currencies
-    let decimals = 2;
-    if (currencyCode === 'JPY') {
+    let decimals = 2;if (currencyCode === 'JPY') {
       decimals = 0; // Japanese Yen doesn't use decimals
     } else if (currencyCode === 'INR' && amount > 1000) {
       decimals = 0; // Large INR amounts without decimals

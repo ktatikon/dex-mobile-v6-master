@@ -23,7 +23,7 @@ interface SecureStorageItem {
 class MobileSecurityService {
   private isInitialized = false;
   private biometricAvailable = false;
-  private deviceInfo: any = null;
+  private deviceInfo: unknown = null;
   private secureStorage = new Map<string, SecureStorageItem>();
   private appStateListeners: Array<(state: 'active' | 'background' | 'inactive') => void> = [];
 

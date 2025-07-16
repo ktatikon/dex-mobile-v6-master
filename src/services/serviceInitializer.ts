@@ -194,7 +194,7 @@ class ServiceInitializer {
     try {
       // Try to get provider from window.ethereum (MetaMask, etc.)
       if (typeof window !== 'undefined' && window.ethereum) {
-        this.provider = new ethers.ethers.providers.Web3Provider(window.ethereum);
+        this.provider = new ethers.providers.Web3Provider(window.ethereum);
         
         // Try to get signer if wallet is connected
         try {
@@ -221,7 +221,7 @@ class ServiceInitializer {
 
       for (const rpcUrl of rpcUrls) {
         try {
-          this.provider = new ethers.ethers.providers.JsonRpcProvider(rpcUrl);
+          this.provider = new ethers.providers.JsonRpcProvider(rpcUrl);
           
           // Test the connection
           await this.provider.getNetwork();

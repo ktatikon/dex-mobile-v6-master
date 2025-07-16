@@ -151,10 +151,7 @@ export function useWalletData() {
 
   // Calculate 24-hour portfolio change
   const portfolioChange24h = useMemo(() => {
-    let currentValue = 0;
-    let previousValue = 0;
-
-    walletTokens.forEach(token => {
+    let currentValue = 0;let previousValue = 0;walletTokens.forEach(token => {
       const balance = parseFloat(token.balance || '0');
       const currentPrice = token.price || 0;
       const priceChange = token.priceChange24h || 0;

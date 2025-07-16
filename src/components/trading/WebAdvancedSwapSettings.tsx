@@ -331,7 +331,7 @@ export const WebAdvancedSwapSettings: React.FC<WebAdvancedSwapSettingsProps> = (
                   <Label className="text-dex-text-primary">Priority Fee Strategy</Label>
                   <Select
                     value={localSettings.priorityFeeStrategy}
-                    onValueChange={(value: any) => handleSettingChange('priorityFeeStrategy', value)}
+                    onValueChange={(value: unknown) => handleSettingChange('priorityFeeStrategy', value)}
                   >
                     <SelectTrigger className="bg-dex-secondary/10 border-dex-primary/30">
                       <SelectValue />

@@ -138,8 +138,7 @@ const calculateRealAnalytics = async (userId: string) => {
 
     // Calculate analytics from real data
     const totalTransactions = transactions.length;
-    let totalVolume = 0;
-    const categoryBreakdown: { [key: string]: number } = {};
+    let totalVolume = 0;const categoryBreakdown: { [key: string]: number } = {};
     const monthlyVolume: { [key: string]: number } = {};
     const tokenVolume: { [key: string]: { volume: number; count: number; symbol: string } } = {};
 
@@ -520,12 +519,12 @@ const WalletDashboardPage: React.FC = () => {
   };
 
   // Use the actual hot wallet service instead of fallback
-  const connectHotWallet = async (userId: string, walletOption: any) => {
+  const connectHotWallet = async (userId: string, walletOption: unknown) => {
     console.log(`🔗 Connecting hot wallet ${walletOption.name} for user ${userId}`);
     try {
       const result = await hotWalletServiceConnect(userId, walletOption);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Hot wallet connection error:', error);
       return { success: false, error: error.message, address: undefined };
     }
@@ -536,7 +535,7 @@ const WalletDashboardPage: React.FC = () => {
     try {
       const result = await hotWalletImportAddresses(userId, walletId, addresses);
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Address import error:', error);
       return { success: false, error: error.message };
     }
@@ -590,7 +589,7 @@ const WalletDashboardPage: React.FC = () => {
   };
 
   // Function to categorize transactions and cache results
-  const categorizeTransactions = async (transactions: any[]) => {
+  const categorizeTransactions = async (transactions: unknown[]) => {
     const categories: { [key: string]: string } = {};
 
     for (const tx of transactions) {
@@ -666,7 +665,7 @@ const WalletDashboardPage: React.FC = () => {
       setLoading(true);
 
       // Fetch user wallets using unified service first
-      let walletsData: any[];
+      let walletsData: unknown[];
       try {
         walletsData = await getAllUserWallets(user.id);
         console.log('✅ Using unified wallet service data');
@@ -705,7 +704,7 @@ const WalletDashboardPage: React.FC = () => {
         totalTransactions: analyticsData?.totalTransactions || 0,
         totalVolume: analyticsData?.totalVolume || 0,
         averageAmount: analyticsData?.averageAmount || 0,
-        topTokens: (analyticsData?.topTokens || []).map((token: any) => ({
+        topTokens: (analyticsData?.topTokens || []).map((token: unknown) => ({
           symbol: token.symbol || token.tokenId || 'Unknown',
           volume: token.volume || 0,
           transactions: token.transactions || token.count || 0
@@ -715,7 +714,7 @@ const WalletDashboardPage: React.FC = () => {
       setAnalytics(safeAnalytics);
 
       // Safe transaction mapping
-      const safeTransactions = (transactionsData?.transactions || []).map((tx: any) => ({
+      const safeTransactions = (transactionsData?.transactions || []).map((tx: unknown) => ({
         ...tx,
         tokens: Array.isArray(tx.tokens) ? tx.tokens[0] : tx.tokens,
         amount: tx.from_amount || tx.amount || '0',
@@ -734,7 +733,7 @@ const WalletDashboardPage: React.FC = () => {
 
       // Update wallet portfolio values with real balance data
       const walletsWithValues = await Promise.all(
-        walletsData.map(async (wallet: any) => {
+        walletsData.map(async (wallet: unknown) => {
           try {
             // Get real wallet balances from database
             const { data: balances, error } = await supabase
@@ -748,8 +747,7 @@ const WalletDashboardPage: React.FC = () => {
               `)
               .eq('wallet_id', wallet.id);
 
-            let portfolioValue = 0;
-            if (!error && balances) {
+            let portfolioValue = 0;if (!error && balances) {
               portfolioValue = balances.reduce((total, balance) => {
                 const amount = parseFloat(balance.balance || '0');
                 // Handle tokens array or object
@@ -827,7 +825,7 @@ const WalletDashboardPage: React.FC = () => {
   };
 
   const getWalletsByCategory = () => {
-    const categorized: { [key: string]: any[] } = {};
+    const categorized: { [key: string]: unknown[] } = {};
     const filteredWallets = getFilteredWallets();
 
     filteredWallets.forEach(wallet => {
@@ -869,7 +867,7 @@ const WalletDashboardPage: React.FC = () => {
   };
 
   // Handle direct wallet connection (no dialog)
-  const handleDirectWalletConnection = async (walletOption: any) => {
+  const handleDirectWalletConnection = async (walletOption: unknown) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -920,7 +918,7 @@ const WalletDashboardPage: React.FC = () => {
   };
 
   // Hot wallet connection handler (legacy for dialog)
-  const handleConnectHotWallet = async (walletOption: any) => {
+  const handleConnectHotWallet = async (walletOption: unknown) => {
     if (!user) return;
 
     try {
@@ -956,7 +954,7 @@ const WalletDashboardPage: React.FC = () => {
   // Handle direct hardware wallet connection with connection method selection
   // Commented out to reduce warnings - will be used in future Phase 4.5 implementation
   /*
-  const handleDirectHardwareWalletConnection = async (walletOption: any) => {
+  const handleDirectHardwareWalletConnection = async (walletOption: unknown) => {
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -1009,7 +1007,7 @@ const WalletDashboardPage: React.FC = () => {
   */
 
   // Hardware wallet connection handler (legacy for dialog)
-  const handleConnectHardwareWallet = async (walletOption: any, connectionMethod: 'usb' | 'bluetooth' | 'qr') => {
+  const handleConnectHardwareWallet = async (walletOption: unknown, connectionMethod: 'usb' | 'bluetooth' | 'qr') => {
     if (!user) return;
 
     try {
@@ -1047,9 +1045,7 @@ const WalletDashboardPage: React.FC = () => {
     if (!user) return;
 
     try {
-      let csvContent = '';
-
-      // Try Phase 3 enhanced export
+      let csvContent = '';// Try Phase 3 enhanced export
       try {
         if (PHASE2_CONFIG?.enableRealTransactions) {
           const { exportTransactionsToCSV } = await import('@/services/enhancedTransactionService');
@@ -1063,7 +1059,7 @@ const WalletDashboardPage: React.FC = () => {
         // Phase 1 fallback - create basic CSV
         const transactions = await safeGetFilteredTransactions(user.id);
         const headers = ['Date', 'Type', 'Amount', 'Token', 'Status', 'Category'];
-        const rows = transactions.transactions.map((tx: any) => [
+        const rows = transactions.transactions.map((tx: unknown) => [
           new Date(tx.timestamp).toISOString().split('T')[0],
           tx.transaction_type || tx.type || 'Unknown',
           (tx.from_amount || tx.amount || '0').toString(),
@@ -1513,7 +1509,7 @@ const WalletDashboardPage: React.FC = () => {
                   <div className="space-y-4">
                     {/* Group by provider */}
                     {Object.entries(
-                      connectedHotWallets.reduce((groups: Record<string, any[]>, wallet: any) => {
+                      connectedHotWallets.reduce((groups: Record<string, any[]>, wallet: unknown) => {
                         const provider = wallet.wallet_id || 'unknown';
                         if (!groups[provider]) groups[provider] = [];
                         groups[provider].push(wallet);
@@ -1593,7 +1589,7 @@ const WalletDashboardPage: React.FC = () => {
                   <div className="space-y-4">
                     {/* Group by manufacturer */}
                     {Object.entries(
-                      connectedHardwareWallets.reduce((groups: Record<string, any[]>, wallet: any) => {
+                      connectedHardwareWallets.reduce((groups: Record<string, any[]>, wallet: unknown) => {
                         const manufacturer = wallet.wallet_id || 'unknown';
                         if (!groups[manufacturer]) groups[manufacturer] = [];
                         groups[manufacturer].push(wallet);
@@ -1967,7 +1963,7 @@ const WalletDashboardPage: React.FC = () => {
                   <div>
                     <h4 className="text-md font-medium text-white mb-3">Top Tokens</h4>
                     <div className="space-y-2">
-                      {analytics.topTokens.slice(0, 5).map((token: any, index: number) => (
+                      {analytics.topTokens.slice(0, 5).map((token: unknown, index: number) => (
                         <div key={token.tokenId || index} className="flex items-center justify-between p-2 bg-dex-secondary/10 rounded">
                           <span className="text-white">{token.symbol || 'Unknown'}</span>
                           <span className="text-gray-400">

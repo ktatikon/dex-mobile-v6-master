@@ -372,8 +372,7 @@ export const ChartModal = memo<ChartModalProps>(({
       const isLandscapeMode = window.innerWidth > window.innerHeight;
 
       // Use modern screen.orientation API if available, fallback to deprecated window.orientation
-      let orientationAngle = 0;
-      if ('orientation' in screen && screen.orientation) {
+      let orientationAngle = 0;if ('orientation' in screen && screen.orientation) {
         orientationAngle = screen.orientation.angle || 0;
       } else if ('orientation' in window) {
         orientationAngle = (window as any).orientation || 0;

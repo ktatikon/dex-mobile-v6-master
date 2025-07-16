@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface SimplifiedTestResult {
   testName: string;
   success: boolean;
-  error?: any;
+  error?: unknown;
   details: {
     message: string;
     recommendation?: string;
@@ -251,9 +251,7 @@ export async function runSimplifiedDiagnostic(): Promise<{
   const failed = results.length - passed;
 
   const criticalIssues: string[] = [];
-  let manualMigrationRequired = false;
-
-  results.forEach(result => {
+  const manualMigrationRequired = false;results.forEach(result => {
     if (!result.success) {
       criticalIssues.push(`${result.testName}: ${result.details.message}`);
       
@@ -305,9 +303,7 @@ export function generateMigrationInstructions(results: SimplifiedTestResult[]): 
 # 🚨 MANUAL DATABASE MIGRATION REQUIRED
 
 ## Issues Identified:
-`;
-
-  if (hasPhoneConstraintIssue) {
+`;if (hasPhoneConstraintIssue) {
     instructions += `- ❌ Phone constraint does not allow empty phone numbers\n`;
   }
   

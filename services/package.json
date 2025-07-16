@@ -1,0 +1,78 @@
+{
+  "name": "dex-kyc-aml-services",
+  "version": "1.0.0",
+  "description": "Microservices for KYC/AML compliance in DEX application",
+  "private": true,
+  "workspaces": [
+    "kyc-service",
+    "aml-service",
+    "shared"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm run install:kyc && npm run install:aml",
+    "install:kyc": "cd kyc-service && npm install",
+    "install:aml": "cd aml-service && npm install",
+    "start": "concurrently \"npm run start:kyc\" \"npm run start:aml\"",
+    "start:kyc": "cd kyc-service && npm start",
+    "start:aml": "cd aml-service && npm start",
+    "dev": "concurrently \"npm run dev:kyc\" \"npm run dev:aml\"",
+    "dev:kyc": "cd kyc-service && npm run dev",
+    "dev:aml": "cd aml-service && npm run dev",
+    "test": "npm run test:kyc && npm run test:aml",
+    "test:kyc": "cd kyc-service && npm test",
+    "test:aml": "cd aml-service && npm test",
+    "lint": "npm run lint:kyc && npm run lint:aml",
+    "lint:kyc": "cd kyc-service && npm run lint",
+    "lint:aml": "cd aml-service && npm run lint",
+    "lint:fix": "npm run lint:fix:kyc && npm run lint:fix:aml",
+    "lint:fix:kyc": "cd kyc-service && npm run lint:fix",
+    "lint:fix:aml": "cd aml-service && npm run lint:fix",
+    "build": "npm run build:kyc && npm run build:aml",
+    "build:kyc": "cd kyc-service && npm run build",
+    "build:aml": "cd aml-service && npm run build",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "setup": "npm run install:all && npm run setup:env && npm run setup:redis",
+    "setup:env": "cp .env.example .env && echo 'Please configure your .env file'",
+    "setup:redis": "docker run -d --name redis-kyc-aml -p 6379:6379 redis:alpine",
+    "health": "curl http://localhost:4001/health && curl http://localhost:4002/health",
+    "logs": "mkdir -p logs && touch logs/combined.log logs/error.log",
+    "clean": "rm -rf */node_modules && rm -rf node_modules && rm -rf logs/*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  },
+  "dependencies": {
+    "bull": "^4.16.5",
+    "ioredis": "^5.3.2",
+    "winston": "^3.11.0"
+  },
+  "keywords": [
+    "kyc",
+    "aml",
+    "compliance",
+    "microservices",
+    "india",
+    "aadhaar",
+    "pan",
+    "sanctions",
+    "pep"
+  ],
+  "author": "DEX Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ktatikon/dex-mobile-v6-master.git"
+  }
+}

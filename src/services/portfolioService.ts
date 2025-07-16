@@ -175,10 +175,7 @@ export async function getPortfolioChange24h(userId: string): Promise<number> {
       return 0;
     }
 
-    let currentValue = 0;
-    let previousValue = 0;
-
-    for (const token of holdings) {
+    let currentValue = 0;let previousValue = 0;for (const token of holdings) {
       const balance = parseFloat(token.balance || '0');
       const currentPrice = token.price || 0;
       const priceChange = token.priceChange24h || 0;
@@ -221,7 +218,7 @@ export const getPortfolioSummary = async (userId: string): Promise<PortfolioSumm
       ...(hardwareWallets.data || []).map(w => w.id)
     ];
 
-    const walletCount = allWalletIds.length;
+    let walletCount = allWalletIds.length;
 
     if (walletCount === 0) {
       return {
@@ -254,11 +251,7 @@ export const getPortfolioSummary = async (userId: string): Promise<PortfolioSumm
       console.error('Error fetching transactions:', transactionsError);
     }
 
-    let totalTransactions = 0;
-    let totalVolume = 0;
-    let averageAmount = 0;
-
-    if (transactions && transactions.length > 0) {
+    let totalTransactions = 0;let totalVolume = 0;let averageAmount = 0;if (transactions && transactions.length > 0) {
       totalTransactions = transactions.length;
 
       // Calculate total volume in USD

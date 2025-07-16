@@ -152,7 +152,7 @@ class PoolDataIntegrationValidator {
       }
 
       // Test FeeAmount enum
-      const mediumFee = FeeAmount.MEDIUM;
+      let mediumFee = FeeAmount.MEDIUM;
       if (mediumFee === 3000) {
         this.addResult('FeeAmount Enum', 'PASS', 
           'FeeAmount enum correctly imported and accessible');
@@ -240,9 +240,7 @@ class PoolDataIntegrationValidator {
     try {
       // Test subgraph service methods exist
       const methods = ['getPool', 'getPools', 'getPoolByTokens', 'getTopPools', 'searchPools'];
-      let allMethodsExist = true;
-
-      for (const method of methods) {
+      let allMethodsExist = true;for (const method of methods) {
         if (typeof (this.subgraphService as any)[method] !== 'function') {
           allMethodsExist = false;
           break;
@@ -280,9 +278,7 @@ class PoolDataIntegrationValidator {
     try {
       // Test pool data service methods
       const methods = ['getPool', 'getPoolByTokens', 'getPools', 'getTopPools', 'searchPools'];
-      let allMethodsExist = true;
-
-      for (const method of methods) {
+      let allMethodsExist = true;for (const method of methods) {
         if (typeof (this.poolDataService as any)[method] !== 'function') {
           allMethodsExist = false;
           break;

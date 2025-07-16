@@ -182,7 +182,7 @@ export const BRIDGE_PROTOCOLS = {
  * Handles actual blockchain connections and protocol interactions
  */
 class RealBlockchainService {
-  private providers: Map<string, ethers.ethers.providers.JsonRpcProvider> = new Map();
+  private providers: Map<string, ethers.providers.JsonRpcProvider> = new Map();
   private uniswapV3Contracts: Map<string, {
     router: ethers.Contract;
     factory: ethers.Contract;
@@ -228,7 +228,7 @@ class RealBlockchainService {
         try {
           await loadingOrchestrator.updateLoading('real_blockchain_init', `Connecting to ${config.name}`);
 
-          const provider = new ethers.ethers.providers.JsonRpcProvider(config.rpcUrl);
+          const provider = new ethers.providers.JsonRpcProvider(config.rpcUrl);
 
           // Test connection
           await provider.getNetwork();
@@ -259,7 +259,7 @@ class RealBlockchainService {
   /**
    * Initialize Uniswap V3 contracts for a network
    */
-  private async initializeUniswapV3Contracts(networkId: string, provider: ethers.ethers.providers.JsonRpcProvider): Promise<void> {
+  private async initializeUniswapV3Contracts(networkId: string, provider: ethers.providers.JsonRpcProvider): Promise<void> {
     try {
       const routerAddress = getUniswapV3RouterAddress(networkId);
       const factoryAddress = getUniswapV3FactoryAddress(networkId);
@@ -284,7 +284,7 @@ class RealBlockchainService {
   /**
    * Get provider for specific network
    */
-  getProvider(networkId: string): ethers.ethers.providers.JsonRpcProvider | null {
+  getProvider(networkId: string): ethers.providers.JsonRpcProvider | null {
     return this.providers.get(networkId) || null;
   }
 
@@ -305,7 +305,7 @@ class RealBlockchainService {
       
       if (!gasPrice.gasPrice) return null;
 
-      const gasPriceGwei = ethers.ethers.utils.formatUnits(gasPrice.gasPrice, 'gwei');
+      const gasPriceGwei = ethers.utils.formatUnits(gasPrice.gasPrice, 'gwei');
       const basePrice = parseFloat(gasPriceGwei);
 
       // Calculate different speed tiers
@@ -406,9 +406,9 @@ class RealBlockchainService {
       await loadingOrchestrator.updateLoading('uniswap_v3_pool_data', 'Getting pool address');
 
       // Get pool address
-      const poolAddress = await contracts.factory.getPool(tokenA, tokenB, fee);
+      let poolAddress = await contracts.factory.getPool(tokenA, tokenB, fee);
 
-      if (poolAddress === ethers.ethers.constants.AddressZero) {
+      if (poolAddress === ethers.constants.AddressZero) {
         await loadingOrchestrator.completeLoading('uniswap_v3_pool_data', 'Pool not found');
         return null;
       }
@@ -468,7 +468,7 @@ class RealBlockchainService {
       const quoteParams = {
         tokenIn,
         tokenOut,
-        amountIn: ethers.ethers.utils.parseUnits(amountIn, 18), // Assuming 18 decimals for simplicity
+        amountIn: ethers.utils.parseUnits(amountIn, 18), // Assuming 18 decimals for simplicity
         fee,
         sqrtPriceLimitX96: 0
       };
@@ -479,10 +479,10 @@ class RealBlockchainService {
       const poolData = await this.getUniswapV3PoolData(networkId, tokenIn, tokenOut, fee);
 
       // Calculate price impact (simplified)
-      const priceImpact = this.calculatePriceImpact(amountIn, ethers.ethers.utils.formatUnits(quoteResult.amountOut, 18));
+      const priceImpact = this.calculatePriceImpact(amountIn, ethers.utils.formatUnits(quoteResult.amountOut, 18));
 
       return {
-        amountOut: ethers.ethers.utils.formatUnits(quoteResult.amountOut, 18),
+        amountOut: ethers.utils.formatUnits(quoteResult.amountOut, 18),
         priceImpact,
         gasEstimate: quoteResult.gasEstimate.toString(),
         route: [tokenIn, tokenOut],
@@ -562,7 +562,7 @@ class RealBlockchainService {
    */
   private calculatePriceImpact(amountIn: string, amountOut: string): number {
     try {
-      const inputValue = parseFloat(amountIn);
+      let inputValue = parseFloat(amountIn);
       const outputValue = parseFloat(amountOut);
 
       if (inputValue === 0) return 0;

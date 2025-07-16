@@ -23,7 +23,7 @@ const personalInfoSchema = z.object({
   dateOfBirth: z.string().refine(date => {
     const birthDate = new Date(date);
     const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear();
+    let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
     return (age > 18 || (age === 18 && m >= 0));
   }, 'You must be at least 18 years old'),

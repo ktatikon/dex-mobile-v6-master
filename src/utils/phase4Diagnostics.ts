@@ -344,14 +344,14 @@ class Phase4DiagnosticsManager {
    * Generate system recommendations based on health status
    */
   private generateRecommendations(
-    features: any, 
-    performance: any, 
-    config: any
+    features: unknown, 
+    performance: unknown, 
+    config: unknown
   ): string[] {
     const recommendations: string[] = [];
 
     // Check for unhealthy features
-    Object.values(features).forEach((feature: any) => {
+    Object.values(features).forEach((feature: unknown) => {
       if (!feature.isHealthy && feature.isEnabled) {
         recommendations.push(`${feature.featureName} is enabled but unhealthy - investigate service status`);
       }
@@ -466,13 +466,13 @@ class Phase4DiagnosticsManager {
   private calculateSuccessRate(service: string): number {
     const metrics = this.performanceMetrics.get(service) || [];
     const errors = this.errorCounts.get(service) || 0;
-    const total = metrics.length + errors;
+    let total = metrics.length + errors;
     
     if (total === 0) return 100;
     return ((total - errors) / total) * 100;
   }
 
-  private calculatePerformanceMetrics(): any {
+  private calculatePerformanceMetrics(): unknown {
     const allMetrics = Array.from(this.performanceMetrics.values()).flat();
     const totalErrors = Array.from(this.errorCounts.values()).reduce((sum, count) => sum + count, 0);
     const totalRequests = allMetrics.length + totalErrors;

@@ -78,8 +78,7 @@ const KYCForm = () => {
     setLoading(true);
     try {
       // Upload ID document
-      let governmentIdUrl = '';
-      if (formData.governmentId) {
+      const governmentIdUrl = '';if (formData.governmentId) {
         const fileName = `${user.id}/${Date.now()}_${formData.governmentId.name}`;
         const { error: uploadError, data } = await supabase.storage
           .from('kyc')

@@ -136,7 +136,7 @@ class RealMarketDataService {
 
       if (response.data && Array.isArray(response.data)) {
         // Update cache with new data
-        response.data.forEach((token: any) => {
+        response.data.forEach((token: unknown) => {
           const tokenPrice: TokenPrice = {
             id: token.id,
             symbol: token.symbol.toUpperCase(),

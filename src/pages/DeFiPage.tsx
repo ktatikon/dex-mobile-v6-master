@@ -86,7 +86,7 @@ const DeFiPage: React.FC<DeFiPageProps> = React.memo(({ className = '' }) => {
   }, [fetchDashboardData]);
 
   // Handle DeFi position creation
-  const handlePositionCreate = useCallback((position: any) => {
+  const handlePositionCreate = useCallback((position: unknown) => {
     console.log('DeFi position created:', position);
     // Refresh dashboard data
     fetchDashboardData();
@@ -99,7 +99,7 @@ const DeFiPage: React.FC<DeFiPageProps> = React.memo(({ className = '' }) => {
   }, [fetchDashboardData, toast]);
 
   // Handle staking opportunity selection
-  const handleStakeSelect = useCallback((opportunity: any) => {
+  const handleStakeSelect = useCallback((opportunity: unknown) => {
     console.log('Staking opportunity selected:', opportunity);
     toast({
       title: "Staking Opportunity Selected",

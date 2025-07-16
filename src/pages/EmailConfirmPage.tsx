@@ -74,7 +74,7 @@ const EmailConfirmPage = () => {
           setErrorMessage('Email confirmation succeeded but user data is missing. Please try logging in.');
         }
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('🚨 Email confirmation error:', error);
         setStatus('error');
         setErrorMessage(error.message || 'An unexpected error occurred during email confirmation.');

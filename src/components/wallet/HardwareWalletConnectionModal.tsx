@@ -124,7 +124,7 @@ const HardwareWalletConnectionModal: React.FC<HardwareWalletConnectionModalProps
   };
 
   // Handle Bluetooth connection
-  const handleBluetoothConnect = async (device: any) => {
+  const handleBluetoothConnect = async (device: unknown) => {
     try {
       setSelectedDevice(device);
       setConnectionStatus('connecting');

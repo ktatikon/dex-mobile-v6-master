@@ -7,7 +7,7 @@ export const profileSchema = z.object({
   phone: z.string()
     .optional()
     .refine(
-      (val) => !val || val === '' || /^[+]?[0-9\s\-\(\)]{5,20}$/.test(val),
+      (val) => !val || val === '' || /^[+]?[0-9\s\-()]{5,20}$/.test(val),
       {
         message: 'Phone number must be 5-20 characters and contain only digits, spaces, hyphens, parentheses, and optional leading plus sign',
       }

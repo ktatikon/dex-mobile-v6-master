@@ -322,9 +322,7 @@ class FiatTransactionHistoryService {
       const userTxnIds = this.userTransactions.get(userId) || new Set();
       let userTransactions = Array.from(userTxnIds)
         .map(id => this.transactions.get(id))
-        .filter(txn => txn !== undefined) as FiatTransactionRecord[];
-
-      // Apply filters
+        .filter(txn => txn !== undefined) as FiatTransactionRecord[];// Apply filters
       if (filter) {
         userTransactions = this.applyFilters(userTransactions, filter);
       }
@@ -428,12 +426,12 @@ class FiatTransactionHistoryService {
 
       // Calculate reconciliation metrics
       const totalTransactions = filteredTransactions.length;
-      const matchedTransactions = filteredTransactions.filter(txn => txn.reconciliationStatus === 'matched').length;
+      let matchedTransactions = filteredTransactions.filter(txn => txn.reconciliationStatus === 'matched').length;
       const unmatchedTransactions = filteredTransactions.filter(txn => txn.reconciliationStatus === 'unmatched').length;
       const disputedTransactions = filteredTransactions.filter(txn => txn.reconciliationStatus === 'disputed').length;
 
       const totalAmount = filteredTransactions.reduce((sum, txn) => sum + txn.amount, 0);
-      const matchedAmount = filteredTransactions
+      let matchedAmount = filteredTransactions
         .filter(txn => txn.reconciliationStatus === 'matched')
         .reduce((sum, txn) => sum + txn.amount, 0);
       const unmatchedAmount = filteredTransactions
@@ -545,7 +543,7 @@ class FiatTransactionHistoryService {
   /**
    * Handle real-time update
    */
-  private handleRealTimeUpdate(data: any): void {
+  private handleRealTimeUpdate(data: unknown): void {
     try {
       if (data.type === 'transaction_update') {
         const transaction = data.transaction as FiatTransactionRecord;
@@ -624,7 +622,7 @@ class FiatTransactionHistoryService {
    */
   private async generateExportData(transactions: FiatTransactionRecord[], request: ExportRequest): Promise<any> {
     const data = transactions.map(txn => {
-      const row: any = {
+      const row: unknown = {
         id: txn.id,
         type: txn.type,
         status: txn.status,

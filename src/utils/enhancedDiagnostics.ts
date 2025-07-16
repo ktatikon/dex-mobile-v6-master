@@ -165,11 +165,7 @@ class EnhancedDiagnosticTool {
    */
   private async testConnectivity() {
     const startTime = Date.now();
-    let networkConnectivity = false;
-    let coinGeckoAPI = false;
-    let etherscanAPI = false;
-
-    try {
+    const networkConnectivity = false;const coinGeckoAPI = false;const etherscanAPI = false;try {
       // Basic network test
       const networkResponse = await fetch('https://httpbin.org/get', {
         method: 'GET',
@@ -223,8 +219,7 @@ class EnhancedDiagnosticTool {
     const memoryUsage = Math.round(Math.random() * 50 + 30); // 30-80 MB
 
     // Calculate performance score based on various factors
-    let performanceScore = 100;
-    if (this.errors.length > 0) performanceScore -= this.errors.length * 20;
+    let performanceScore = 100;if (this.errors.length > 0) performanceScore -= this.errors.length * 20;
     if (this.warnings.length > 0) performanceScore -= this.warnings.length * 5;
     performanceScore = Math.max(0, performanceScore);
 
@@ -241,10 +236,7 @@ class EnhancedDiagnosticTool {
    * Run Phase 1 specific tests
    */
   private async runPhase1Tests() {
-    let mockDataIntegrity = false;
-    let tokenDataAvailable = false;
-    let transactionDataAvailable = false;
-    const uiComponentsRendering = true; // Assume true if we got this far
+    const mockDataIntegrity = false;const tokenDataAvailable = false;const transactionDataAvailable = false;const uiComponentsRendering = true; // Assume true if we got this far
 
     try {
       // Test fallback data imports
@@ -327,7 +319,7 @@ class EnhancedDiagnosticTool {
 
     // Test Transaction Service (Phase 3 Step 3)
     try {
-      const transactionService = await import('@/services/realTransactionService.ts');
+      let transactionService = await import('@/services/realTransactionService.ts');
       if (transactionService.realTransactionService) {
         transactionServiceStatus = 'available';
         // Get enhanced status information
@@ -546,8 +538,8 @@ export interface DiagnosticReport {
     lastCacheUpdate: Date | null;
   };
   performanceMetrics: {
-    dataManagerStatus: any;
-    orderBookCacheStats: any;
+    dataManagerStatus: unknown;
+    orderBookCacheStats: unknown;
     memoryUsage: number;
   };
   dataAccuracy: {

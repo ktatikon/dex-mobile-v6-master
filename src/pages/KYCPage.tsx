@@ -92,7 +92,7 @@ const KYCPage: React.FC = () => {
           <CardTitle className="text-lg text-white">Why KYC is Important</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2 text-sm text-gray-400">
+          <ul className="space-y-2 text-sm text-gray-400 mb-6">
             <li className="flex items-start">
               <span className="text-dex-secondary mr-2">•</span>
               <span>Helps prevent fraud and identity theft</span>
@@ -110,6 +110,36 @@ const KYCPage: React.FC = () => {
               <span>Unlocks higher transaction limits and additional features</span>
             </li>
           </ul>
+
+          {/* New Aadhaar eKYC Option */}
+          <div className="border-t border-dex-secondary/20 pt-6">
+            <h4 className="text-lg font-semibold text-white mb-3">Quick Verification Options</h4>
+            <div className="space-y-3">
+              <Button
+                onClick={() => navigate('/kyc/aadhaar')}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200"
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 2L3 7v11h4v-6h6v6h4V7l-7-5z"/>
+                    </svg>
+                    <div className="text-left">
+                      <div className="font-semibold">Aadhaar eKYC</div>
+                      <div className="text-xs opacity-90">Instant verification with Aadhaar</div>
+                    </div>
+                  </div>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Button>
+
+              <div className="text-xs text-gray-400 text-center">
+                Complete KYC in under 5 minutes using OTP, Biometric, or QR scan
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

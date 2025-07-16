@@ -223,9 +223,7 @@ Generated: ${timestamp}
 - Success Rate: ${result.summary.successRate.toFixed(1)}%
 
 ## DETAILED TEST RESULTS
-`;
-
-  result.testResults.forEach((test, index) => {
+`;result.testResults.forEach((test, index) => {
     report += `
 ### Test ${index + 1}: "${test.phone}"
 - Expected: ${test.expected ? 'VALID' : 'INVALID'}

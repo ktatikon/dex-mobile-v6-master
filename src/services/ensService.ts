@@ -32,7 +32,7 @@ class ENSService {
         this.provider = new ethers.AlchemyProvider('mainnet', alchemyKey);
       } else {
         // Fallback to public provider (rate limited)
-        this.provider = new ethers.ethers.providers.JsonRpcProvider('https://eth.llamarpc.com');
+        this.provider = new ethers.providers.JsonRpcProvider('https://eth.llamarpc.com');
       }
       
       console.log('✅ ENS provider initialized');
@@ -133,7 +133,7 @@ class ENSService {
   async resolveAddressToENS(address: string): Promise<ENSResolution> {
     try {
       // Validate address format
-      if (!ethers.ethers.utils.isAddress(address)) {
+      if (!ethers.utils.ethers.utils.isAddress(address)) {
         return {
           address,
           name: null,

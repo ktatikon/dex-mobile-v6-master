@@ -29,13 +29,13 @@ export interface DataSource {
   id: string;
   type: 'chart' | 'market' | 'wallet' | 'transaction';
   endpoint: string;
-  validator: (data: any) => DataValidationResult;
+  validator: (data: unknown) => DataValidationResult;
   fallbackStrategy: 'cache' | 'mock' | 'alternative' | 'none';
   priority: number; // 1-10, higher = more important
 }
 
 export interface RealTimeDataState {
-  data: any;
+  data: unknown;
   isLoading: boolean;
   error: Error | null;
   lastUpdated: number;
@@ -51,7 +51,7 @@ export interface RealTimeDataState {
 class RealTimeDataManager {
   private dataStreams = new Map<string, BehaviorSubject<RealTimeDataState>>();
   private cacheStrategies = new Map<string, CacheStrategy>();
-  private dataValidators = new Map<string, (data: any) => DataValidationResult>();
+  private dataValidators = new Map<string, (data: unknown) => DataValidationResult>();
   private refreshIntervals = new Map<string, NodeJS.Timeout>();
   private healthMetrics = new BehaviorSubject({
     totalRequests: 0,
@@ -73,7 +73,7 @@ class RealTimeDataManager {
   public registerDataSource(
     sourceId: string,
     cacheStrategy: CacheStrategy,
-    validator: (data: any) => DataValidationResult
+    validator: (data: unknown) => DataValidationResult
   ): void {
     // Initialize data stream
     this.dataStreams.set(sourceId, new BehaviorSubject<RealTimeDataState>({
@@ -325,7 +325,7 @@ class RealTimeDataManager {
   ): Promise<any> {
     let lastError: Error;
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    for (let attempt = 0;attempt <= maxRetries; attempt++) {
       try {
         return await fetchFunction();
       } catch (error) {
@@ -345,7 +345,7 @@ class RealTimeDataManager {
   /**
    * Cache management
    */
-  private getCachedData(key: string): any | null {
+  private getCachedData(key: string): unknown | null {
     try {
       const cached = localStorage.getItem(`rtdm_${key}`);
       return cached ? JSON.parse(cached) : null;
@@ -354,7 +354,7 @@ class RealTimeDataManager {
     }
   }
 
-  private setCachedData(key: string, data: any, compress: boolean): void {
+  private setCachedData(key: string, data: unknown, compress: boolean): void {
     try {
       const serialized = JSON.stringify({
         data,
@@ -454,7 +454,7 @@ class RealTimeDataManager {
     };
   };
 
-  private validateMarketData = (data: any): DataValidationResult => {
+  private validateMarketData = (data: unknown): DataValidationResult => {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -481,7 +481,7 @@ class RealTimeDataManager {
     };
   };
 
-  private validateWalletData = (data: any): DataValidationResult => {
+  private validateWalletData = (data: unknown): DataValidationResult => {
     const errors: string[] = [];
     const warnings: string[] = [];
 

@@ -76,10 +76,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ tokens, chartData }) => {
   const { walletBalance, portfolioChange24h } = useMemo(() => {
     if (!tokens || tokens.length === 0) return { walletBalance: 0, portfolioChange24h: 0 };
 
-    let currentValue = 0;
-    let previousValue = 0;
-
-    tokens.forEach(token => {
+    let currentValue = 0;let previousValue = 0;tokens.forEach(token => {
       const balance = parseFloat(token.balance || '0');
       const currentPrice = token.price || 0;
       const priceChange24h = token.priceChange24h || 0;
@@ -133,7 +130,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ tokens, chartData }) => {
     const endValue = walletBalance;
     const startValue = endValue / (1 + portfolioChange24h / 100);
 
-    for (let i = 0; i < dataPoints; i++) {
+    for (let i = 0;i < dataPoints; i++) {
       const progress = i / (dataPoints - 1);
       // Add some realistic volatility
       const volatility = (Math.random() - 0.5) * 0.02; // ±1% random variation

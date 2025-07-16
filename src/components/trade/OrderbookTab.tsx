@@ -13,8 +13,8 @@ import { formatCurrency } from '@/services/realTimeData';
 
 interface OrderbookTabProps {
   selectedToken: Token | null;
-  orderBook: any;
-  recentTrades: any[];
+  orderBook: unknown;
+  recentTrades: unknown[];
   showRecentTrades: boolean;
   onToggleView: () => void;
 }
@@ -85,7 +85,7 @@ export const OrderbookTab: React.FC<OrderbookTabProps> = memo(({
                 <div className="text-right">Total</div>
               </div>
               <div className="overflow-y-auto h-[360px]">
-                {orderBook.asks.map((ask: any, index: number) => (
+                {orderBook.asks.map((ask: unknown, index: number) => (
                   <div key={`ask-${index}`} className="grid grid-cols-3 p-2 text-sm border-b border-gray-800 hover:bg-dex-dark/50">
                     <div className="text-red-500">${formatCurrency(ask.price)}</div>
                     <div className="text-right text-white">{ask.amount.toFixed(4)}</div>
@@ -113,7 +113,7 @@ export const OrderbookTab: React.FC<OrderbookTabProps> = memo(({
                 <div className="text-right">Total</div>
               </div>
               <div className="overflow-y-auto h-[360px]">
-                {orderBook.bids.map((bid: any, index: number) => (
+                {orderBook.bids.map((bid: unknown, index: number) => (
                   <div key={`bid-${index}`} className="grid grid-cols-3 p-2 text-sm border-b border-gray-800 hover:bg-dex-dark/50">
                     <div className="text-green-500">${formatCurrency(bid.price)}</div>
                     <div className="text-right text-white">{bid.amount.toFixed(4)}</div>
@@ -125,7 +125,7 @@ export const OrderbookTab: React.FC<OrderbookTabProps> = memo(({
           </div>
         ) : (
           <div className="overflow-y-auto h-[400px]">
-            {recentTrades.map((trade: any, index: number) => (
+            {recentTrades.map((trade: unknown, index: number) => (
               <div key={`trade-${index}`} className="flex justify-between items-center p-2 border-b border-gray-800 hover:bg-dex-dark/50">
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${trade.type === 'buy' ? 'bg-green-500' : 'bg-red-500'}`} />

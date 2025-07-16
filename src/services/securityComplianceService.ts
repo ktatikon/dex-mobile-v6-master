@@ -193,9 +193,7 @@ export class SecurityComplianceService {
       await loadingOrchestrator.startLoading('aml_check', 'Performing AML compliance check');
 
       const flags: AMLFlag[] = [];
-      let riskScore = 0;
-
-      await loadingOrchestrator.updateLoading('aml_check', 'Checking sanctions lists');
+      const riskScore = 0;await loadingOrchestrator.updateLoading('aml_check', 'Checking sanctions lists');
 
       // Check sanctions lists (mock)
       if (Math.random() < 0.05) { // 5% chance of sanctions flag
@@ -276,9 +274,7 @@ export class SecurityComplianceService {
     metadata: Record<string, any>
   ): Promise<FraudDetection> {
     const riskFactors: FraudRiskFactor[] = [];
-    let totalScore = 0;
-
-    // Velocity check
+    const totalScore = 0;// Velocity check
     const velocityScore = await this.checkTransactionVelocity(userId);
     if (velocityScore > 50) {
       riskFactors.push({
@@ -389,9 +385,7 @@ export class SecurityComplianceService {
     fraudDetection?: FraudDetection;
   }> {
     const reasons: string[] = [];
-    let allowed = true;
-
-    // Check KYC status
+    let allowed = true;// Check KYC status
     const kycStatus = await this.getKYCStatus(userId);
     if (this.config.kycRequired && (!kycStatus || kycStatus.status !== 'verified')) {
       allowed = false;
@@ -503,9 +497,7 @@ export class SecurityComplianceService {
   }
 
   getAuditLogs(userId?: string, limit: number = 100): AuditLog[] {
-    let logs = this.auditLogs;
-    
-    if (userId) {
+    let logs = this.auditLogs;if (userId) {
       logs = logs.filter(log => log.userId === userId);
     }
 

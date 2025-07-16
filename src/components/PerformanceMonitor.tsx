@@ -96,9 +96,7 @@ export const PerformanceMonitor: React.FC = () => {
   // Calculate bundle size
   const calculateBundleSize = useCallback((): number => {
     const scripts = document.querySelectorAll('script[src]');
-    let totalSize = 0;
-    
-    scripts.forEach(script => {
+    let totalSize = 0;scripts.forEach(script => {
       const src = script.getAttribute('src');
       if (src && src.includes('assets')) {
         // Estimate based on typical bundle sizes

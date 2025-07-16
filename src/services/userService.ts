@@ -44,7 +44,7 @@ export class UserService {
       console.log('UserService: User profile fetched successfully:', data);
       return { data, error: null };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('UserService: Unexpected error in getUserProfile:', error);
       return {
         data: null,
@@ -99,7 +99,7 @@ export class UserService {
       console.log('UserService: User profile created successfully:', data);
       return { data, error: null };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('UserService: Unexpected error in createUserProfile:', error);
       return {
         data: null,
@@ -202,13 +202,14 @@ export class UserService {
       console.log('UserService: User profile updated successfully:', data);
       return { data, error: null };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('UserService: Unexpected error in updateUserProfile:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         data: null,
         error: {
           code: 'UNEXPECTED_ERROR',
-          message: error.message || 'An unexpected error occurred'
+          message: errorMessage
         }
       };
     }
@@ -230,9 +231,7 @@ export class UserService {
       let query = supabase
         .from('users')
         .select('id, email')
-        .eq('email', email.trim().toLowerCase());
-
-      if (excludeAuthId) {
+        .eq('email', email.trim().toLowerCase());if (excludeAuthId) {
         query = query.neq('auth_id', excludeAuthId);
       }
 
@@ -255,13 +254,14 @@ export class UserService {
 
       return { inUse, error: null };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('UserService: Unexpected error in isEmailInUse:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         inUse: false,
         error: {
           code: 'UNEXPECTED_ERROR',
-          message: error.message || 'An unexpected error occurred'
+          message: errorMessage
         }
       };
     }
@@ -350,13 +350,14 @@ export class UserService {
       console.log(`UserService: User profile ${created ? 'created' : 'updated'} successfully:`, data);
       return { data, error: null, created };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('UserService: Unexpected error in upsertUserProfile:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         data: null,
         error: {
           code: 'UNEXPECTED_ERROR',
-          message: error.message || 'An unexpected error occurred'
+          message: errorMessage
         },
         created: false
       };
@@ -396,13 +397,14 @@ export class UserService {
 
       return { data: newProfile, error: null, created: true };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('UserService: Unexpected error in getOrCreateUserProfile:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         data: null,
         error: {
           code: 'UNEXPECTED_ERROR',
-          message: error.message || 'An unexpected error occurred'
+          message: errorMessage
         },
         created: false
       };
@@ -432,7 +434,7 @@ export class UserService {
     }
 
     // Validate phone
-    const phoneRegex = /^[+]?[0-9\s\-\(\)]{5,20}$/;
+    const phoneRegex = /^[+]?[0-9\s\-()]{5,20}$/;
     if (!data.phone || !phoneRegex.test(data.phone)) {
       errors.push('Please provide a valid phone number');
     }

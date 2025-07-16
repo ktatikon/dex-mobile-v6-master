@@ -72,7 +72,7 @@ const BulkUserImport: React.FC = () => {
           }
 
           const users: ImportUser[] = [];
-          for (let i = 1; i < lines.length; i++) {
+          for (let i = 1;i < lines.length; i++) {
             const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
             
             if (values.length < requiredHeaders.length) {
@@ -91,7 +91,7 @@ const BulkUserImport: React.FC = () => {
           }
 
           resolve(users);
-        } catch (error: any) {
+        } catch (error: unknown) {
           reject(new Error(`Failed to parse CSV: ${error.message}`));
         }
       };
@@ -181,7 +181,7 @@ const BulkUserImport: React.FC = () => {
         rowNumber
       };
 
-    } catch (exception: any) {
+    } catch (exception: unknown) {
       return {
         success: false,
         email: user.email,
@@ -243,7 +243,7 @@ const BulkUserImport: React.FC = () => {
 
       // Process users in batches to avoid overwhelming the API
       const batchSize = 5;
-      for (let i = 0; i < users.length; i += batchSize) {
+      for (let i = 0;i < users.length; i += batchSize) {
         const batch = users.slice(i, i + batchSize);
         const batchPromises = batch.map((user, index) => 
           createSingleUser(user, i + index + 2) // +2 for header row and 1-based indexing
@@ -280,7 +280,7 @@ const BulkUserImport: React.FC = () => {
         variant: summary.failed === 0 ? "default" : "destructive",
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Import Failed",
         description: error.message,

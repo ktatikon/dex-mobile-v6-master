@@ -8,9 +8,7 @@ export const getUserTestnetWallets = async (userId: string, network?: TestnetNet
     let query = supabase
       .from('testnet_wallets')
       .select('*')
-      .eq('user_id', userId);
-    
-    if (network) {
+      .eq('user_id', userId);if (network) {
       query = query.eq('network', network);
     }
     
@@ -51,9 +49,7 @@ export const getUserTestnetTransactions = async (
       `)
       .eq('user_id', userId)
       .order('timestamp', { ascending: false })
-      .limit(limit);
-    
-    if (network) {
+      .limit(limit);if (network) {
       query = query.eq('network', network);
     }
     
@@ -81,9 +77,7 @@ export const getUserTestnetBalances = async (
     let query = supabase
       .from('testnet_balances')
       .select('*')
-      .eq('user_id', userId);
-    
-    if (walletId) {
+      .eq('user_id', userId);if (walletId) {
       query = query.eq('wallet_id', walletId);
     }
     

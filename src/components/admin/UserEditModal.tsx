@@ -145,7 +145,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
 
       onUserUpdated();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Update Failed",
         description: error.message,
@@ -174,7 +174,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
       });
 
       setShowPasswordReset(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Reset Failed",
         description: error.message,

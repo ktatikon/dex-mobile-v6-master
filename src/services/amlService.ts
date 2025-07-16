@@ -313,9 +313,7 @@ const analyzeAddress = async (
  * Calculate mock risk score based on address characteristics
  */
 const calculateMockRiskScore = (address: string): number => {
-  let score = 0;
-  
-  // Simple heuristics for demo purposes
+  let score = 0;// Simple heuristics for demo purposes
   const addressLower = address.toLowerCase();
   
   // Check for patterns that might indicate higher risk
@@ -343,9 +341,7 @@ export const getAMLHistory = async (
       .from('aml_checks')
       .select('*', { count: 'exact' })
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    // Apply filters
+      .order('created_at', { ascending: false });// Apply filters
     if (filters.chain) {
       query = query.eq('chain', filters.chain);
     }
@@ -620,8 +616,7 @@ class EnhancedKYCAMLService {
       const profile = this.kycProfiles.get(userId);
       if (!profile) return;
 
-      let riskScore = 0;
-      const riskFactors: string[] = [];
+      let riskScore = 0;const riskFactors: string[] = [];
 
       // Assess based on country of residence
       const highRiskCountries = ['AF', 'IR', 'KP', 'SY']; // Example high-risk countries
@@ -886,7 +881,7 @@ class EnhancedKYCAMLService {
   /**
    * Monitor transaction for compliance
    */
-  private async monitorTransaction(transactionData: any): Promise<void> {
+  private async monitorTransaction(transactionData: unknown): Promise<void> {
     try {
       // Check against monitoring rules
       for (const rule of this.monitoringRules.values()) {
@@ -905,7 +900,7 @@ class EnhancedKYCAMLService {
   /**
    * Evaluate monitoring rule
    */
-  private async evaluateRule(rule: AMLMonitoringRule, transactionData: any): Promise<boolean> {
+  private async evaluateRule(rule: AMLMonitoringRule, transactionData: unknown): Promise<boolean> {
     switch (rule.ruleType) {
       case 'transaction_amount':
         return transactionData.amount > rule.threshold;
@@ -920,7 +915,7 @@ class EnhancedKYCAMLService {
   /**
    * Handle rule violation
    */
-  private async handleRuleViolation(rule: AMLMonitoringRule, transactionData: any): Promise<void> {
+  private async handleRuleViolation(rule: AMLMonitoringRule, transactionData: unknown): Promise<void> {
     try {
       console.warn(`🚨 AML rule violation: ${rule.name} for transaction ${transactionData.id}`);
 

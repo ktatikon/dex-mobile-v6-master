@@ -148,11 +148,11 @@ class BlockchainService {
       // Initialize provider
       if (typeof window !== 'undefined' && window.ethereum) {
         // Use MetaMask or injected provider
-        this.provider = new ethers.ethers.providers.Web3Provider(window.ethereum);
+        this.provider = new ethers.providers.Web3Provider(window.ethereum);
         this.signer = await this.provider.getSigner();
       } else {
         // Fallback to RPC provider (read-only)
-        this.provider = new ethers.ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
+        this.provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
       }
 
       await loadingOrchestrator.updateLoading('blockchain_connection', 'Initializing contract interfaces');
@@ -241,7 +241,7 @@ class BlockchainService {
       }
 
       // Reinitialize with signer
-      this.provider = new ethers.ethers.providers.Web3Provider(window.ethereum);
+      this.provider = new ethers.providers.Web3Provider(window.ethereum);
       this.signer = await this.provider.getSigner();
 
       // Update router contract with signer
@@ -285,9 +285,10 @@ class BlockchainService {
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: chainIdHex }]
         });
-      } catch (switchError: any) {
+      } catch (switchError: unknown) {
         // If network doesn't exist, add it
-        if (switchError.code === 4902) {
+        const error = switchError as { code?: number };
+        if (error.code === 4902) {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
@@ -358,7 +359,7 @@ class BlockchainService {
       const wethAddress = getWETHAddress(this.currentNetwork);
       if (tokenAddress.toLowerCase() === wethAddress?.toLowerCase()) {
         const balance = await this.provider.getBalance(walletAddress);
-        return ethers.ethers.utils.formatEther(balance);
+        return ethers.utils.formatEther(balance);
       }
 
       // Handle ERC20 tokens
@@ -371,7 +372,7 @@ class BlockchainService {
       const balance = await tokenContract.balanceOf(walletAddress);
       const decimals = await tokenContract.decimals();
       
-      return ethers.ethers.utils.formatUnits(balance, decimals);
+      return ethers.utils.formatUnits(balance, decimals);
     } catch (error) {
       console.error('❌ Failed to get token balance:', error);
       return '0';
@@ -402,7 +403,7 @@ class BlockchainService {
       
       // Parse amount with proper decimals
       const fromTokenInfo = await this.getTokenInfo(fromToken);
-      const amountInWei = ethers.ethers.utils.parseUnits(amountIn, fromTokenInfo.decimals);
+      const amountInWei = ethers.utils.parseUnits(amountIn, fromTokenInfo.decimals);
 
       // Get amounts out
       const amounts = await this.routerContract.getAmountsOut(amountInWei, path);
@@ -410,7 +411,7 @@ class BlockchainService {
 
       // Get to token info for formatting
       const toTokenInfo = await this.getTokenInfo(toToken);
-      const amountOutFormatted = ethers.ethers.utils.formatUnits(amountOut, toTokenInfo.decimals);
+      const amountOutFormatted = ethers.utils.formatUnits(amountOut, toTokenInfo.decimals);
 
       // Calculate minimum received with slippage
       const slippageMultiplier = (100 - slippageTolerance) / 100;
@@ -460,7 +461,7 @@ class BlockchainService {
   private calculatePriceImpact(amountIn: string, amountOut: string): number {
     // This is a simplified calculation
     // In production, you'd want to compare against spot price
-    const inputValue = parseFloat(amountIn);
+    let inputValue = parseFloat(amountIn);
     const outputValue = parseFloat(amountOut);
     
     if (inputValue === 0) return 0;
@@ -542,7 +543,7 @@ class BlockchainService {
       
       const allowance = await tokenContract.allowance(signerAddress, spenderAddress);
       const tokenInfo = await this.getTokenInfo(tokenAddress);
-      const amountWei = ethers.ethers.utils.parseUnits(amount, tokenInfo.decimals);
+      const amountWei = ethers.utils.parseUnits(amount, tokenInfo.decimals);
       
       return allowance >= amountWei;
     } catch (error) {
@@ -562,7 +563,7 @@ class BlockchainService {
 
       const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, this.signer);
       const tokenInfo = await this.getTokenInfo(tokenAddress);
-      const amountWei = ethers.ethers.utils.parseUnits(amount, tokenInfo.decimals);
+      const amountWei = ethers.utils.parseUnits(amount, tokenInfo.decimals);
 
       const tx = await tokenContract.approve(spenderAddress, amountWei);
       const receipt = await tx.wait();
@@ -625,10 +626,10 @@ class BlockchainService {
       const fromTokenInfo = await this.getTokenInfo(params.fromToken);
       const toTokenInfo = await this.getTokenInfo(params.toToken);
 
-      const amountInWei = ethers.ethers.utils.parseUnits(params.amountIn, fromTokenInfo.decimals);
-      const amountOutMinWei = ethers.ethers.utils.parseUnits(params.amountOutMin, toTokenInfo.decimals);
+      const amountInWei = ethers.utils.parseUnits(params.amountIn, fromTokenInfo.decimals);
+      const amountOutMinWei = ethers.utils.parseUnits(params.amountOutMin, toTokenInfo.decimals);
 
-      let tx: any;
+      let tx: unknown;
 
       if (params.fromToken.toLowerCase() === wethAddress.toLowerCase()) {
         // ETH to Token swap
@@ -708,7 +709,7 @@ class BlockchainService {
       }
 
       const feeData = await this.provider.getFeeData();
-      return ethers.ethers.utils.formatUnits(feeData.gasPrice || 0, 'gwei');
+      return ethers.utils.formatUnits(feeData.gasPrice || 0, 'gwei');
     } catch (error) {
       console.error('❌ Failed to get gas price:', error);
       return '20'; // Default 20 gwei
@@ -727,11 +728,11 @@ class BlockchainService {
       }
 
       // Get pool address
-      const poolAddress = await this.uniswapV3FactoryContract.getPool(tokenA, tokenB, fee);
+      let poolAddress = await this.uniswapV3FactoryContract.getPool(tokenA, tokenB, fee);
 
-      if (poolAddress === ethers.ethers.constants.AddressZero) {
+      if (poolAddress === ethers.constants.AddressZero) {
         return {
-          address: ethers.ethers.constants.AddressZero,
+          address: ethers.constants.AddressZero,
           token0: tokenA,
           token1: tokenB,
           fee,
@@ -793,7 +794,7 @@ class BlockchainService {
 
       // Get token decimals for proper amount formatting
       const tokenInInfo = await this.getTokenInfo(tokenIn);
-      const amountInWei = ethers.ethers.utils.parseUnits(amountIn, tokenInInfo.decimals);
+      const amountInWei = ethers.utils.parseUnits(amountIn, tokenInInfo.decimals);
 
       // Get quote from Quoter V2
       const quoteParams = {
@@ -808,7 +809,7 @@ class BlockchainService {
 
       // Format output amount
       const tokenOutInfo = await this.getTokenInfo(tokenOut);
-      const amountOut = ethers.ethers.utils.formatUnits(quoteResult.amountOut, tokenOutInfo.decimals);
+      const amountOut = ethers.utils.formatUnits(quoteResult.amountOut, tokenOutInfo.decimals);
 
       // Calculate price impact (simplified)
       const priceImpact = this.calculateUniswapV3PriceImpact(amountIn, amountOut);
@@ -843,8 +844,8 @@ class BlockchainService {
       const tokenInInfo = await this.getTokenInfo(params.tokenIn);
       const tokenOutInfo = await this.getTokenInfo(params.tokenOut);
 
-      const amountInWei = ethers.ethers.utils.parseUnits(params.amountIn, tokenInInfo.decimals);
-      const amountOutMinWei = ethers.ethers.utils.parseUnits(params.amountOutMinimum, tokenOutInfo.decimals);
+      const amountInWei = ethers.utils.parseUnits(params.amountIn, tokenInInfo.decimals);
+      const amountOutMinWei = ethers.utils.parseUnits(params.amountOutMinimum, tokenOutInfo.decimals);
 
       // Build swap parameters
       const swapParams = {
@@ -935,7 +936,7 @@ class BlockchainService {
    */
   private calculateUniswapV3PriceImpact(amountIn: string, amountOut: string): number {
     try {
-      const inputValue = parseFloat(amountIn);
+      let inputValue = parseFloat(amountIn);
       const outputValue = parseFloat(amountOut);
 
       if (inputValue === 0) return 0;
@@ -957,7 +958,7 @@ class BlockchainService {
   /**
    * Estimate gas for any transaction
    */
-  async estimateGas(transactionData: any): Promise<string> {
+  async estimateGas(transactionData: unknown): Promise<string> {
     try {
       if (!this.provider) {
         throw new Error('Provider not initialized');
@@ -974,7 +975,7 @@ class BlockchainService {
   /**
    * Send raw transaction
    */
-  async sendTransaction(transactionData: any): Promise<string> {
+  async sendTransaction(transactionData: ethers.providers.TransactionRequest): Promise<string> {
     try {
       if (!this.signer) {
         throw new Error('Signer not initialized');
@@ -991,7 +992,7 @@ class BlockchainService {
   /**
    * Wait for transaction confirmation
    */
-  async waitForTransaction(txHash: string): Promise<any> {
+  async waitForTransaction(txHash: string): Promise<ethers.providers.TransactionReceipt | null> {
     try {
       if (!this.provider) {
         throw new Error('Provider not initialized');
@@ -1007,7 +1008,7 @@ class BlockchainService {
   /**
    * Call contract method (read-only)
    */
-  async call(transactionData: any): Promise<string> {
+  async call(transactionData: ethers.providers.TransactionRequest): Promise<string> {
     try {
       if (!this.provider) {
         throw new Error('Provider not initialized');

@@ -591,9 +591,7 @@ class UPIService {
    * Create UPI URL for QR code
    */
   private createUPIUrl(config: UPIQRConfig): string {
-    let upiUrl = `upi://pay?pa=${config.payeeVPA}&pn=${encodeURIComponent(config.payeeName)}`;
-
-    if (config.amount) {
+    let upiUrl = `upi://pay?pa=${config.payeeVPA}&pn=${encodeURIComponent(config.payeeName)}`;if (config.amount) {
       upiUrl += `&am=${config.amount}`;
     }
 
@@ -635,7 +633,7 @@ class UPIService {
   /**
    * Make UPI API call
    */
-  private async makeUPIApiCall(endpoint: string, data: any): Promise<any> {
+  private async makeUPIApiCall(endpoint: string, data: unknown): Promise<any> {
     if (!this.config) {
       throw new Error('UPI service not configured');
     }

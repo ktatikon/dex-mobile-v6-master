@@ -126,7 +126,7 @@ const EnhancedWalletConnectionManager: React.FC<EnhancedWalletConnectionManagerP
         setConnectionProgress(0);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       setConnectionStatus('error');
       setConnectionProgress(0);
       
@@ -233,7 +233,7 @@ const EnhancedWalletConnectionManager: React.FC<EnhancedWalletConnectionManagerP
         setConnectionProgress(0);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       setConnectionStatus('error');
       setConnectionProgress(0);
       

@@ -36,9 +36,7 @@ const AdminDebugPage = () => {
     const originalError = console.error;
     const originalWarn = console.warn;
 
-    let output = '';
-
-    const captureLog = (...args: ConsoleArgs) => {
+    let output = '';const captureLog = (...args: ConsoleArgs) => {
       const message = args.map(arg =>
         typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
       ).join(' ');
@@ -103,9 +101,7 @@ const AdminDebugPage = () => {
 
     const originalLog = console.log;
     const originalError = console.error;
-    let output = '';
-
-    console.log = (...args: ConsoleArgs) => {
+    let output = '';console.log = (...args: ConsoleArgs) => {
       const message = args.map(arg =>
         typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
       ).join(' ');
@@ -138,8 +134,7 @@ const AdminDebugPage = () => {
   const testSessionValidation = async () => {
     setIsRunning(true);
 
-    let output = '🔍 Testing Session Validation...\n';
-    output += '='.repeat(40) + '\n\n';
+    let output = '🔍 Testing Session Validation...\n';output += '='.repeat(40) + '\n\n';
 
     try {
       // Test current session state

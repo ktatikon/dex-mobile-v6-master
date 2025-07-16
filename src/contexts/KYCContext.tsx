@@ -267,7 +267,7 @@ export const KYCProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Progress Saved",
         description: "Your KYC information has been saved. You can continue later.",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving KYC progress:', error);
       toast({
         title: "Error",
@@ -306,11 +306,7 @@ export const KYCProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // Upload documents if they exist
-      let frontDocumentPath = '';
-      let backDocumentPath = '';
-      let selfiePath = '';
-
-      if (formData.frontDocument) {
+      let frontDocumentPath = '';let backDocumentPath = '';let selfiePath = '';if (formData.frontDocument) {
         const frontFileName = `${user.id}/${Date.now()}_front_${formData.frontDocument.name}`;
         console.log('Uploading front document:', frontFileName);
         const { error: frontUploadError, data: frontData } = await supabase.storage
@@ -410,7 +406,7 @@ export const KYCProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting KYC:', error);
       toast({
         title: "Error",

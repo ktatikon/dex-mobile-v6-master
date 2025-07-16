@@ -287,19 +287,18 @@ class RealTransactionService {
       if (Array.isArray(txData)) {
         for (const tx of txData.slice(0, limit)) {
           // Determine if this is a send or receive transaction
-          const isReceive = tx.vout.some((output: any) =>
+          const isReceive = tx.vout.some((output: unknown) =>
             output.scriptpubkey_address === address
           );
-          const isSend = tx.vin.some((input: any) =>
+          const isSend = tx.vin.some((input: unknown) =>
             input.prevout && input.prevout.scriptpubkey_address === address
           );
 
-          let value = '0';
-          let type: 'send' | 'receive' = 'receive';
+          let value = '0';let type: 'send' | 'receive' = 'receive';
 
           if (isReceive && !isSend) {
             // Pure receive transaction
-            const receiveOutput = tx.vout.find((output: any) =>
+            const receiveOutput = tx.vout.find((output: unknown) =>
               output.scriptpubkey_address === address
             );
             value = (receiveOutput.value / 1e8).toString();
@@ -307,8 +306,8 @@ class RealTransactionService {
           } else if (isSend) {
             // Send transaction (calculate sent amount)
             const sentAmount = tx.vin
-              .filter((input: any) => input.prevout && input.prevout.scriptpubkey_address === address)
-              .reduce((sum: number, input: any) => sum + input.prevout.value, 0);
+              .filter((input: unknown) => input.prevout && input.prevout.scriptpubkey_address === address)
+              .reduce((sum: number, input: unknown) => sum + input.prevout.value, 0);
             value = (sentAmount / 1e8).toString();
             type = 'send';
           }

@@ -235,7 +235,7 @@ class UniswapV3Service {
       // Create currency amount
       const amountIn = CurrencyAmount.fromRawAmount(
         this.convertToUniToken(request.fromToken),
-        ethers.utils.ethers.utils.parseUnits(request.amountIn, request.fromToken.decimals).toString()
+        ethers.utils.parseUnits(request.amountIn, request.fromToken.decimals).toString()
       );
 
       // Get trade

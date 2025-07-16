@@ -336,7 +336,7 @@ const AdvancedTradingPanel: React.FC<AdvancedTradingPanelProps> = ({
     setSwapSettings(newSettings);
   };
 
-  const handleQuoteUpdate = (quote: any) => {
+  const handleQuoteUpdate = (quote: unknown) => {
     setCurrentQuote(quote);
   };
 

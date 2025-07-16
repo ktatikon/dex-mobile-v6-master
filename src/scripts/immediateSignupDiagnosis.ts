@@ -13,7 +13,7 @@ interface DiagnosisResult {
   step: string;
   status: 'PASS' | 'FAIL' | 'WARNING';
   message: string;
-  details?: any;
+  details?: unknown;
   recommendation?: string;
 }
 
@@ -129,8 +129,7 @@ export async function runImmediateSignupDiagnosis(): Promise<{
     { phone: 'invalid', expected: false, description: 'Invalid format' }
   ];
 
-  let phoneValidationPassed = 0;
-  for (const test of phoneTests) {
+  const phoneValidationPassed = 0;for (const test of phoneTests) {
     const validation = AuthValidationService.validatePhone(test.phone);
     if (validation.isValid === test.expected) {
       phoneValidationPassed++;

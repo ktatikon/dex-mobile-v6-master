@@ -10,7 +10,7 @@ import { Button } from '../ui/button';
 interface DebugResult {
   test: string;
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   timestamp: string;
 }
@@ -19,7 +19,7 @@ export const MicroserviceDebugger: React.FC = () => {
   const [results, setResults] = useState<DebugResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
 
-  const addResult = (test: string, success: boolean, data?: any, error?: string) => {
+  const addResult = (test: string, success: boolean, data?: unknown, error?: string) => {
     const result: DebugResult = {
       test,
       success,

@@ -245,8 +245,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({
       const quote = await uniswapV3Service.getSwapQuote(quoteRequest);
 
       // Perform MEV analysis if enabled
-      let mevAnalysis = null;
-      if (enterpriseStates.protectionEnabled && enterpriseServiceIntegrator.isServiceInitialized()) {
+      let mevAnalysis = null;if (enterpriseStates.protectionEnabled && enterpriseServiceIntegrator.isServiceInitialized()) {
         try {
           const mevService = enterpriseServiceIntegrator.getMEVProtectionService();
           mevAnalysis = await mevService.analyzeMEVRisk(
@@ -262,8 +261,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({
       }
 
       // Perform gas optimization if enabled
-      let gasOptimization = null;
-      if (enterpriseStates.optimizationEnabled && enterpriseServiceIntegrator.isServiceInitialized()) {
+      let gasOptimization = null;if (enterpriseStates.optimizationEnabled && enterpriseServiceIntegrator.isServiceInitialized()) {
         try {
           const gasService = enterpriseServiceIntegrator.getGasOptimizationService();
           gasOptimization = await gasService.getGasOptimization(1, 'swap', 'medium');
@@ -274,8 +272,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({
       }
 
       // Calculate TDS if applicable
-      let tdsCalculation = null;
-      if (enterpriseServiceIntegrator.isServiceInitialized()) {
+      let tdsCalculation = null;if (enterpriseServiceIntegrator.isServiceInitialized()) {
         try {
           const tdsService = enterpriseServiceIntegrator.getComplianceServices().tds;
           const swapValueINR = parseFloat(formState.fromAmount) * 2000 * 83; // Mock conversion

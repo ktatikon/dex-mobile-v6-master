@@ -382,7 +382,7 @@ class AdvancedTradingService {
   /**
    * Assess risk for an order
    */
-  private async assessOrderRisk(params: any): Promise<RiskAssessment> {
+  private async assessOrderRisk(params: unknown): Promise<RiskAssessment> {
     try {
       // Calculate volatility based on price changes
       const volatility = Math.abs(params.fromToken.priceChange24h || 0);
@@ -459,7 +459,7 @@ class AdvancedTradingService {
   /**
    * Calculate maximum recommended amount based on risk
    */
-  private calculateMaxRecommendedAmount(params: any, riskScore: number): string {
+  private calculateMaxRecommendedAmount(params: unknown, riskScore: number): string {
     const amount = parseFloat(params.fromAmount);
     const riskMultiplier = Math.max(0.1, 1 - (riskScore / 100));
     return (amount * riskMultiplier).toString();
@@ -483,7 +483,7 @@ class AdvancedTradingService {
   }
 
   // Mock methods for Phase 1 fallback
-  private createMockLimitOrder(params: any): AdvancedOrder {
+  private createMockLimitOrder(params: unknown): AdvancedOrder {
     return {
       id: `mock_limit_${Date.now()}`,
       userId: params.userId,
@@ -501,7 +501,7 @@ class AdvancedTradingService {
     };
   }
 
-  private createMockStopLossOrder(params: any): AdvancedOrder {
+  private createMockStopLossOrder(params: unknown): AdvancedOrder {
     return {
       id: `mock_stop_${Date.now()}`,
       userId: params.userId,
@@ -519,7 +519,7 @@ class AdvancedTradingService {
     };
   }
 
-  private createMockDCAStrategy(params: any): DCAStrategy {
+  private createMockDCAStrategy(params: unknown): DCAStrategy {
     return {
       id: `mock_dca_${Date.now()}`,
       userId: params.userId,
@@ -589,9 +589,7 @@ class AdvancedTradingService {
         const currentRate = fromTokenPrice.current_price / toTokenPrice.current_price;
 
         // Check if order should be executed
-        let shouldExecute = false;
-
-        switch (order.orderType) {
+        let shouldExecute = false;switch (order.orderType) {
           case AdvancedOrderType.LIMIT:
             shouldExecute = currentRate >= order.targetPrice;
             break;
@@ -664,7 +662,7 @@ class AdvancedTradingService {
     }
   }
 
-  private validateOrderParams(params: any): { isValid: boolean; errors: string[] } {
+  private validateOrderParams(params: unknown): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     if (!params.userId) errors.push('User ID is required');
@@ -686,7 +684,7 @@ export const advancedTradingService = new AdvancedTradingService();
 
 // Export safe wrapper with fallback mechanisms
 export const safeAdvancedTradingService = {
-  async createLimitOrder(params: any) {
+  async createLimitOrder(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableAdvancedTrading) {
         return await advancedTradingService.createLimitOrder(params);
@@ -700,7 +698,7 @@ export const safeAdvancedTradingService = {
     return null;
   },
 
-  async createStopLossOrder(params: any) {
+  async createStopLossOrder(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableStopLoss) {
         return await advancedTradingService.createStopLossOrder(params);
@@ -712,7 +710,7 @@ export const safeAdvancedTradingService = {
     return null;
   },
 
-  async createDCAStrategy(params: any) {
+  async createDCAStrategy(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableDCAAutomation) {
         return await advancedTradingService.createDCAStrategy(params);

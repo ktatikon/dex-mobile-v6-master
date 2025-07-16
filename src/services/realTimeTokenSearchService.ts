@@ -49,10 +49,7 @@ const MIN_QUERY_LENGTH = 2;
 // Rate limiting
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_SEARCHES_PER_MINUTE = 30;
-let searchCount = 0;
-let rateLimitWindowStart = Date.now();
-
-// Cache storage
+const searchCount = 0;const rateLimitWindowStart = Date.now();// Cache storage
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -166,9 +163,7 @@ async function searchTokensFromDatabase(options: TokenSearchOptions): Promise<To
     let dbQuery = supabase
       .from('tokens')
       .select('*')
-      .limit(limit);
-
-    // Apply search filters
+      .limit(limit);// Apply search filters
     if (options.searchType === 'address' && isValidContractAddress(query)) {
       dbQuery = dbQuery.eq('contract_address', query.toLowerCase());
     } else {

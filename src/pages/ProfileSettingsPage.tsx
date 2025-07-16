@@ -227,9 +227,7 @@ const ProfileSettingsPage = () => {
       console.log('Sending update to UserService:', updateData);
 
       // Try to update user data using UserService
-      let result = await UserService.updateUserProfile(user.id, updateData);
-
-      // If user not found, try to use upsert to ensure the user exists
+      let result = await UserService.updateUserProfile(user.id, updateData);// If user not found, try to use upsert to ensure the user exists
       if (result.error && result.error.code === 'USER_NOT_FOUND') {
         console.log('User not found, attempting upsert operation...');
 
@@ -272,12 +270,10 @@ const ProfileSettingsPage = () => {
         variant: "default",
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating profile:', error);
 
-      let errorMessage = error.message || "Failed to update profile. Please try again.";
-
-      // Provide more specific error messages
+      let errorMessage = error.message || "Failed to update profile. Please try again.";// Provide more specific error messages
       if (errorMessage.includes('email') && errorMessage.includes('already in use')) {
         errorMessage = "This email address is already in use by another account. Please use a different email.";
       } else if (errorMessage.includes('unique constraint')) {
@@ -383,7 +379,7 @@ const ProfileSettingsPage = () => {
         description: "Your profile photo has been updated successfully.",
         variant: "default",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error uploading photo:', error);
       toast({
         title: "Upload Failed",

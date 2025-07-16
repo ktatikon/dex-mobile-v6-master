@@ -147,7 +147,7 @@ export const TradingChart = memo<TradingChartProps>(({
 
     // For large datasets, implement data sampling for performance
     if (data.length > 1000) {
-      const sampleRate = Math.ceil(data.length / 1000);
+      let sampleRate = Math.ceil(data.length / 1000);
       return data.filter((_, index) => index % sampleRate === 0);
     }
 
@@ -173,7 +173,7 @@ export const TradingChart = memo<TradingChartProps>(({
   /**
    * Validate if a series reference is still valid and not disposed (modal-aware)
    */
-  const isSeriesValid = useCallback((series: any): boolean => {
+  const isSeriesValid = useCallback((series: unknown): boolean => {
     try {
       if (!isMounted || !series || !chartRef.current) return false;
       // Try to access a property to check if the series is disposed

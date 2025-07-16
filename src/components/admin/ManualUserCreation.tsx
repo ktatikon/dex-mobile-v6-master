@@ -78,7 +78,7 @@ const ManualUserCreation: React.FC = () => {
   };
 
   // Emergency fallback function for when auth.signUp fails
-  const createUserDirectly = async (logPrefix: string, userMetadata: any): Promise<CreationResult> => {
+  const createUserDirectly = async (logPrefix: string, userMetadata: unknown): Promise<CreationResult> => {
     try {
       console.log(`${logPrefix} 🆘 Using emergency admin API creation...`);
       console.log(`${logPrefix} ⚠️ Switching to admin.createUser method to ensure proper auth.users entry`);
@@ -143,7 +143,7 @@ const ManualUserCreation: React.FC = () => {
         timestamp: new Date()
       };
 
-    } catch (exception: any) {
+    } catch (exception: unknown) {
       console.error(`${logPrefix} 💥 Emergency creation exception:`, exception);
       return {
         success: false,
@@ -208,10 +208,7 @@ const ManualUserCreation: React.FC = () => {
         });
 
         // Enhanced error classification
-        let errorMessage = error.message;
-        let errorSolution = '';
-
-        if (error.status === 500) {
+        let errorMessage = error.message;let errorSolution = '';if (error.status === 500) {
           if (error.message.includes('Database error saving new user')) {
             errorMessage = 'Database schema migration issue detected';
             errorSolution = 'Execute AUTH_SCHEMA_MIGRATION_FIX.sql in Supabase SQL Editor';
@@ -306,7 +303,7 @@ const ManualUserCreation: React.FC = () => {
         timestamp: new Date()
       };
 
-    } catch (exception: any) {
+    } catch (exception: unknown) {
       console.error(`${logPrefix} 💥 Exception during user creation:`, {
         name: exception.name,
         message: exception.message,
@@ -390,7 +387,7 @@ const ManualUserCreation: React.FC = () => {
           variant: "destructive",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`${submitLogPrefix} 💥 Unexpected error during submission:`, {
         name: error.name,
         message: error.message,

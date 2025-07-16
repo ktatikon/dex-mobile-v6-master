@@ -82,7 +82,7 @@ export const validatePhone = (phone: string): ValidationResult => {
   // Updated phone validation to match database constraint
   // Allows: digits, spaces, hyphens, parentheses, optional leading plus sign
   // Length: 5-20 characters
-  const phoneRegex = /^[+]?[0-9\s\-\(\)]{5,20}$/;
+  const phoneRegex = /^[+]?[0-9\s\-()]{5,20}$/;
 
   if (!phoneRegex.test(phone)) {
     return {
@@ -197,7 +197,7 @@ export const normalizeEmail = (email: string): string => {
 /**
  * Formats error messages for user display
  */
-export const formatAuthError = (error: any): string => {
+export const formatAuthError = (error: unknown): string => {
   if (!error) return 'An unexpected error occurred';
 
   const message = error.message || error.toString();

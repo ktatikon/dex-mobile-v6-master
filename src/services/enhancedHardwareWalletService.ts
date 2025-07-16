@@ -443,7 +443,7 @@ class EnhancedHardwareWalletService {
         }
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('USB connection error:', error);
 
       if (error.name === 'NotFoundError') {
@@ -510,7 +510,7 @@ class EnhancedHardwareWalletService {
         }
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Bluetooth connection error:', error);
 
       if (error.name === 'NotFoundError') {
@@ -577,7 +577,7 @@ class EnhancedHardwareWalletService {
         }
       };
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('QR connection error:', error);
 
       if (error.name === 'NotAllowedError') {

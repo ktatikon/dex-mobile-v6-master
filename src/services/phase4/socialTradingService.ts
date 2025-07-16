@@ -321,7 +321,7 @@ class SocialTradingService {
   }
 
   // Helper methods for mapping database records to interfaces
-  private mapToTraderProfile(data: any): TraderProfile {
+  private mapToTraderProfile(data: unknown): TraderProfile {
     return {
       id: data.id,
       userId: data.user_id,
@@ -343,7 +343,7 @@ class SocialTradingService {
     };
   }
 
-  private mapToSocialSignal(data: any): SocialSignal {
+  private mapToSocialSignal(data: unknown): SocialSignal {
     return {
       id: data.id,
       traderId: data.trader_id,
@@ -388,7 +388,7 @@ class SocialTradingService {
   private createMockLeaderboard(category: string, limit: number): LeaderboardEntry[] {
     const mockEntries: LeaderboardEntry[] = [];
     
-    for (let i = 1; i <= Math.min(limit, 10); i++) {
+    for (let i = 1;i <= Math.min(limit, 10); i++) {
       mockEntries.push({
         rank: i,
         traderId: `trader_${i}`,
@@ -422,7 +422,7 @@ class SocialTradingService {
     const signalTypes: ('buy' | 'sell' | 'hold' | 'alert')[] = ['buy', 'sell', 'hold', 'alert'];
     const mockSignals: SocialSignal[] = [];
 
-    for (let i = 0; i < Math.min(limit, 10); i++) {
+    for (let i = 0;i < Math.min(limit, 10); i++) {
       mockSignals.push({
         id: `signal_${i}`,
         traderId: `trader_${i % 5}`,
@@ -491,7 +491,7 @@ export const safeSocialTradingService = {
     return null;
   },
 
-  async getTraderLeaderboard(category?: any, limit?: number) {
+  async getTraderLeaderboard(category?: unknown, limit?: number) {
     try {
       if (phase4ConfigManager.getConfig().enableTraderLeaderboards) {
         return await socialTradingService.getTraderLeaderboard(category, limit);
@@ -502,7 +502,7 @@ export const safeSocialTradingService = {
     return [];
   },
 
-  async getSocialSignals(filters?: any, limit?: number) {
+  async getSocialSignals(filters?: unknown, limit?: number) {
     try {
       if (phase4ConfigManager.getConfig().enableSocialSignals) {
         return await socialTradingService.getSocialSignals(filters, limit);

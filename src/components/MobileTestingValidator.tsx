@@ -41,9 +41,7 @@ export const MobileTestingValidator: React.FC = () => {
     try {
       // Test 1: Touch Target Size Validation (44px minimum)
       const touchElements = document.querySelectorAll('button, [role="button"], input, select, a');
-      let touchTargetFailures = 0;
-      
-      touchElements.forEach((element) => {
+      const touchTargetFailures = 0;touchElements.forEach((element) => {
         const rect = element.getBoundingClientRect();
         const minSize = 44;
         
@@ -82,9 +80,7 @@ export const MobileTestingValidator: React.FC = () => {
 
       // Test 4: Font Size Readability
       const textElements = document.querySelectorAll('p, span, div, label, button');
-      let smallTextCount = 0;
-      
-      textElements.forEach((element) => {
+      const smallTextCount = 0;textElements.forEach((element) => {
         const styles = window.getComputedStyle(element);
         const fontSize = parseFloat(styles.fontSize);
         

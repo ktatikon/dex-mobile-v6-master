@@ -153,9 +153,7 @@ const MultiNetworkPortfolio: React.FC<MultiNetworkPortfolioProps> = ({
 
     // First try direct networkId mapping
     const normalizedId = networkId.toLowerCase();
-    let iconPath = iconMap[normalizedId];
-
-    // If not found, try to get from service data and map it
+    let iconPath = iconMap[normalizedId];// If not found, try to get from service data and map it
     if (!iconPath) {
       const network = supportedNetworks.find(n => n.networkId === networkId);
 

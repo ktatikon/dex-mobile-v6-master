@@ -184,7 +184,7 @@ class MFAService {
   /**
    * Setup MFA for user
    */
-  async setupMFA(userId: string, method: MFAMethod, deviceInfo?: any): Promise<TOTPConfiguration | { success: boolean }> {
+  async setupMFA(userId: string, method: MFAMethod, deviceInfo?: unknown): Promise<TOTPConfiguration | { success: boolean }> {
     if (!this.isInitialized) {
       throw new Error('MFA service not initialized');
     }
@@ -192,16 +192,16 @@ class MFAService {
     try {
       await loadingOrchestrator.startLoading(`${this.componentId}_setup`, 'Setting up MFA');
 
-      let config = this.mfaConfigurations.get(userId);
-      if (!config) {
+      let config = this.mfaConfigurations.get(userId);if (!config) {
         config = this.createDefaultMFAConfiguration(userId);
       }
 
       switch (method) {
-        case MFAMethod.TOTP:
+        case MFAMethod.TOTP: {
           const totpConfig = await this.setupTOTP(userId);
           await loadingOrchestrator.completeLoading(`${this.componentId}_setup`, 'TOTP MFA setup completed');
           return totpConfig;
+        }
 
         case MFAMethod.SMS:
           await this.setupSMS(userId, deviceInfo?.phoneNumber);
@@ -350,8 +350,7 @@ class MFAService {
       challenge.attempts++;
 
       // Verify code based on method
-      let isValid = false;
-      switch (challenge.method) {
+      let isValid = false;switch (challenge.method) {
         case MFAMethod.SMS:
         case MFAMethod.EMAIL:
           isValid = await this.verifyCode(code, challenge.hashedCode!);
@@ -416,7 +415,7 @@ class MFAService {
         throw new Error('MFA not configured for user');
       }
 
-      const backupCodes = Array.from({ length: this.MFA_CONFIG.backupCodeCount }, () =>
+      let backupCodes = Array.from({ length: this.MFA_CONFIG.backupCodeCount }, () =>
         this.generateBackupCode()
       );
 
@@ -638,8 +637,7 @@ class MFAService {
    */
   private generateBackupCode(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < this.MFA_CONFIG.backupCodeLength; i++) {
+    let result = '';for (let i = 0;i < this.MFA_CONFIG.backupCodeLength; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
@@ -650,8 +648,7 @@ class MFAService {
    */
   private generateTOTPSecret(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    let result = '';
-    for (let i = 0; i < 32; i++) {
+    let result = '';for (let i = 0;i < 32; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
@@ -678,7 +675,7 @@ class MFAService {
    * Verify code against hash
    */
   private async verifyCode(code: string, hashedCode: string): Promise<boolean> {
-    const hash = await this.hashCode(code);
+    let hash = await this.hashCode(code);
     return hash === hashedCode;
   }
 
@@ -697,7 +694,7 @@ class MFAService {
     const config = this.mfaConfigurations.get(userId);
     if (!config) return false;
 
-    const codeIndex = config.backupCodes.indexOf(code);
+    let codeIndex = config.backupCodes.indexOf(code);
     if (codeIndex === -1 || config.usedBackupCodes.includes(code)) {
       return false;
     }

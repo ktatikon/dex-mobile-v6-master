@@ -56,7 +56,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Load theme from localStorage on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('dex-mobile-theme') as 'dark' | 'light';
+    let savedTheme = localStorage.getItem('dex-mobile-theme') as 'dark' | 'light';
     if (savedTheme && (savedTheme === 'dark' || savedTheme === 'light')) {
       setTheme(savedTheme);
     }

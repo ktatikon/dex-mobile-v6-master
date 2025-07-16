@@ -50,9 +50,7 @@ export function useRealTimeTokens(options: UseRealTimeTokensOptions = {}): UseRe
     if (!isMounted.current) return;
 
     try {
-      let processedTokens = [...newTokens];
-
-      // Apply symbol filter if specified
+      let processedTokens = [...newTokens];// Apply symbol filter if specified
       if (filterBySymbols && filterBySymbols.length > 0) {
         processedTokens = processedTokens.filter(token =>
           filterBySymbols.includes(token.symbol.toUpperCase())

@@ -29,8 +29,7 @@ class RealTimeOrderBookService {
     const askPrice = midPrice * (1 + halfSpread);
 
     // Generate realistic bid orders (buy orders)
-    let bidTotal = 0;
-    for (let i = 0; i < 15; i++) {
+    let bidTotal = 0;for (let i = 0;i < 15; i++) {
       // Price decreases as we go down the order book
       const priceDecrement = (i * 0.001) + (Math.random() * 0.0005);
       const price = bidPrice * (1 - priceDecrement);
@@ -49,8 +48,7 @@ class RealTimeOrderBookService {
     }
 
     // Generate realistic ask orders (sell orders)
-    let askTotal = 0;
-    for (let i = 0; i < 15; i++) {
+    let askTotal = 0;for (let i = 0;i < 15; i++) {
       // Price increases as we go up the order book
       const priceIncrement = (i * 0.001) + (Math.random() * 0.0005);
       const price = askPrice * (1 + priceIncrement);
@@ -91,7 +89,7 @@ class RealTimeOrderBookService {
     const trades: RecentTrade[] = [];
     const now = new Date();
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0;i < count; i++) {
       // Generate price variation around current price (±0.5%)
       const priceVariation = currentPrice * (0.995 + Math.random() * 0.01);
       

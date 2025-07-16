@@ -98,11 +98,9 @@ const AuthPage = () => {
           navigate('/');
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Enhanced error handling with specific recovery strategies
-      let errorMessage = AuthValidationService.formatAuthError(error);
-
-      // Handle specific authentication errors
+      let errorMessage = AuthValidationService.formatAuthError(error);// Handle specific authentication errors
       if (error.message?.includes('AuthSessionMissingError') || error.message?.includes('Auth session missing')) {
         errorMessage = 'Authentication session error. Please try again or refresh the page.';
       } else if (error.message?.includes('Network')) {

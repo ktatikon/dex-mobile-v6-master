@@ -170,9 +170,7 @@ export class MEVProtectionService {
 
       const detectedThreats: MEVThreat[] = [];
       const protectionMeasures: MEVProtection[] = [];
-      let riskScore = 0;
-
-      await loadingOrchestrator.updateLoading('mev_analysis', 'Checking for sandwich attacks');
+      let riskScore = 0;await loadingOrchestrator.updateLoading('mev_analysis', 'Checking for sandwich attacks');
 
       // Sandwich attack detection
       const sandwichRisk = await this.detectSandwichRisk(tokenIn, tokenOut, amountIn);
@@ -302,7 +300,7 @@ export class MEVProtectionService {
   // ==================== PRIVATE MEMPOOL INTEGRATION ====================
 
   async submitToPrivateMempool(
-    transactionData: any,
+    transactionData: unknown,
     maxBlockNumber?: number
   ): Promise<{ success: boolean; bundleHash?: string; error?: string }> {
     try {
@@ -382,9 +380,7 @@ export class MEVProtectionService {
     );
 
     const strategy = this.config.priorityFeeStrategy;
-    let multiplier = 1.0;
-
-    switch (strategy) {
+    let multiplier = 1.0;switch (strategy) {
       case 'conservative':
         multiplier = 1.1;
         break;
@@ -493,7 +489,7 @@ export class MEVProtectionService {
     return 18500000;
   }
 
-  private async submitBundle(bundle: any): Promise<{ bundleHash: string }> {
+  private async submitBundle(bundle: unknown): Promise<{ bundleHash: string }> {
     // Mock bundle submission
     await new Promise(resolve => setTimeout(resolve, 1000));
     return { bundleHash: `0x${Math.random().toString(16).substr(2, 64)}` };
@@ -509,7 +505,7 @@ export class MEVProtectionService {
     };
   }
 
-  private getMockGasPrices(): any {
+  private getMockGasPrices(): unknown {
     return {
       slow: 18,
       standard: 23,
@@ -526,11 +522,11 @@ export class MEVProtectionService {
     };
   }
 
-  private validateGasPrices = (data: any): boolean => {
+  private validateGasPrices = (data: unknown): boolean => {
     return data && data.standard && data.fast && data.slow;
   };
 
-  private validateMEVActivity = (data: any): boolean => {
+  private validateMEVActivity = (data: unknown): boolean => {
     return data && typeof data.score === 'number' && typeof data.volume === 'number';
   };
 

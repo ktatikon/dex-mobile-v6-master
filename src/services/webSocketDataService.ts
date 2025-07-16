@@ -189,10 +189,10 @@ class WebSocketDataService {
   /**
    * Handle Binance WebSocket messages
    */
-  private handleBinanceMessage(message: any) {
+  private handleBinanceMessage(message: unknown) {
     if (Array.isArray(message)) {
       // Ticker array from Binance
-      message.forEach((ticker: any) => {
+      message.forEach((ticker: unknown) => {
         if (ticker.s && ticker.c) { // symbol and current price
           const symbol = ticker.s.replace('USDT', '').toUpperCase();
           this.updateTokenData(symbol, {
@@ -209,7 +209,7 @@ class WebSocketDataService {
   /**
    * Handle Coinbase WebSocket messages
    */
-  private handleCoinbaseMessage(message: any) {
+  private handleCoinbaseMessage(message: unknown) {
     if (message.type === 'ticker' && message.product_id && message.price) {
       const symbol = message.product_id.split('-')[0].toUpperCase();
       this.updateTokenData(symbol, {

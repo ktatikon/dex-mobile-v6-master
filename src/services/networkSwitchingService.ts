@@ -185,9 +185,7 @@ class NetworkSwitchingService {
       }
 
       // Sort by criteria
-      let sortedNetworks = onlineNetworks;
-
-      if (criteria.gasPrice === 'low') {
+      let sortedNetworks = onlineNetworks;if (criteria.gasPrice === 'low') {
         sortedNetworks = sortedNetworks.sort((a, b) => 
           parseFloat(a.gasPrice) - parseFloat(b.gasPrice)
         );
@@ -389,7 +387,7 @@ class NetworkSwitchingService {
   /**
    * Execute real network switch
    */
-  private async executeNetworkSwitch(wallet: any, request: NetworkSwitchRequest): Promise<NetworkSwitchResult> {
+  private async executeNetworkSwitch(wallet: unknown, request: NetworkSwitchRequest): Promise<NetworkSwitchResult> {
     try {
       // This would integrate with real blockchain protocols
       // For now, simulating the network switch
@@ -422,7 +420,7 @@ class NetworkSwitchingService {
    */
   private async updateWalletNetwork(walletId: string, network: string, newAddress?: string): Promise<void> {
     try {
-      const updateData: any = {
+      const updateData: unknown = {
         network,
         updated_at: new Date().toISOString()
       };

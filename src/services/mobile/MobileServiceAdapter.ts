@@ -38,7 +38,7 @@ class MobileServiceAdapter {
     prioritizeEssential: true
   };
 
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private cache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
   private requestQueue: Array<{ id: string; request: () => Promise<any>; priority: number }> = [];
   private isProcessingQueue = false;
 
@@ -88,7 +88,7 @@ class MobileServiceAdapter {
    */
   private initializeBatteryOptimization() {
     if ('getBattery' in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
+      (navigator as any).getBattery().then((battery: unknown) => {
         const updateBatteryOptimization = () => {
           const level = battery.level;
           const charging = battery.charging;
@@ -230,7 +230,7 @@ class MobileServiceAdapter {
   /**
    * Mobile-optimized blockchain service wrapper
    */
-  async getSwapQuote(fromToken: any, toToken: any, amount: string) {
+  async getSwapQuote(fromToken: unknown, toToken: unknown, amount: string) {
     const cacheKey = `swap_quote_${fromToken.address}_${toToken.address}_${amount}`;
     
     if (this.optimizationConfig.batchRequests) {
@@ -255,7 +255,7 @@ class MobileServiceAdapter {
   /**
    * Mobile-optimized Uniswap V3 service wrapper
    */
-  async getUniswapV3Quote(params: any) {
+  async getUniswapV3Quote(params: unknown) {
     const cacheKey = `uniswap_quote_${params.tokenIn.address}_${params.tokenOut.address}_${params.amountIn}`;
     
     if (this.optimizationConfig.batchRequests) {

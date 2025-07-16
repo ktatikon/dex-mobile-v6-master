@@ -160,7 +160,7 @@ export const generateAddressesSimple = async (mnemonic: string): Promise<{ [key:
     console.log('✅ ETH address:', addresses.ETH);
 
     // HD Node for derivation
-    const hdNode = ethers.ethers.utils.HDNode.fromPhrase(trimmedMnemonic);
+    const hdNode = ethers.utils.HDNode.fromPhrase(trimmedMnemonic);
 
     // Generate different addresses using different derivation paths
     const derivationPaths = {
@@ -228,9 +228,7 @@ export const generateAddressesFromMnemonic = async (mnemonic: string): Promise<{
     console.log('Converting mnemonic to seed...');
     // Convert mnemonic to seed - try both libraries with detailed error logging
     let seed: Buffer;
-    let seedGenerationMethod = 'unknown';
-
-    // Try standard bip39 library first
+    let seedGenerationMethod = 'unknown';// Try standard bip39 library first
     try {
       console.log('Attempting seed generation with standard bip39...');
       console.log('bip39.mnemonicToSeed type:', typeof bip39.mnemonicToSeed);
@@ -266,7 +264,7 @@ export const generateAddressesFromMnemonic = async (mnemonic: string): Promise<{
           console.log('Attempting seed generation with ethers.js fallback...');
           const ethersWallet = ethers.Wallet.fromPhrase(trimmedMnemonic);
           // Generate a seed from the private key (not ideal but works as fallback)
-          const privateKeyBytes = ethers.ethers.utils.arrayify(ethersWallet.privateKey);
+          const privateKeyBytes = ethers.utils.arrayify(ethersWallet.privateKey);
           seed = Buffer.from(privateKeyBytes);
           seedGenerationMethod = 'ethers-fallback';
           console.log('✅ Seed generated with ethers.js fallback, length:', seed.length);
@@ -383,7 +381,7 @@ export const generateAddressesFromMnemonic = async (mnemonic: string): Promise<{
 
         // Generate additional addresses using derivation paths with ethers.js
         try {
-          const hdNode = ethers.ethers.utils.HDNode.fromPhrase(trimmedMnemonic);
+          const hdNode = ethers.utils.HDNode.fromPhrase(trimmedMnemonic);
 
           // Generate BTC-style address (using ETH format for compatibility)
           const btcDerived = hdNode.derivePath("m/44'/0'/0'/0/0");
@@ -545,8 +543,8 @@ export const testGeneratedWalletsTableAccess = async (): Promise<{
   canInsert: boolean;
   canUpdate: boolean;
   canDelete: boolean;
-  schema?: any;
-  error?: any;
+  schema?: unknown;
+  error?: unknown;
 }> => {
   const result: {
     tableExists: boolean;
@@ -554,8 +552,8 @@ export const testGeneratedWalletsTableAccess = async (): Promise<{
     canInsert: boolean;
     canUpdate: boolean;
     canDelete: boolean;
-    schema?: any;
-    error?: any;
+    schema?: unknown;
+    error?: unknown;
   } = {
     tableExists: false,
     canSelect: false,
@@ -770,7 +768,7 @@ export const testAddressGeneration = async (): Promise<{
   success: boolean;
   addresses?: { [key: string]: string };
   error?: string;
-  debugInfo?: any;
+  debugInfo?: unknown;
 }> => {
   try {
     console.log('=== STARTING ADDRESS GENERATION TEST ===');
@@ -782,8 +780,7 @@ export const testAddressGeneration = async (): Promise<{
       "legal winner thank year wave sausage worth useful legal winner thank yellow"
     ];
 
-    let successfulMnemonic = null;
-    let debugInfo: any = {
+    let successfulMnemonic = null;let debugInfo: unknown = {
       bip39Library: {
         available: typeof bip39,
         methods: Object.keys(bip39),
@@ -812,7 +809,7 @@ export const testAddressGeneration = async (): Promise<{
           words: testMnemonic.split(' ')
         });
 
-        const isValid = validateMnemonic(testMnemonic);
+        let isValid = validateMnemonic(testMnemonic);
         testResult.isValid = isValid;
         console.log('Validation result:', isValid);
 
@@ -992,9 +989,7 @@ export const getGeneratedWalletBalances = async (
           price_change_24h
         )
       `)
-      .eq('user_id', userId);
-
-    if (walletId) {
+      .eq('user_id', userId);if (walletId) {
       query = query.eq('wallet_id', walletId);
     }
 
@@ -1505,7 +1500,7 @@ export const testWalletCreationFlow = async (userId: string): Promise<{
 export const validateImportedWallet = async (
   walletId: string,
   userId: string
-): Promise<{ isValid: boolean; balances: any[]; totalValue: number }> => {
+): Promise<{ isValid: boolean; balances: unknown[]; totalValue: number }> => {
   try {
     // Get wallet addresses
     const { data: wallet, error } = await supabase
@@ -1522,9 +1517,7 @@ export const validateImportedWallet = async (
     // Check balances for each address
     // In a real implementation, you would query blockchain APIs
     const balances = [];
-    let totalValue = 0;
-
-    for (const [network, address] of Object.entries(wallet.addresses)) {
+    let totalValue = 0;for (const [network, address] of Object.entries(wallet.addresses)) {
       // Placeholder balance check
       const balance = Math.random() * 10; // Random balance for demo
       const price = Math.random() * 1000; // Random price for demo

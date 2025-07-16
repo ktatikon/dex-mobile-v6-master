@@ -47,6 +47,7 @@ import SendPageWithErrorBoundary from "./pages/SendPage";
 import ReceivePageWithErrorBoundary from "./pages/ReceivePage";
 import ErrorBoundary from "./components/ErrorBoundary";
 import KYCPage from "./pages/KYCPage";
+import AadhaarEKYCPage from "./pages/AadhaarEKYCPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import SecurityPage from "./pages/SecurityPage";
 import FAQPage from "./pages/FAQPage";
@@ -506,6 +507,24 @@ const App = () => {
                     <div className="pt-16 pb-20">
                       <div className="container mx-auto px-4 mb-4">
                         <KYCPage />
+                      </div>
+                      <DexNavigation />
+                    </div>
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/kyc/aadhaar"
+                element={
+                  <PrivateRoute>
+                    <DexHeader
+                      wallet={wallet}
+                      onConnectWallet={handleConnectWallet}
+                      onDisconnectWallet={handleDisconnectWallet}
+                    />
+                    <div className="pt-16 pb-20">
+                      <div className="container mx-auto px-4 mb-4">
+                        <AadhaarEKYCPage />
                       </div>
                       <DexNavigation />
                     </div>

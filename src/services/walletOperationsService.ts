@@ -307,7 +307,7 @@ class WalletOperationsService {
     }
 
     // Validate address format
-    if (!ethers.ethers.utils.isAddress(request.toAddress)) {
+    if (!ethers.utils.isAddress(request.toAddress)) {
       return false;
     }
 
@@ -359,7 +359,7 @@ class WalletOperationsService {
   /**
    * Execute real blockchain transaction
    */
-  private async executeBlockchainTransaction(wallet: any, request: SendTransactionRequest): Promise<TransactionResult> {
+  private async executeBlockchainTransaction(wallet: unknown, request: SendTransactionRequest): Promise<TransactionResult> {
     try {
       // This would integrate with real blockchain providers
       // For now, simulating the transaction execution
@@ -382,7 +382,7 @@ class WalletOperationsService {
   /**
    * Execute DEX swap
    */
-  private async executeDexSwap(wallet: any, request: SwapRequest): Promise<TransactionResult> {
+  private async executeDexSwap(wallet: unknown, request: SwapRequest): Promise<TransactionResult> {
     try {
       // This would integrate with real DEX protocols
       // For now, simulating the swap execution
@@ -409,7 +409,7 @@ class WalletOperationsService {
     walletId: string,
     operationType: string,
     result: TransactionResult,
-    request: any
+    request: unknown
   ): Promise<void> {
     try {
       const { error } = await supabase
@@ -465,7 +465,7 @@ class WalletOperationsService {
   /**
    * Get Phase 1 fallback balances
    */
-  private getPhase1FallbackBalances(wallet: any): WalletBalance[] {
+  private getPhase1FallbackBalances(wallet: unknown): WalletBalance[] {
     return [
       {
         token: 'ETH',

@@ -261,9 +261,7 @@ export function usePortfolioData(activeTab: string = 'overview') {
 
   // Calculate total portfolio value
   const totalPortfolioValue = useMemo(() => {
-    let total = 0;
-
-    // Add coins value
+    let total = 0;// Add coins value
     portfolioTokens.forEach(token => {
       const balance = parseFloat(token.balance || '0');
       const price = token.price || 0;
@@ -309,10 +307,7 @@ export function usePortfolioData(activeTab: string = 'overview') {
 
   // Calculate 24-hour portfolio change
   const portfolioChange24h = useMemo(() => {
-    let currentValue = 0;
-    let previousValue = 0;
-
-    // Calculate for coins
+    let currentValue = 0;let previousValue = 0;// Calculate for coins
     portfolioTokens.forEach(token => {
       const balance = parseFloat(token.balance || '0');
       const currentPrice = token.price || 0;

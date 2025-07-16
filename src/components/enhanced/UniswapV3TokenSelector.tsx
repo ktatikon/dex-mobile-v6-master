@@ -104,9 +104,7 @@ const UniswapV3TokenSelector: React.FC<UniswapV3TokenSelectorProps> = ({
       token0Price: string;
       token1Price: string;
     } | null = null;
-    let maxTVL = 0;
-
-    // Check all fee tiers for liquidity
+    const maxTVL = 0;// Check all fee tiers for liquidity
     for (const feeAmount of feeTiers) {
       try {
         const poolResult = await poolDataService.getPoolByTokens(
@@ -211,9 +209,7 @@ const UniswapV3TokenSelector: React.FC<UniswapV3TokenSelectorProps> = ({
 
   // Enhanced token filtering and sorting
   const filteredAndSortedTokens = useMemo(() => {
-    let filtered = tokens;
-
-    // Search filter
+    let filtered = tokens;// Search filter
     if (searchTerm) {
       filtered = filtered.filter(token =>
         token.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

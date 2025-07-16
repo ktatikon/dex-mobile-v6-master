@@ -40,7 +40,7 @@ export interface DataSource {
  */
 class LoadingOrchestrator {
   private loadingStates = new Map<string, BehaviorSubject<LoadingState>>();
-  private dataCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private dataCache = new Map<string, { data: unknown; timestamp: number; ttl: number }>();
   private componentConfigs = new Map<string, ComponentLoadingConfig>();
   private globalLoadingSubject = new BehaviorSubject<boolean>(false);
   private healthCheckInterval: NodeJS.Timeout | null = null;
@@ -109,7 +109,7 @@ class LoadingOrchestrator {
   public async loadComponentData(
     componentId: string,
     dataSources: DataSource[]
-  ): Promise<{ [key: string]: any }> {
+  ): Promise<{ [key: string]: unknown }> {
     // CRITICAL FIX: Auto-register component if not exists (for dynamic token changes)
     if (!this.componentConfigs.has(componentId)) {
       this.registerComponent({
@@ -142,10 +142,10 @@ class LoadingOrchestrator {
       await this.waitForDependencies(config.dependencies);
 
       // Load data sources with progress tracking
-      const results: { [key: string]: any } = {};
+      const results: { [key: string]: unknown } = {};
       const totalSources = dataSources.length;
 
-      for (let i = 0; i < dataSources.length; i++) {
+      for (let i = 0;i < dataSources.length; i++) {
         const source = dataSources[i];
         const progress = Math.round(((i + 1) / totalSources) * 100);
 
@@ -223,7 +223,7 @@ class LoadingOrchestrator {
   private async fetchWithRetry(source: DataSource, config: ComponentLoadingConfig): Promise<any> {
     let lastError: Error;
     
-    for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
+    for (let attempt = 0;attempt <= config.maxRetries; attempt++) {
       try {
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Request timeout')), config.timeout);
@@ -286,7 +286,7 @@ class LoadingOrchestrator {
   /**
    * Cache management
    */
-  private getCachedData(key: string): any | null {
+  private getCachedData(key: string): unknown | null {
     const cached = this.dataCache.get(key);
     if (!cached) return null;
 
@@ -298,7 +298,7 @@ class LoadingOrchestrator {
     return cached.data;
   }
 
-  private setCachedData(key: string, data: any, ttl: number): void {
+  private setCachedData(key: string, data: unknown, ttl: number): void {
     this.dataCache.set(key, {
       data,
       timestamp: Date.now(),

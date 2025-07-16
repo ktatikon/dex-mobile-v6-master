@@ -47,7 +47,7 @@ export const switchToSepoliaNetwork = async () => {
       params: [{ chainId: `0x${NETWORKS.sepolia.chainId.toString(16)}` }],
     });
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If the chain hasn't been added to MetaMask
     if (error.code === 4902) {
       try {
@@ -90,7 +90,7 @@ export const switchToGanacheNetwork = async () => {
       params: [{ chainId: `0x${NETWORKS.ganache.chainId.toString(16)}` }],
     });
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If the chain hasn't been added to MetaMask
     if (error.code === 4902) {
       try {

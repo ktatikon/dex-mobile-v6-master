@@ -89,8 +89,7 @@ export const validateMemoryUsage = (): PerformanceMetrics['memoryUsage'] => {
  */
 export const testAnimationPerformance = (): Promise<number> => {
   return new Promise((resolve) => {
-    let frameCount = 0;
-    const startTime = performance.now();
+    const frameCount = 0;const startTime = performance.now();
     const duration = 1000; // Test for 1 second
     
     const countFrames = () => {
@@ -138,7 +137,7 @@ export const testButtonPerformance = async (): Promise<boolean> => {
   const iterations = 100;
   const startTime = performance.now();
   
-  for (let i = 0; i < iterations; i++) {
+  for (let i = 0;i < iterations; i++) {
     // Simulate hover events
     button.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
     button.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));

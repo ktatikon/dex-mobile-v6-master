@@ -269,10 +269,7 @@ class GasOptimizationService {
 
       // Analyze upcoming time windows
       const timeWindows = this.generateTimeWindows(maxWaitTime);
-      let bestWindow = timeWindows[0];
-      let lowestGasPrice = parseFloat(currentData.suggestedGasPrice);
-
-      for (const window of timeWindows) {
+      let bestWindow = timeWindows[0];let lowestGasPrice = parseFloat(currentData.suggestedGasPrice);for (const window of timeWindows) {
         const predictedPrice = await this.predictGasPriceAtTime(networkId, window);
         if (predictedPrice < lowestGasPrice) {
           lowestGasPrice = predictedPrice;
@@ -379,9 +376,7 @@ class GasOptimizationService {
    * Get current network data with real-time updates
    */
   private async getCurrentNetworkData(networkId: number): Promise<NetworkGasData> {
-    let networkData = this.networkGasData.get(networkId);
-
-    if (!networkData || Date.now() - networkData.lastUpdated.getTime() > 30000) {
+    let networkData = this.networkGasData.get(networkId);if (!networkData || Date.now() - networkData.lastUpdated.getTime() > 30000) {
       // Refresh if data is older than 30 seconds
       networkData = await this.fetchNetworkGasData(networkId);
       this.networkGasData.set(networkId, networkData);
@@ -539,7 +534,7 @@ class GasOptimizationService {
       for (const networkId of this.SUPPORTED_NETWORKS) {
         const history: GasHistoryPoint[] = [];
         // Generate mock historical data
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0;i < 100; i++) {
           history.push({
             timestamp: new Date(Date.now() - i * 60000), // Every minute
             gasPrice: (20 + Math.random() * 10).toString() + '000000000', // 20-30 gwei
@@ -680,7 +675,7 @@ class GasOptimizationService {
     const intervalMinutes = 15;
     const intervals = Math.floor(maxWaitTime / (intervalMinutes * 60));
 
-    for (let i = 1; i <= intervals; i++) {
+    for (let i = 1;i <= intervals; i++) {
       windows.push(new Date(Date.now() + i * intervalMinutes * 60 * 1000));
     }
 

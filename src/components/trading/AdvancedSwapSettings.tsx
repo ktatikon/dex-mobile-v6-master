@@ -88,7 +88,7 @@ export const AdvancedSwapSettings: React.FC<AdvancedSwapSettingsProps> = ({
     }
   }, []);
 
-  const handleSettingChange = useCallback((key: keyof SwapSettings, value: any) => {
+  const handleSettingChange = useCallback((key: keyof SwapSettings, value: unknown) => {
     const newSettings = { ...localSettings, [key]: value };
     setLocalSettings(newSettings);
   }, [localSettings]);

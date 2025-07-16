@@ -309,7 +309,7 @@ class ChartDataService {
 
     let lastError: Error | null = null;
     
-    for (let attempt = 1; attempt <= this.config.retryAttempts; attempt++) {
+    for (let attempt = 1;attempt <= this.config.retryAttempts; attempt++) {
       try {
         if (signal.aborted) {
           throw new Error('Request aborted');
@@ -493,8 +493,7 @@ class ChartDataService {
   private calculateDataQuality(data: CandlestickData[]): number {
     if (!data || data.length === 0) return 0;
     
-    let validPoints = 0;
-    const totalPoints = data.length;
+    let validPoints = 0;const totalPoints = data.length;
     
     for (const point of data) {
       if (
@@ -552,10 +551,7 @@ class ChartDataService {
    * Evict oldest cache entry (LRU)
    */
   private evictOldestCache(): void {
-    let oldestKey = '';
-    let oldestTime = Date.now();
-    
-    for (const [key, value] of Object.entries(this.cache)) {
+    let oldestKey = '';let oldestTime = Date.now();for (const [key, value] of Object.entries(this.cache)) {
       if (value.timestamp < oldestTime) {
         oldestTime = value.timestamp;
         oldestKey = key;
@@ -585,7 +581,7 @@ class ChartDataService {
   /**
    * Get comprehensive cache statistics
    */
-  getCacheStats(): any {
+  getCacheStats(): unknown {
     const entries = Object.values(this.cache);
     const now = Date.now();
     const totalEntries = Object.keys(this.cache).length;

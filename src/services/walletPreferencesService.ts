@@ -231,7 +231,7 @@ export const getAllUserWalletsWithPreferences = async (userId: string) => {
     // Apply preferences
     if (preferences) {
       // Sort by display order
-      const orderedWallets = [];
+      let orderedWallets = [];
       const unorderedWallets = [];
 
       for (const wallet of allWallets) {

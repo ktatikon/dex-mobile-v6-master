@@ -257,11 +257,7 @@ export class TDSComplianceService {
       const thresholdExceeded = (annualTotal + inrAmount) > threshold;
 
       // Calculate TDS
-      let tdsAmount = 0;
-      let exemptionApplied = false;
-      let exemptionReason = '';
-
-      if (thresholdExceeded) {
+      let tdsAmount = 0;let exemptionApplied = false;let exemptionReason = '';if (thresholdExceeded) {
         tdsAmount = inrAmount * (rate / 100);
       } else {
         exemptionApplied = true;
@@ -604,7 +600,7 @@ export class TDSComplianceService {
     };
   }
 
-  private prepareTDSFilingData(report: TDSReport): any {
+  private prepareTDSFilingData(report: TDSReport): unknown {
     // Prepare data in government-specified format
     return {
       tanNumber: this.configuration!.tanNumber,
@@ -622,7 +618,7 @@ export class TDSComplianceService {
     };
   }
 
-  private async submitToGovernmentAPI(data: any): Promise<GovernmentAPIResponse> {
+  private async submitToGovernmentAPI(data: unknown): Promise<GovernmentAPIResponse> {
     // Mock government API submission
     await new Promise(resolve => setTimeout(resolve, 5000));
 
@@ -635,7 +631,7 @@ export class TDSComplianceService {
     };
   }
 
-  private async submitChallan(data: any): Promise<GovernmentAPIResponse> {
+  private async submitChallan(data: unknown): Promise<GovernmentAPIResponse> {
     // Mock challan submission
     await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -648,11 +644,11 @@ export class TDSComplianceService {
     };
   }
 
-  private validateTDSRates = (data: any): boolean => {
+  private validateTDSRates = (data: unknown): boolean => {
     return data && data.section194S && data.section194K;
   };
 
-  private validateExchangeRates = (data: any): boolean => {
+  private validateExchangeRates = (data: unknown): boolean => {
     return data && typeof data === 'object' && Object.keys(data).length > 0;
   };
 

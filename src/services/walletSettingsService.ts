@@ -168,9 +168,7 @@ export const updateWalletSettings = async (
  */
 export const getOrCreateWalletSettings = async (userId: string): Promise<WalletSettings | null> => {
   try {
-    let settings = await getWalletSettings(userId);
-
-    if (!settings) {
+    let settings = await getWalletSettings(userId);if (!settings) {
       settings = await createDefaultWalletSettings(userId);
     }
 
@@ -191,7 +189,7 @@ export const getOrCreateWalletSettings = async (userId: string): Promise<WalletS
 export const updateWalletSetting = async (
   userId: string,
   settingKey: keyof Omit<WalletSettings, 'id' | 'user_id' | 'created_at' | 'updated_at'>,
-  value: any
+  value: unknown
 ): Promise<boolean> => {
   try {
     const { error } = await supabase

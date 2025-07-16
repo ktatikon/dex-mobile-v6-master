@@ -352,7 +352,7 @@ class PredictiveAnalyticsService {
   /**
    * Handle service errors and manage fallback activation
    */
-  private handleServiceError(error: any): void {
+  private handleServiceError(error: unknown): void {
     this.consecutiveFailures++;
     console.error(`❌ Predictive Analytics Service error (${this.consecutiveFailures}/${this.MAX_CONSECUTIVE_FAILURES}):`, error);
 
@@ -472,7 +472,7 @@ class PredictiveAnalyticsService {
     return this.getMockPricePredictions([_token], _timeframe)[0];
   }
 
-  private async analyzeTrends(_marketData: any, _marketSummary: any): Promise<MarketTrendAnalysis> {
+  private async analyzeTrends(_marketData: unknown, _marketSummary: unknown): Promise<MarketTrendAnalysis> {
     // Implementation will analyze market trends using technical indicators
     return this.getMockMarketTrendAnalysis();
   }
@@ -482,12 +482,12 @@ class PredictiveAnalyticsService {
     return this.getMockYieldForecasts([_protocol], _timeframe)[0];
   }
 
-  private analyzeSentiment(_marketSentiment: any, _marketData: any): SentimentAnalysis {
+  private analyzeSentiment(_marketSentiment: unknown, _marketData: unknown): SentimentAnalysis {
     // Implementation will analyze comprehensive market sentiment
     return this.getMockSentimentAnalysis();
   }
 
-  private generateRiskForecast(_riskAssessment: any, _marketTrend: any): RiskForecast {
+  private generateRiskForecast(_riskAssessment: unknown, _marketTrend: unknown): RiskForecast {
     // Implementation will generate risk forecasts
     return this.getMockRiskForecast();
   }

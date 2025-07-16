@@ -30,7 +30,7 @@ interface UseChartDataReturn {
   lastUpdated: Date | null;
   refetch: () => Promise<void>;
   clearCache: () => void;
-  cacheStats: any;
+  cacheStats: unknown;
   source: 'microservice' | 'fallback' | 'cache' | 'unknown';
   isUsingMicroservice: boolean;
 }
@@ -321,7 +321,7 @@ export function useChartData(
 
     // Detect token and timeframe changes more reliably
     const previousRequestParts = currentRequest.current ? currentRequest.current.split('_') : [];
-    const previousToken = previousRequestParts[0];
+    let previousToken = previousRequestParts[0];
     const previousTimeframe = previousRequestParts[1];
 
     const isTokenChange = previousToken && previousToken !== tokenId;

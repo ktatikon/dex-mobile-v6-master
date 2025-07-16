@@ -13,9 +13,9 @@ import { ConstraintChecker } from './supabaseConstraintChecker';
 export interface SignupDiagnosticResult {
   step: string;
   success: boolean;
-  data?: any;
-  error?: any;
-  details?: any;
+  data?: unknown;
+  error?: unknown;
+  details?: unknown;
   timestamp: Date;
 }
 
@@ -119,7 +119,7 @@ export class BruteForceSignupTester {
       
       // Simulate AuthContext validation logic
       const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-      const phoneRegex = /^[+]?[0-9\s\-\(\)]{5,20}$/;
+      const phoneRegex = /^[+]?[0-9\s\-()]{5,20}$/;
       
       const emailValid = emailRegex.test(testData.email.trim());
       const phoneValid = !testData.phone || testData.phone.trim() === '' || phoneRegex.test(testData.phone);
@@ -335,7 +335,7 @@ export class DynamicValidationCache {
   private validationCache = new Map<string, { result: boolean; timestamp: number }>();
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
-  getCacheKey(data: any): string {
+  getCacheKey(data: unknown): string {
     return JSON.stringify(data);
   }
 
@@ -343,7 +343,7 @@ export class DynamicValidationCache {
     return Date.now() - timestamp < this.cacheTimeout;
   }
 
-  async getCachedValidation(data: any): Promise<boolean | null> {
+  async getCachedValidation(data: unknown): Promise<boolean | null> {
     const key = this.getCacheKey(data);
     const cached = this.validationCache.get(key);
     
@@ -355,7 +355,7 @@ export class DynamicValidationCache {
     return null;
   }
 
-  setCachedValidation(data: any, result: boolean): void {
+  setCachedValidation(data: unknown, result: boolean): void {
     const key = this.getCacheKey(data);
     this.validationCache.set(key, {
       result,

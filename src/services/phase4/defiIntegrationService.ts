@@ -464,7 +464,7 @@ class DeFiIntegrationService {
     return 'high';
   }
 
-  private validateStakingParams(params: any): { isValid: boolean; errors: string[] } {
+  private validateStakingParams(params: unknown): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     if (!params.userId) errors.push('User ID is required');
@@ -591,7 +591,7 @@ class DeFiIntegrationService {
 
         // Calculate rewards based on real APY
         const annualReward = parseFloat(position.stakedAmount) * (protocolData.apy / 100);
-        const currentRewards = (annualReward * daysStaked / 365).toString();
+        let currentRewards = (annualReward * daysStaked / 365).toString();
 
         // Update position
         position.currentRewards = currentRewards;
@@ -668,7 +668,7 @@ class DeFiIntegrationService {
   }
 
   // Mock methods for Phase 1 fallback
-  private createMockStakingPosition(params: any): StakingPosition {
+  private createMockStakingPosition(params: unknown): StakingPosition {
     return {
       id: `mock_stake_${Date.now()}`,
       userId: params.userId,
@@ -687,7 +687,7 @@ class DeFiIntegrationService {
     };
   }
 
-  private createMockYieldFarmingPosition(params: any): YieldFarmingPosition {
+  private createMockYieldFarmingPosition(params: unknown): YieldFarmingPosition {
     return {
       id: `mock_farm_${Date.now()}`,
       userId: params.userId,
@@ -711,7 +711,7 @@ class DeFiIntegrationService {
     };
   }
 
-  private createMockLiquidityPosition(params: any): LiquidityPosition {
+  private createMockLiquidityPosition(params: unknown): LiquidityPosition {
     return {
       id: `mock_liq_${Date.now()}`,
       userId: params.userId,
@@ -781,7 +781,7 @@ export const defiIntegrationService = new DeFiIntegrationService();
 
 // Export safe wrapper with fallback mechanisms
 export const safeDeFiIntegrationService = {
-  async createStakingPosition(params: any) {
+  async createStakingPosition(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableLiveStaking) {
         return await defiIntegrationService.createStakingPosition(params);
@@ -794,7 +794,7 @@ export const safeDeFiIntegrationService = {
     return null;
   },
 
-  async createYieldFarmingPosition(params: any) {
+  async createYieldFarmingPosition(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableYieldFarming) {
         return await defiIntegrationService.createYieldFarmingPosition(params);
@@ -806,7 +806,7 @@ export const safeDeFiIntegrationService = {
     return null;
   },
 
-  async createLiquidityPosition(params: any) {
+  async createLiquidityPosition(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableLiquidityProvision) {
         return await defiIntegrationService.createLiquidityPosition(params);

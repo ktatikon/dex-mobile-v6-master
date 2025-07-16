@@ -32,35 +32,52 @@ function fixEthersImports(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     let modified = false;
 
-    // Fix import statements
-    Object.entries(importMappings).forEach(([v6Import, v5Import]) => {
-      const importRegex = new RegExp(`\\b${v6Import}\\b`, 'g');
-      if (content.includes(v6Import)) {
-        content = content.replace(importRegex, `ethers.${v5Import}`);
+    // First, clean up any existing duplicated ethers patterns
+    const duplicatePatterns = [
+      /ethers\.providers\.ethers\.providers\.ethers\.providers\./g,
+      /ethers\.providers\.ethers\.providers\./g,
+      /ethers\.utils\.ethers\.utils\.ethers\.utils\./g,
+      /ethers\.utils\.ethers\.utils\./g,
+      /ethers\.constants\.ethers\.constants\./g
+    ];
+
+    duplicatePatterns.forEach(pattern => {
+      if (pattern.test(content)) {
+        if (pattern.source.includes('providers')) {
+          content = content.replace(pattern, 'ethers.providers.');
+        } else if (pattern.source.includes('utils')) {
+          content = content.replace(pattern, 'ethers.utils.');
+        } else if (pattern.source.includes('constants')) {
+          content = content.replace(pattern, 'ethers.constants.');
+        }
         modified = true;
       }
     });
 
-    // Fix specific patterns
-    if (content.includes('new ethers.providers.JsonRpcProvider')) {
-      // Already correct
-    } else if (content.includes('new ethers.JsonRpcProvider')) {
-      content = content.replace(/new ethers\.JsonRpcProvider/g, 'new ethers.providers.JsonRpcProvider');
+    // Fix import statements - but only if not already prefixed with ethers.
+    Object.entries(importMappings).forEach(([v6Import, v5Import]) => {
+      // Only replace if it's not already prefixed with ethers.
+      const standaloneRegex = new RegExp(`(?<!ethers\\.)\\b${v6Import}\\b`, 'g');
+      if (standaloneRegex.test(content)) {
+        content = content.replace(standaloneRegex, `ethers.${v5Import}`);
+        modified = true;
+      }
+    });
+
+    // Fix specific constructor patterns
+    if (content.includes('new JsonRpcProvider') && !content.includes('new ethers.providers.JsonRpcProvider')) {
+      content = content.replace(/new JsonRpcProvider/g, 'new ethers.providers.JsonRpcProvider');
       modified = true;
     }
 
-    if (content.includes('new ethers.providers.Web3Provider')) {
-      // Already correct
-    } else if (content.includes('new ethers.BrowserProvider')) {
-      content = content.replace(/new ethers\.BrowserProvider/g, 'new ethers.providers.Web3Provider');
+    if (content.includes('new BrowserProvider') && !content.includes('new ethers.providers.Web3Provider')) {
+      content = content.replace(/new BrowserProvider/g, 'new ethers.providers.Web3Provider');
       modified = true;
     }
 
     // Fix constants
-    if (content.includes('ethers.constants.AddressZero')) {
-      // Already correct
-    } else if (content.includes('ethers.ZeroAddress')) {
-      content = content.replace(/ethers\.ZeroAddress/g, 'ethers.constants.AddressZero');
+    if (content.includes('ZeroAddress') && !content.includes('ethers.constants.AddressZero')) {
+      content = content.replace(/\bZeroAddress\b/g, 'ethers.constants.AddressZero');
       modified = true;
     }
 

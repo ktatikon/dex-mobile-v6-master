@@ -241,9 +241,7 @@ describe('Phase 4 Integration with Existing System', () => {
   });
 
   it('should handle configuration changes gracefully', () => {
-    let configChangeCount = 0;
-    
-    // Subscribe to configuration changes
+    const configChangeCount = 0;// Subscribe to configuration changes
     const unsubscribe = phase4ConfigManager.subscribe(() => {
       configChangeCount++;
     });

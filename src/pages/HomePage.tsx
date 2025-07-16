@@ -132,7 +132,7 @@ const HomePage: React.FC = () => {
   };
 
   // Enhanced swap functionality with enterprise service integration
-  const handleSwap = async (swapData: any) => {
+  const handleSwap = async (swapData: unknown) => {
     try {
       const {
         fromToken,

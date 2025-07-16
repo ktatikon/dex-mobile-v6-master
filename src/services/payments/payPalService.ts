@@ -410,7 +410,7 @@ export class PayPalService {
     }
   }
 
-  private async processWebhookEvent(event: any): Promise<void> {
+  private async processWebhookEvent(event: unknown): Promise<void> {
     switch (event.event_type) {
       case 'CHECKOUT.ORDER.APPROVED':
         await this.handleOrderApproved(event);
@@ -426,19 +426,19 @@ export class PayPalService {
     }
   }
 
-  private async handleOrderApproved(event: any): Promise<void> {
+  private async handleOrderApproved(event: unknown): Promise<void> {
     console.log('PayPal order approved:', event.resource.id);
     // Update order status in database
   }
 
-  private async handlePaymentCompleted(event: any): Promise<void> {
+  private async handlePaymentCompleted(event: unknown): Promise<void> {
     console.log('PayPal payment completed:', event.resource.id);
     // Update transaction status in database
     // Trigger balance update
     // Send confirmation to user
   }
 
-  private async handlePaymentDenied(event: any): Promise<void> {
+  private async handlePaymentDenied(event: unknown): Promise<void> {
     console.log('PayPal payment denied:', event.resource.id);
     // Update transaction status in database
     // Send failure notification to user
@@ -495,7 +495,7 @@ export class PayPalService {
 
   // ==================== ERROR HANDLING ====================
 
-  getErrorMessage(error: any): string {
+  getErrorMessage(error: unknown): string {
     if (error.details && error.details.length > 0) {
       return error.details[0].description || error.message;
     }

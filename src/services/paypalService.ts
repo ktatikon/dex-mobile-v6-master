@@ -188,7 +188,7 @@ export interface PayPalWebhookEvent {
   resource_type: string;
   event_type: string;
   summary: string;
-  resource: any;
+  resource: unknown;
   links: PayPalLink[];
 }
 
@@ -494,7 +494,7 @@ class PayPalService {
 
       // Calculate TDS if applicable
       const amount = parseFloat(request.purchase_units[0].amount.value);
-      const currency = request.purchase_units[0].amount.currency_code;
+      let currency = request.purchase_units[0].amount.currency_code;
 
       if (currency === 'INR' || this.requiresTDSCalculation(currency)) {
         const tdsCalculation = await tdsComplianceService.calculateTDS(
@@ -674,7 +674,7 @@ class PayPalService {
    */
   private async makeApiCall(
     endpoint: string,
-    data: any = null,
+    data: unknown = null,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'POST'
   ): Promise<any> {
     if (!this.config || !this.accessToken) {

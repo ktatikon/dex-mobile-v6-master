@@ -394,7 +394,7 @@ class ComprehensiveWalletService {
 
       // Update balances in batches to avoid overwhelming the blockchain APIs
       const batchSize = 5;
-      for (let i = 0; i < wallets.length; i += batchSize) {
+      for (let i = 0;i < wallets.length; i += batchSize) {
         const batch = wallets.slice(i, i + batchSize);
         await Promise.all(
           batch.map(wallet => this.updateWalletBalance(wallet.id))
@@ -569,9 +569,7 @@ class ComprehensiveWalletService {
         .from('wallets')
         .select('id, wallet_type, wallet_address, network')
         .eq('user_id', userId)
-        .eq('is_active', true);
-
-      if (walletType) {
+        .eq('is_active', true);if (walletType) {
         query = query.eq('wallet_type', walletType);
       }
 

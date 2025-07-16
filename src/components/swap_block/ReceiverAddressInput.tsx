@@ -125,7 +125,7 @@ export const ReceiverAddressInput: React.FC<ReceiverAddressInputProps> = ({
       }
 
       // Validate Ethereum address format
-      if (!ethers.ethers.utils.isAddress(address)) {
+      if (!ethers.utils.isAddress(address)) {
         return {
           isValid: false,
           isChecksum: false,
@@ -134,7 +134,7 @@ export const ReceiverAddressInput: React.FC<ReceiverAddressInputProps> = ({
       }
 
       // Check if address is checksummed
-      const isChecksum = ethers.ethers.utils.getAddress(address) === address;
+      const isChecksum = ethers.utils.getAddress(address) === address;
       
       return {
         isValid: true,

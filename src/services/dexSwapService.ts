@@ -317,9 +317,7 @@ class DEXSwapService {
       const deadline = request.deadline || Math.floor(Date.now() / 1000) + 1200; // 20 minutes
 
       let approvalResult: TransactionResult | undefined;
-      let totalGasUsed = '0';
-
-      // Step 1: Approve token if needed
+      let totalGasUsed = '0';// Step 1: Approve token if needed
       if (preview.needsApproval) {
         this.setStatus('approving');
         this.emit('swapStatusUpdate', { status: 'approving', message: 'Approving token spending...' });
@@ -490,7 +488,7 @@ class DEXSwapService {
     fromSymbol: string,
     toSymbol: string
   ): string {
-    const inputAmount = parseFloat(amountIn);
+    let inputAmount = parseFloat(amountIn);
     const outputAmount = parseFloat(amountOut);
     
     if (inputAmount === 0) return '0';

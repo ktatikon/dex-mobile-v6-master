@@ -316,7 +316,7 @@ describe('Phase 4.2: DeFi Integration Service', () => {
       };
 
       // Multiple attempts should eventually trigger fallback
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0;i < 6; i++) {
         await safeDeFiIntegrationService.createStakingPosition(stakingParams);
       }
 

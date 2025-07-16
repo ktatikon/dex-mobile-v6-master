@@ -433,7 +433,7 @@ class WalletConnectivityService {
       if (tokenData.status === '1' && tokenData.result) {
         // Get unique tokens from transaction history
         const uniqueTokens = new Map();
-        tokenData.result.forEach((tx: any) => {
+        tokenData.result.forEach((tx: unknown) => {
           if (!uniqueTokens.has(tx.contractAddress)) {
             uniqueTokens.set(tx.contractAddress, {
               symbol: tx.tokenSymbol,
@@ -639,9 +639,7 @@ class WalletConnectivityService {
    */
   getTotalBalanceUSD(): number {
     try {
-      let totalUSD = 0;
-
-      this.connectedWallets.forEach(wallet => {
+      let totalUSD = 0;this.connectedWallets.forEach(wallet => {
         wallet.balances.forEach(balance => {
           totalUSD += balance.balanceUSD;
         });

@@ -82,7 +82,7 @@ interface NFTItem {
   name: string;
   description?: string;
   image?: string;
-  metadata?: any;
+  metadata?: unknown;
   collection?: string;
 }
 
@@ -340,7 +340,7 @@ const WalletDetailsPage: React.FC = () => {
   };
 
   const formatBalance = (balance: string, decimals: number = 18): string => {
-    const balanceNum = parseFloat(balance) / Math.pow(10, decimals);
+    let balanceNum = parseFloat(balance) / Math.pow(10, decimals);
     if (balanceNum === 0) return '0';
     if (balanceNum < 0.000001) return '< 0.000001';
     return balanceNum.toFixed(6).replace(/\.?0+$/, '');
@@ -672,8 +672,7 @@ const WalletDetailsPage: React.FC = () => {
   };
 
   const generateQRCode = (address: string, tokenSymbol?: string, amount?: string) => {
-    let qrData = address;
-    if (tokenSymbol) {
+    let qrData = address;if (tokenSymbol) {
       qrData += `?token=${tokenSymbol}`;
       if (amount) {
         qrData += `&amount=${amount}`;

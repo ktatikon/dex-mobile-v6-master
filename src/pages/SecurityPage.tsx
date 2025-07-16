@@ -95,7 +95,7 @@ const SecurityPage = () => {
       });
       
       reset();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating password:', error);
       toast({
         title: "Error",

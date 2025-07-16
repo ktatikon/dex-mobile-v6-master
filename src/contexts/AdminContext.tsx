@@ -22,7 +22,7 @@ export interface AdminContextType {
   isAdmin: boolean;
   isLoading: boolean;
   hasPermission: (requiredRole: AdminRole) => boolean;
-  logActivity: (action: string, targetType?: string, targetId?: string, details?: any) => Promise<void>;
+  logActivity: (action: string, targetType?: string, targetId?: string, details?: unknown) => Promise<void>;
   refreshAdminStatus: () => Promise<void>;
 }
 
@@ -54,7 +54,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     action: string,
     targetType?: string,
     targetId?: string,
-    details?: any
+    details?: unknown
   ): Promise<void> => {
     if (!adminUser) return;
 

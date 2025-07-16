@@ -124,7 +124,7 @@ const NotificationsPage = () => {
         description: "Your notification preferences have been updated.",
         variant: "default",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error saving notification settings:', error);
       toast({
         title: "Error",

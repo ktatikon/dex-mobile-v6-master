@@ -119,7 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Input format validation
       const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-      const phoneRegex = /^[+]?[0-9\s\-\(\)]{5,20}$/;
+      const phoneRegex = /^[+]?[0-9\s\-()]{5,20}$/;
 
       if (!emailRegex.test(email.trim())) {
         throw new Error('Invalid email format');
@@ -215,16 +215,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       return; // SUCCESS EXIT - email verification flow
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('🚨 Signup error occurred:', error);
 
       // Enhanced error logging for debugging
+      const errorObj = error as { message?: string; code?: string; details?: unknown; hint?: string; stack?: string };
       console.error('🔍 Error details:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-        stack: error.stack
+        message: errorObj.message,
+        code: errorObj.code,
+        details: errorObj.details,
+        hint: errorObj.hint,
+        stack: errorObj.stack
       });
 
       // Check if this is a timeout error
@@ -233,9 +234,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // Enhanced error handling with specific messages
-      let errorMessage = 'Registration failed. Please try again.';
-
-      if (error.message) {
+      let errorMessage = 'Registration failed. Please try again.';if (error.message) {
         if (error.message.includes('Email already in use')) {
           errorMessage = 'An account with this email address already exists. Please try logging in instead.';
         } else if (error.message.includes('Invalid email')) {
@@ -285,7 +284,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         variant: "default",
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('🚨 Resend verification error:', error);
 
       toast({
@@ -332,7 +331,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error(`Login failed: ${error.message}`);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Show user-friendly error message
       toast({
         title: "Login Failed",
@@ -348,7 +347,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
         description: error.message,
@@ -380,7 +379,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       return { isValid: true, session, error: undefined };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle AuthSessionMissingError specifically
       if (error.name === 'AuthSessionMissingError' || error.message.includes('Auth session missing')) {
         return { isValid: false, session: null, error: 'Authentication session missing. Please sign in again.' };
@@ -412,7 +411,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         return { success: false, session: null, error: 'No session returned from refresh' };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle AuthSessionMissingError specifically
       if (error.name === 'AuthSessionMissingError' || error.message.includes('Auth session missing')) {
         return { success: false, session: null, error: 'Authentication session missing. Please sign in again.' };

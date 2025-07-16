@@ -340,11 +340,7 @@ export const getDeFiPortfolioSummary = async (userId: string) => {
   try {
     const stakingPositions = await getUserStakingPositions(userId);
 
-    let totalStaked = 0;
-    let totalRewards = 0;
-    let activePositions = 0;
-
-    stakingPositions.forEach(position => {
+    let totalStaked = 0;let totalRewards = 0;let activePositions = 0;stakingPositions.forEach(position => {
       if (position.status === 'active') {
         activePositions++;
         totalStaked += parseFloat(position.amount);
@@ -377,7 +373,7 @@ export const getDeFiPortfolioSummary = async (userId: string) => {
  * @returns Protocol information
  */
 export const getProtocolInfo = (protocolName: string) => {
-  const protocols: { [key: string]: any } = {
+  const protocols: { [key: string]: unknown } = {
     'Ethereum 2.0': {
       name: 'Ethereum 2.0',
       description: 'The upgraded Ethereum network using Proof of Stake consensus',

@@ -191,7 +191,7 @@ export interface ChartWebSocketUpdate {
 export interface ChartError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
   recoverable: boolean;
   timestamp: number;
 }

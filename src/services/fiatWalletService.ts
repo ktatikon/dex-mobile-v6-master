@@ -328,10 +328,7 @@ export class FiatWalletService {
 
       // Calculate fees and TDS (for Indian users)
       const fees = paymentMethod.fees.fixed + (amount * paymentMethod.fees.percentage / 100);
-      let tdsAmount = 0;
-      let tdsRate = 0;
-
-      if (currency === 'INR') {
+      let tdsAmount = 0;let tdsRate = 0;if (currency === 'INR') {
         tdsRate = await this.getTDSRate(userId);
         tdsAmount = amount * tdsRate / 100;
       }
@@ -521,11 +518,11 @@ export class FiatWalletService {
     };
   }
 
-  private validateExchangeRates = (data: any): boolean => {
+  private validateExchangeRates = (data: unknown): boolean => {
     return data && typeof data === 'object' && Object.keys(data).length > 0;
   };
 
-  private validateTDSRates = (data: any): boolean => {
+  private validateTDSRates = (data: unknown): boolean => {
     return data && typeof data === 'object' && data.default !== undefined;
   };
 

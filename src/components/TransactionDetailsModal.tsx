@@ -77,9 +77,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
 
   const handleOpenExplorer = () => {
     // Determine the block explorer URL based on the chain
-    let explorerUrl = '';
-    
-    switch (transaction.chain) {
+    let explorerUrl = '';switch (transaction.chain) {
       case 'ethereum':
         explorerUrl = `https://etherscan.io/tx/${transaction.hash}`;
         break;

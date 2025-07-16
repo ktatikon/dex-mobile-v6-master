@@ -10,8 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 interface MigrationResult {
   migrationName: string;
   success: boolean;
-  error?: any;
-  details?: any;
+  error?: unknown;
+  details?: unknown;
 }
 
 /**
@@ -275,7 +275,7 @@ export async function applyAllCriticalMigrations(): Promise<{
   results.push(await applyPhoneConstraintMigration());
 
   const successful = results.filter(r => r.success).length;
-  const failed = results.length - successful;
+  let failed = results.length - successful;
 
   const summary = {
     total: results.length,

@@ -308,7 +308,7 @@ class AIAnalyticsService {
   /**
    * Handle service errors and manage fallback activation
    */
-  private handleServiceError(error: any): void {
+  private handleServiceError(error: unknown): void {
     this.consecutiveFailures++;
     console.error(`❌ AI Analytics Service error (${this.consecutiveFailures}/${this.MAX_CONSECUTIVE_FAILURES}):`, error);
 
@@ -410,12 +410,12 @@ class AIAnalyticsService {
     return {};
   }
 
-  private async calculateOptimalAllocation(_portfolioData: any, _marketData: any): Promise<PortfolioOptimization> {
+  private async calculateOptimalAllocation(_portfolioData: unknown, _marketData: unknown): Promise<PortfolioOptimization> {
     // Implementation will use Modern Portfolio Theory algorithms
     return this.getMockPortfolioOptimization('');
   }
 
-  private async calculateRiskMetrics(_portfolioData: any, _marketData: any): Promise<RiskAssessment> {
+  private async calculateRiskMetrics(_portfolioData: unknown, _marketData: unknown): Promise<RiskAssessment> {
     // Implementation will calculate comprehensive risk metrics
     return this.getMockRiskAssessment('');
   }
@@ -430,12 +430,12 @@ class AIAnalyticsService {
     return {};
   }
 
-  private async calculatePerformanceMetrics(_portfolioHistory: any, _marketBenchmark: any): Promise<PerformanceMetrics> {
+  private async calculatePerformanceMetrics(_portfolioHistory: unknown, _marketBenchmark: unknown): Promise<PerformanceMetrics> {
     // Implementation will calculate advanced performance metrics
     return this.getMockPerformanceMetrics('');
   }
 
-  private analyzeMarketSentiment(_marketData: any, _marketSummary: any): MarketSentiment {
+  private analyzeMarketSentiment(_marketData: unknown, _marketSummary: unknown): MarketSentiment {
     // Implementation will analyze market sentiment
     return this.getMockMarketSentiment();
   }

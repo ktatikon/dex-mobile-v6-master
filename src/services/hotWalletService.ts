@@ -203,7 +203,7 @@ const connectMetaMask = async (): Promise<string> => {
       } else {
         throw new Error('No accounts found. Please unlock MetaMask and try again.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('MetaMask connection error:', error);
 
       // Handle specific MetaMask errors
@@ -250,7 +250,7 @@ const connectTrustWallet = async (): Promise<string> => {
       } else {
         throw new Error('No accounts found. Please unlock Trust Wallet and try again.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Trust Wallet connection error:', error);
 
       // Handle specific Trust Wallet errors
@@ -294,7 +294,7 @@ const connectCoinbaseWallet = async (): Promise<string> => {
       } else {
         throw new Error('No accounts found. Please unlock Coinbase Wallet and try again.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Coinbase Wallet connection error:', error);
 
       // Handle specific Coinbase Wallet errors
@@ -336,7 +336,7 @@ const connectPhantom = async (): Promise<string> => {
       } else {
         throw new Error('No public key received from Phantom wallet.');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Phantom connection error:', error);
 
       // Handle specific Phantom errors
@@ -552,9 +552,7 @@ export const importWalletAddresses = async (
   addresses: string[]
 ): Promise<{ success: boolean; imported: number; error?: string }> => {
   try {
-    let imported = 0;
-
-    for (const address of addresses) {
+    let imported = 0;for (const address of addresses) {
       // Save each address as a separate wallet connection
       const wallet = HOT_WALLET_OPTIONS.find(w => w.id === walletId);
       if (wallet) {
@@ -582,7 +580,7 @@ export const importWalletAddresses = async (
 // Extend window interface for wallet detection
 declare global {
   interface Window {
-    ethereum?: any;
-    solana?: any;
+    ethereum?: unknown;
+    solana?: unknown;
   }
 }

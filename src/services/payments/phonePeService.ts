@@ -287,7 +287,7 @@ export class PhonePeService {
     }
   }
 
-  private async processWebhookData(data: any): Promise<void> {
+  private async processWebhookData(data: unknown): Promise<void> {
     // Process webhook data based on transaction state
     switch (data.state) {
       case 'COMPLETED':
@@ -304,20 +304,20 @@ export class PhonePeService {
     }
   }
 
-  private async handlePaymentSuccess(data: any): Promise<void> {
+  private async handlePaymentSuccess(data: unknown): Promise<void> {
     console.log('Payment successful:', data.merchantTransactionId);
     // Update transaction status in database
     // Trigger balance update
     // Send confirmation to user
   }
 
-  private async handlePaymentFailure(data: any): Promise<void> {
+  private async handlePaymentFailure(data: unknown): Promise<void> {
     console.log('Payment failed:', data.merchantTransactionId);
     // Update transaction status in database
     // Send failure notification to user
   }
 
-  private async handlePaymentPending(data: any): Promise<void> {
+  private async handlePaymentPending(data: unknown): Promise<void> {
     console.log('Payment pending:', data.merchantTransactionId);
     // Keep monitoring the transaction
   }
@@ -351,7 +351,7 @@ export class PhonePeService {
     return CryptoJS.SHA256(checksumString).toString() + '###' + this.config.saltIndex;
   }
 
-  private async makeApiCall(endpoint: string, data: any, checksum: string): Promise<any> {
+  private async makeApiCall(endpoint: string, data: unknown, checksum: string): Promise<any> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {

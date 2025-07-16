@@ -118,7 +118,7 @@ export const SlippageModal: React.FC<SlippageModalProps> = ({
       else if (avgVolatility > 0.03) volatilityLevel = 'medium';
 
       // Calculate recommended slippage
-      let recommendedSlippage = 0.5; // Default
+      let recommendedSlippage = 0.5;// Default
       if (volatilityLevel === 'extreme') recommendedSlippage = 3.0;
       else if (volatilityLevel === 'high') recommendedSlippage = 1.5;
       else if (volatilityLevel === 'medium') recommendedSlippage = 1.0;

@@ -211,16 +211,14 @@ export const SwapBlock: React.FC<SwapBlockProps> = ({
       }
 
       // Check wallet connection status with fallback
-      let walletConnected = false;
-      try {
+      let walletConnected = false;try {
         walletConnected = blockchainService.isWalletConnected();
       } catch (error) {
         console.warn('⚠️ [SwapBlock] Failed to check wallet connection:', error);
       }
 
       // Check fiat connection status with fallback
-      let fiatConnected = false;
-      if (enterpriseServiceIntegrator.isServiceInitialized()) {
+      let fiatConnected = false;if (enterpriseServiceIntegrator.isServiceInitialized()) {
         try {
           const fiatWalletService = enterpriseServiceIntegrator.getFiatWalletService();
           const fiatAccounts = await fiatWalletService.getConnectedAccounts();

@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface SignupTestResult {
   testName: string;
   success: boolean;
-  error?: any;
+  error?: unknown;
   details: {
     message: string;
     userId?: string;
@@ -72,7 +72,7 @@ export async function testSignupWithEmptyPhone(): Promise<SignupTestResult> {
       }
     };
 
-  } catch (exception: any) {
+  } catch (exception: unknown) {
     return {
       testName: 'Signup Flow Test',
       success: false,
@@ -162,7 +162,7 @@ export async function testPhoneConstraintDirect(): Promise<SignupTestResult> {
       }
     };
 
-  } catch (exception: any) {
+  } catch (exception: unknown) {
     return {
       testName: 'Phone Constraint Direct Test',
       success: false,
@@ -209,7 +209,7 @@ export async function testDatabaseConnectivity(): Promise<SignupTestResult> {
       }
     };
 
-  } catch (exception: any) {
+  } catch (exception: unknown) {
     return {
       testName: 'Database Connectivity Test',
       success: false,
@@ -246,7 +246,7 @@ export async function runComprehensiveSignupTest(): Promise<{
   results.push(await testSignupWithEmptyPhone());
 
   const passed = results.filter(r => r.success).length;
-  const failed = results.length - passed;
+  let failed = results.length - passed;
   const allPassed = failed === 0;
 
   const criticalIssues: string[] = [];

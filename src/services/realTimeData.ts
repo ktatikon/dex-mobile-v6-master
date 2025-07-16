@@ -13,10 +13,7 @@ const MAX_TOKENS_PER_REQUEST = 100; // CoinGecko limit
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_MINUTE = 50; // Conservative limit for free tier
-let requestCount = 0;
-let rateLimitWindowStart = Date.now();
-
-// Rate limiting function
+let requestCount = 0;let rateLimitWindowStart = Date.now();// Rate limiting function
 function checkRateLimit(): boolean {
   const now = Date.now();
 
@@ -268,13 +265,13 @@ const memoizedFetch = (() => {
  * Enhanced Dynamic Programming approach for fetching data with memoization and stability
  */
 class DataFetcher {
-  private cache: Map<string, { data: any, timestamp: number, isValid: boolean }> = new Map();
+  private cache: Map<string, { data: unknown, timestamp: number, isValid: boolean }> = new Map();
   private pendingRequests: Map<string, Promise<any>> = new Map();
   private cacheDuration: number;
-  private fallbackData: any;
+  private fallbackData: unknown;
   private debugMode: boolean;
 
-  constructor(cacheDuration: number, fallbackData: any, debugMode = true) {
+  constructor(cacheDuration: number, fallbackData: unknown, debugMode = true) {
     this.cacheDuration = cacheDuration;
     this.fallbackData = this.validateAndCloneData(fallbackData);
     this.debugMode = debugMode;
@@ -362,7 +359,7 @@ class DataFetcher {
   private async doFetchWithRetries(url: string, options: RequestInit, maxRetries = 3): Promise<any> {
     let lastError: Error | null = null;
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    for (let attempt = 0;attempt <= maxRetries; attempt++) {
       try {
         if (attempt > 0) {
           const delay = Math.pow(2, attempt - 1) * 1000;
@@ -393,7 +390,7 @@ class DataFetcher {
   /**
    * Validate and deep clone data to prevent mutation issues
    */
-  private validateAndCloneData(data: any): any {
+  private validateAndCloneData(data: unknown): unknown {
     try {
       // First, check if data is valid
       if (data === undefined || data === null) {
@@ -429,7 +426,7 @@ class DataFetcher {
   /**
    * Preload data into cache
    */
-  preload(key: string, data: any): void {
+  preload(key: string, data: unknown): void {
     const validatedData = this.validateAndCloneData(data);
     this.cache.set(key, {
       data: validatedData,
@@ -459,7 +456,7 @@ class DataFetcher {
   /**
    * Error logging helper
    */
-  private logError(message: string, error: any): void {
+  private logError(message: string, error: unknown): void {
     console.error(`[DataFetcher] ${message}`, error);
   }
 }
@@ -558,9 +555,7 @@ export function adaptCoinGeckoData(coingeckoData: CoinGeckoToken[]): Token[] {
 
         // Find appropriate icon or use a placeholder
         const symbol = (coin.symbol || 'unknown').toLowerCase();
-        let logo = `/assets/icons/${symbol}.svg`;
-
-        // Fallback to placeholder if icon might not exist
+        let logo = `/assets/icons/${symbol}.svg`;// Fallback to placeholder if icon might not exist
         const commonSymbols = ['btc', 'eth', 'usdt', 'usdc', 'bnb', 'xrp', 'sol', 'ada'];
         if (!commonSymbols.includes(symbol)) {
           // Try to use the image from CoinGecko first
@@ -578,7 +573,7 @@ export function adaptCoinGeckoData(coingeckoData: CoinGeckoToken[]): Token[] {
         }
 
         // Set appropriate decimals based on token type
-        let decimals = 18; // Default for most ERC-20 tokens
+        let decimals = 18;// Default for most ERC-20 tokens
         if (tokenSymbol === 'USDT' || tokenSymbol === 'USDC') {
           decimals = 6; // USDT and USDC use 6 decimals
         } else if (tokenSymbol === 'BTC' || tokenSymbol === 'WBTC') {
@@ -696,8 +691,7 @@ export const generateOrderBook = (basePrice: number, spread = 0.02): { bids: Ord
   const askPrice = basePrice * (1 + spread / 2);
 
   // Generate 15 bid entries (buy orders)
-  let bidTotal = 0;
-  for (let i = 0; i < 15; i++) {
+  let bidTotal = 0;for (let i = 0;i < 15; i++) {
     // Price decreases as we go down the order book for bids
     const price = bidPrice * (1 - 0.001 * i);
     // Random amount between 0.1 and 5 for BTC-like assets
@@ -712,8 +706,7 @@ export const generateOrderBook = (basePrice: number, spread = 0.02): { bids: Ord
   }
 
   // Generate 15 ask entries (sell orders)
-  let askTotal = 0;
-  for (let i = 0; i < 15; i++) {
+  let askTotal = 0;for (let i = 0;i < 15; i++) {
     // Price increases as we go up the order book for asks
     const price = askPrice * (1 + 0.001 * i);
     // Random amount between 0.1 and 5
@@ -745,7 +738,7 @@ export const generateRecentTrades = (basePrice: number, count = 20): RecentTrade
   const trades: RecentTrade[] = [];
   const now = new Date();
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0;i < count; i++) {
     // Random price variation around base price (±1%)
     const priceVariation = basePrice * (0.99 + Math.random() * 0.02);
     // Random amount between 0.01 and 2

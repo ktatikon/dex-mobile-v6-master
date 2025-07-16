@@ -16,10 +16,10 @@ export interface SignupErrorAnalysis {
   errorType: 'validation' | 'database' | 'network' | 'auth' | 'unknown';
   errorMessage: string;
   errorCode?: string;
-  errorDetails?: any;
+  errorDetails?: unknown;
   possibleCauses: string[];
   recommendedActions: string[];
-  diagnosticResults?: any;
+  diagnosticResults?: unknown;
 }
 
 export interface ComprehensiveSignupTest {
@@ -35,7 +35,7 @@ export interface ComprehensiveSignupTest {
     databaseConstraints: boolean;
     triggerFunction: boolean;
     actualSignup: boolean;
-    errorDetails?: any;
+    errorDetails?: unknown;
   };
   analysis: SignupErrorAnalysis;
 }
@@ -45,7 +45,7 @@ export interface ComprehensiveSignupTest {
  */
 export class SignupErrorAnalyzer {
   
-  analyzeError(error: any): SignupErrorAnalysis {
+  analyzeError(error: unknown): SignupErrorAnalysis {
     const timestamp = new Date();
     let errorType: SignupErrorAnalysis['errorType'] = 'unknown';
     let possibleCauses: string[] = [];
@@ -109,7 +109,7 @@ export class SignupErrorAnalyzer {
     };
   }
 
-  async investigateSignupError(testData: any): Promise<ComprehensiveSignupTest> {
+  async investigateSignupError(testData: unknown): Promise<ComprehensiveSignupTest> {
     const testId = `test-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
     
     console.log(`🔍 Starting comprehensive signup error investigation: ${testId}`);
@@ -125,7 +125,7 @@ export class SignupErrorAnalyzer {
     try {
       // Test 1: Frontend validation
       console.log('📝 Testing frontend validation...');
-      const frontendValidation = AuthValidationService.validateSignupForm(testData);
+      let frontendValidation = AuthValidationService.validateSignupForm(testData);
       results.frontendValidation = frontendValidation.isValid;
       
       if (!frontendValidation.isValid) {
@@ -203,8 +203,8 @@ export class ComprehensiveSignupDiagnostic {
   private analyzer = new SignupErrorAnalyzer();
 
   async runFullDiagnostic(): Promise<{
-    migrationStatus: any;
-    databaseHealth: any;
+    migrationStatus: unknown;
+    databaseHealth: unknown;
     signupTests: ComprehensiveSignupTest[];
     summary: {
       totalTests: number;

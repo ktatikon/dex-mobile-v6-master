@@ -298,7 +298,7 @@ const SignupDiagnosticsPage: React.FC = () => {
                     )}
 
                     <div className="space-y-2">
-                      {simplifiedDiagnostic.results.map((result: any, index: number) => (
+                      {simplifiedDiagnostic.results.map((result: unknown, index: number) => (
                         <div key={index} className="p-2 bg-dex-dark/30 rounded border border-dex-primary/10">
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-medium">{result.testName}</span>
@@ -329,7 +329,7 @@ const SignupDiagnosticsPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-3">
-                      {migrationResults.results.map((result: any, index: number) => (
+                      {migrationResults.results.map((result: unknown, index: number) => (
                         <div key={index} className="p-3 bg-dex-dark/50 rounded border border-dex-primary/20">
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-medium">{result.migrationName}</h4>

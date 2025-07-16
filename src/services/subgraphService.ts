@@ -1,14 +1,15 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import { Token, ChainId } from '@uniswap/sdk-core';
 import { FeeAmount } from '@uniswap/v3-sdk';
-import { 
-  PoolData, 
-  PoolQueryParams, 
-  PoolDataResult, 
-  PoolSwap, 
+import { ethers } from 'ethers';
+import {
+  PoolData,
+  PoolQueryParams,
+  PoolDataResult,
+  PoolSwap,
   PoolPosition,
   BatchPoolRequest,
-  PoolDataSourceConfig 
+  PoolDataSourceConfig
 } from '@/types/pool';
 
 /**
@@ -237,7 +238,7 @@ class SubgraphService {
   /**
    * Create Token instance from subgraph data
    */
-  private createToken(tokenData: any, chainId: number): Token {
+  private createToken(tokenData: unknown, chainId: number): Token {
     return new Token(
       chainId,
       tokenData.id,
@@ -250,7 +251,7 @@ class SubgraphService {
   /**
    * Transform subgraph pool data to PoolData interface
    */
-  private transformPoolData(poolData: any, chainId: number): PoolData {
+  private transformPoolData(poolData: unknown, chainId: number): PoolData {
     const token0 = this.createToken(poolData.token0, chainId);
     const token1 = this.createToken(poolData.token1, chainId);
 
@@ -332,7 +333,7 @@ class SubgraphService {
       const client = this.getClient(chainId);
       
       // Build where clause for filtering
-      const where: any = {};
+      const where: unknown = {};
       
       if (params.token0) {
         where.token0 = params.token0.toLowerCase();
@@ -366,7 +367,7 @@ class SubgraphService {
         where: Object.keys(where).length > 0 ? where : undefined
       });
 
-      const pools = response.pools.map((pool: any) => 
+      const pools = response.pools.map((pool: unknown) => 
         this.transformPoolData(pool, chainId)
       );
 
@@ -442,7 +443,7 @@ class SubgraphService {
         first: limit
       });
 
-      const swaps: PoolSwap[] = response.swaps.map((swap: any) => ({
+      const swaps: PoolSwap[] = response.swaps.map((swap: unknown) => ({
         id: swap.id,
         transaction: {
           id: swap.transaction.id,
@@ -507,9 +508,9 @@ class SubgraphService {
     chainId: number,
     limit: number = 20
   ): Promise<PoolDataResult<PoolData[]>> {
-    const ethers.utils.isAddress = query.startsWith('0x') && query.length === 42;
-    
-    if (ethers.utils.isAddress) {
+    const isValidAddress = ethers.utils.ethers.utils.isAddress(query);
+
+    if (isValidAddress) {
       // Search by token address
       const result = await this.getPools(chainId, {
         tokens: [query.toLowerCase()],

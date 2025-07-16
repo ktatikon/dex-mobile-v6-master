@@ -8,13 +8,13 @@ export interface RuntimeTestResult {
   testName: string;
   passed: boolean;
   message: string;
-  error?: any;
+  error?: unknown;
 }
 
 /**
  * Test AuthContext functions at runtime
  */
-export const testAuthContextRuntime = (authContext: any): RuntimeTestResult[] => {
+export const testAuthContextRuntime = (authContext: unknown): RuntimeTestResult[] => {
   const results: RuntimeTestResult[] = [];
 
   // Test 1: Context exists
@@ -132,7 +132,7 @@ export const testValidationService = (): RuntimeTestResult[] => {
 /**
  * Comprehensive runtime test
  */
-export const runComprehensiveRuntimeTest = (authContext: any): {
+export const runComprehensiveRuntimeTest = (authContext: unknown): {
   authTests: RuntimeTestResult[];
   validationTests: RuntimeTestResult[];
   summary: {
@@ -177,7 +177,7 @@ export const runComprehensiveRuntimeTest = (authContext: any): {
 /**
  * Quick diagnostic for AuthContext issues
  */
-export const diagnoseAuthContext = (authContext: any): string[] => {
+export const diagnoseAuthContext = (authContext: unknown): string[] => {
   const issues: string[] = [];
 
   if (!authContext) {

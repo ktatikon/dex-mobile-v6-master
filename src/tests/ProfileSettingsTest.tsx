@@ -68,7 +68,7 @@ const ProfileSettingsTest = () => {
         } else {
           addResult(`Database connection failed: ${error.message}`, false);
         }
-      } catch (dbError: any) {
+      } catch (dbError: unknown) {
         addResult(`Database connection error: ${dbError.message}`, false);
       }
 
@@ -82,7 +82,7 @@ const ProfileSettingsTest = () => {
         } else {
           addResult(`Email uniqueness check failed: ${UserService.getErrorMessage(error)}`, false);
         }
-      } catch (emailError: any) {
+      } catch (emailError: unknown) {
         addResult(`Email uniqueness check error: ${emailError.message}`, false);
       }
 
@@ -98,7 +98,7 @@ const ProfileSettingsTest = () => {
         } else {
           addResult('Non-existent user incorrectly returned data', false);
         }
-      } catch (getUserError: any) {
+      } catch (getUserError: unknown) {
         addResult(`getUserProfile error: ${getUserError.message}`, false);
       }
 
@@ -121,7 +121,7 @@ const ProfileSettingsTest = () => {
       addResult('Test 6: Testing constraint validation patterns');
       
       const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-      const phoneRegex = /^[+]?[0-9\s\-\(\)]{5,20}$/;
+      const phoneRegex = /^[+]?[0-9\s\-()]{5,20}$/;
       
       const testEmails = [
         { email: 'valid@example.com', shouldPass: true },
@@ -137,18 +137,15 @@ const ProfileSettingsTest = () => {
         { phone: 'abc123', shouldPass: false }
       ];
       
-      let emailTestsPassed = 0;
-      let phoneTestsPassed = 0;
-      
-      testEmails.forEach(test => {
-        const result = emailRegex.test(test.email);
+      const emailTestsPassed = 0;const phoneTestsPassed = 0;testEmails.forEach(test => {
+        let result = emailRegex.test(test.email);
         if (result === test.shouldPass) {
           emailTestsPassed++;
         }
       });
       
       testPhones.forEach(test => {
-        const result = phoneRegex.test(test.phone);
+        let result = phoneRegex.test(test.phone);
         if (result === test.shouldPass) {
           phoneTestsPassed++;
         }
@@ -174,7 +171,7 @@ const ProfileSettingsTest = () => {
         variant: "default",
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       addResult(`Test suite error: ${error.message}`, false);
       toast({
         title: "Test Error",

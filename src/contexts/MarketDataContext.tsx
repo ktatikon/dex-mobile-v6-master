@@ -30,7 +30,7 @@ export function MarketDataProvider({ children }: { children: ReactNode }) {
 }
 
 export function useGlobalMarketData() {
-  const context = useContext(MarketDataContext);
+  let context = useContext(MarketDataContext);
   if (context === undefined) {
     throw new Error('useGlobalMarketData must be used within a MarketDataProvider');
   }

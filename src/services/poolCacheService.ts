@@ -156,8 +156,7 @@ class PoolCacheService {
    * Estimate memory usage of cache
    */
   private estimateMemoryUsage(): number {
-    let totalSize = 0;
-    for (const entry of this.cache.values()) {
+    let totalSize = 0;for (const entry of this.cache.values()) {
       // Rough estimation: JSON string length * 2 (for UTF-16)
       totalSize += JSON.stringify(entry).length * 2;
     }

@@ -154,7 +154,7 @@ const SendPage = () => {
       return "Please select a token to send";
     }
 
-    const balance = parseFloat(token.balance || '0');
+    let balance = parseFloat(token.balance || '0');
     if (balance === 0) {
       return "Insufficient token balance";
     }
@@ -284,7 +284,7 @@ const SendPage = () => {
       // Refresh wallet data
       refreshData();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error processing transaction:', error);
       toast({
         title: "Transaction Failed",

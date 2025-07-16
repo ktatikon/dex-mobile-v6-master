@@ -91,7 +91,7 @@ class EnhancedTransactionAnalyticsService {
   private phase1FallbackActive = false;
   private consecutiveFailures = 0;
   private lastUpdate: Date | null = null;
-  private analyticsCache: Map<string, { data: any, timestamp: number }> = new Map();
+  private analyticsCache: Map<string, { data: unknown, timestamp: number }> = new Map();
 
   private readonly MAX_CONSECUTIVE_FAILURES = 5; // Fallback to Phase 1 after 5 failures
   private readonly CACHE_DURATION = 10 * 60 * 1000; // 10 minutes for analytics cache
@@ -154,8 +154,7 @@ class EnhancedTransactionAnalyticsService {
     try {
       const baseTransactions = mockTransactions.slice(0, 50); // Use 50 mock transactions
 
-      let totalVolume = 0;
-      const categoryBreakdown: { [category: string]: number } = {};
+      let totalVolume = 0;const categoryBreakdown: { [category: string]: number } = {};
       const monthlyVolume: { [month: string]: number } = {};
       const tokenVolume: { [tokenId: string]: { volume: number; count: number } } = {};
 
@@ -319,9 +318,7 @@ class EnhancedTransactionAnalyticsService {
     pagination: PaginationParams = { page: 1, limit: 20 }
   ): { transactions: Transaction[]; total: number } {
     try {
-      let filteredTransactions = [...mockTransactions];
-
-      // Apply filters
+      let filteredTransactions = [...mockTransactions];// Apply filters
       if (filters.transactionType) {
         filteredTransactions = filteredTransactions.filter(tx => tx.type === filters.transactionType);
       }
@@ -420,7 +417,7 @@ class EnhancedTransactionAnalyticsService {
   /**
    * Categorize a transaction based on its type and properties
    */
-  categorizeTransaction(transaction: any): string {
+  categorizeTransaction(transaction: unknown): string {
     const type = transaction.type?.toLowerCase() || transaction.transaction_type?.toLowerCase();
 
     switch (type) {
@@ -550,9 +547,7 @@ export const getFilteredTransactions = async (
           price
         )
       `, { count: 'exact' })
-      .eq('user_id', userId);
-
-    // Apply filters
+      .eq('user_id', userId);// Apply filters
     if (filters.walletId) {
       query = query.eq('wallet_id', filters.walletId);
     }
@@ -649,9 +644,7 @@ export const getTransactionAnalytics = async (
           price
         )
       `)
-      .eq('user_id', userId);
-
-    // Apply filters
+      .eq('user_id', userId);// Apply filters
     if (filters.walletId) {
       query = query.eq('wallet_id', filters.walletId);
     }
@@ -680,8 +673,7 @@ export const getTransactionAnalytics = async (
 
     // Calculate analytics
     const totalTransactions = data.length;
-    let totalVolume = 0;
-    const categoryBreakdown: { [category: string]: number } = {};
+    let totalVolume = 0;const categoryBreakdown: { [category: string]: number } = {};
     const monthlyVolume: { [month: string]: number } = {};
     const tokenVolume: { [tokenId: string]: { volume: number; count: number; symbol: string } } = {};
 
@@ -781,7 +773,7 @@ export const updateTransactionCategory = async (
  * @param transaction Transaction object
  * @returns Category ID
  */
-export const categorizeTransaction = (transaction: any): string => {
+export const categorizeTransaction = (transaction: unknown): string => {
   const type = transaction.transaction_type?.toLowerCase();
 
   switch (type) {

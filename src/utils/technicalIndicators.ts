@@ -26,7 +26,7 @@ export function computeEMA(values: number[], period: number): number[] {
   emaArray[0] = values[0];
   
   // Calculate EMA for remaining values
-  for (let i = 1; i < values.length; i++) {
+  for (let i = 1;i < values.length; i++) {
     emaArray[i] = values[i] * k + emaArray[i - 1] * (1 - k);
   }
   
@@ -43,7 +43,7 @@ export function computeSMA(values: number[], period: number): number[] {
 
   const smaArray: number[] = [];
   
-  for (let i = 0; i < values.length; i++) {
+  for (let i = 0;i < values.length; i++) {
     if (i < period - 1) {
       smaArray[i] = NaN; // Not enough data points
     } else {
@@ -72,17 +72,14 @@ export function computeRSI(values: number[], period: number = 14): number[] {
   }
   
   // Fill initial values with NaN
-  for (let i = 0; i < period; i++) {
+  for (let i = 0;i < period; i++) {
     rsi[i] = NaN;
   }
   
   // Calculate RSI for remaining values
-  for (let i = period; i < values.length; i++) {
-    let gains = 0;
-    let losses = 0;
-    
-    // Calculate gains and losses over the period
-    for (let j = i - period; j < i; j++) {
+  for (let i = period;i < values.length; i++) {
+    let gains = 0;let losses = 0;// Calculate gains and losses over the period
+    for (let j = i - period;j < i; j++) {
       const delta = values[j + 1] - values[j];
       if (delta > 0) {
         gains += delta;
@@ -93,7 +90,7 @@ export function computeRSI(values: number[], period: number = 14): number[] {
     
     // Avoid division by zero
     const avgGain = gains / period;
-    const avgLoss = losses / period;
+    let avgLoss = losses / period;
     
     if (avgLoss === 0) {
       rsi[i] = 100; // All gains, no losses
@@ -125,7 +122,7 @@ export function computeMACD(
   
   // Calculate MACD line (fast EMA - slow EMA)
   const macd: number[] = [];
-  for (let i = 0; i < values.length; i++) {
+  for (let i = 0;i < values.length; i++) {
     if (i < slowPeriod - 1) {
       macd[i] = NaN;
     } else {
@@ -139,8 +136,7 @@ export function computeMACD(
   
   // Align signal array with macd array
   const signal: number[] = new Array(macd.length).fill(NaN);
-  let signalIndex = 0;
-  for (let i = 0; i < macd.length; i++) {
+  let signalIndex = 0;for (let i = 0;i < macd.length; i++) {
     if (!isNaN(macd[i])) {
       if (signalIndex < signalEMA.length) {
         signal[i] = signalEMA[signalIndex];
@@ -151,7 +147,7 @@ export function computeMACD(
   
   // Calculate histogram (MACD - Signal)
   const histogram: number[] = [];
-  for (let i = 0; i < macd.length; i++) {
+  for (let i = 0;i < macd.length; i++) {
     if (isNaN(macd[i]) || isNaN(signal[i])) {
       histogram[i] = NaN;
     } else {
@@ -178,7 +174,7 @@ export function computeBollingerBands(
   const upper: number[] = [];
   const lower: number[] = [];
   
-  for (let i = 0; i < values.length; i++) {
+  for (let i = 0;i < values.length; i++) {
     if (i < period - 1) {
       upper[i] = NaN;
       lower[i] = NaN;
@@ -219,7 +215,7 @@ export function indicatorToLineData(
 ): LineData[] {
   const lineData: LineData[] = [];
   
-  for (let i = 0; i < Math.min(candles.length, values.length); i++) {
+  for (let i = 0;i < Math.min(candles.length, values.length); i++) {
     if (!isNaN(values[i]) && isFinite(values[i])) {
       lineData.push({
         time: candles[i].time,
@@ -240,10 +236,7 @@ export function computeVWAP(candles: CandlestickData[]): PriceDataPoint[] {
   }
 
   const vwapData: PriceDataPoint[] = [];
-  let cumulativeVolume = 0;
-  let cumulativeVolumePrice = 0;
-  
-  for (const candle of candles) {
+  let cumulativeVolume = 0;let cumulativeVolumePrice = 0;for (const candle of candles) {
     // Use close price if volume is not available
     const volume = (candle as any).volume || 1;
     const typicalPrice = (candle.high + candle.low + candle.close) / 3;

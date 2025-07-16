@@ -342,11 +342,9 @@ export const generateChartData = (days = 7, startPrice = 100): number[][] => {
     }
 
     const data: number[][] = [];
-    let currentPrice = startPrice;
+    let currentPrice = startPrice;const now = new Date();
 
-    const now = new Date();
-
-    for (let i = days; i >= 0; i--) {
+    for (let i = days;i >= 0; i--) {
       try {
         const date = new Date();
         date.setDate(now.getDate() - i);
@@ -425,8 +423,7 @@ export const generateOrderBook = (basePrice: number, spread = 0.02): { bids: Ord
   const askPrice = basePrice * (1 + spread / 2);
 
   // Generate 15 bid entries (buy orders)
-  let bidTotal = 0;
-  for (let i = 0; i < 15; i++) {
+  let bidTotal = 0;for (let i = 0;i < 15; i++) {
     // Price decreases as we go down the order book for bids
     const price = bidPrice * (1 - 0.001 * i);
     // Random amount between 0.1 and 5 for BTC-like assets
@@ -441,8 +438,7 @@ export const generateOrderBook = (basePrice: number, spread = 0.02): { bids: Ord
   }
 
   // Generate 15 ask entries (sell orders)
-  let askTotal = 0;
-  for (let i = 0; i < 15; i++) {
+  let askTotal = 0;for (let i = 0;i < 15; i++) {
     // Price increases as we go up the order book for asks
     const price = askPrice * (1 + 0.001 * i);
     // Random amount between 0.1 and 5
@@ -474,7 +470,7 @@ export const generateRecentTrades = (basePrice: number, count = 20): RecentTrade
   const trades: RecentTrade[] = [];
   const now = new Date();
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0;i < count; i++) {
     // Random price variation around base price (±1%)
     const priceVariation = basePrice * (0.99 + Math.random() * 0.02);
     // Random amount between 0.01 and 2

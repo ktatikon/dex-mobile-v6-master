@@ -521,8 +521,7 @@ const TokenListContent: React.FC<TokenListContentProps> = memo(({
       const pairSymbol = showAsPair ? altFilter.toUpperCase() : '';
       const displaySymbol = showAsPair ? `${token.symbol}/${pairSymbol}` : token.symbol;
 
-      let displayPrice = `$${formatCurrency(token.price || 0)}`;
-      if (showAsPair && pairSymbol) {
+      let displayPrice = `$${formatCurrency(token.price || 0)}`;if (showAsPair && pairSymbol) {
         const getBaseCurrencyPrice = (symbol: string): number => {
           const baseCurrency = sortedByMarketCap.find(t => t.symbol === symbol);
           return baseCurrency?.price || 0;
@@ -700,10 +699,8 @@ const TradePage = () => {
         const dropdownWidth = Math.max(rect.width, 256); // Minimum 256px width
 
         // Calculate initial position
-        let top = rect.bottom + scrollTop + 8; // 8px gap below trigger
-        let left = rect.left + scrollLeft;
-
-        // Viewport boundary checks
+        let top = rect.bottom + scrollTop + 8;// 8px gap below trigger
+        let left = rect.left + scrollLeft;// Viewport boundary checks
         const viewportHeight = window.innerHeight;
         const viewportWidth = window.innerWidth;
 

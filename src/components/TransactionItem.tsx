@@ -35,8 +35,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
   const isToday = date.toDateString() === now.toDateString();
   const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === date.toDateString();
 
-  let formattedDate = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  if (isToday) {
+  let formattedDate = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });if (isToday) {
     formattedDate = 'Today';
   } else if (isYesterday) {
     formattedDate = 'Yesterday';

@@ -343,7 +343,7 @@ class PerformanceMetricsService {
   /**
    * Handle service errors and manage fallback activation
    */
-  private handleServiceError(error: any): void {
+  private handleServiceError(error: unknown): void {
     this.consecutiveFailures++;
     console.error(`❌ Performance Metrics Service error (${this.consecutiveFailures}/${this.MAX_CONSECUTIVE_FAILURES}):`, error);
 
@@ -469,7 +469,7 @@ class PerformanceMetricsService {
     return {};
   }
 
-  private computeAdvancedMetrics(_portfolioHistory: any, _marketBenchmark: any): AdvancedMetrics {
+  private computeAdvancedMetrics(_portfolioHistory: unknown, _marketBenchmark: unknown): AdvancedMetrics {
     // Implementation will compute advanced financial metrics
     return this.getMockAdvancedMetrics();
   }
@@ -484,7 +484,7 @@ class PerformanceMetricsService {
     return {};
   }
 
-  private computeCorrelationAnalysis(_portfolioData: any, _priceHistory: any): CorrelationAnalysis {
+  private computeCorrelationAnalysis(_portfolioData: unknown, _priceHistory: unknown): CorrelationAnalysis {
     // Implementation will compute correlation analysis
     return this.getMockCorrelationAnalysis();
   }
@@ -494,12 +494,12 @@ class PerformanceMetricsService {
     return {};
   }
 
-  private computeBenchmarkComparison(_portfolioHistory: any, _benchmarkHistory: any, _benchmarkType: string): BenchmarkComparison {
+  private computeBenchmarkComparison(_portfolioHistory: unknown, _benchmarkHistory: unknown, _benchmarkType: string): BenchmarkComparison {
     // Implementation will compute benchmark comparison
     return this.getMockBenchmarkComparison(_benchmarkType);
   }
 
-  private computeRiskMetrics(_portfolioHistory: any, _portfolioComposition: any): RiskMetrics {
+  private computeRiskMetrics(_portfolioHistory: unknown, _portfolioComposition: unknown): RiskMetrics {
     // Implementation will compute risk metrics
     return this.getMockRiskMetrics();
   }
@@ -514,7 +514,7 @@ class PerformanceMetricsService {
     return {};
   }
 
-  private computePerformanceAttribution(_portfolioData: any, _benchmarkData: any, _returns: any): PerformanceAttribution {
+  private computePerformanceAttribution(_portfolioData: unknown, _benchmarkData: unknown, _returns: unknown): PerformanceAttribution {
     // Implementation will compute performance attribution
     return this.getMockPerformanceAttribution();
   }

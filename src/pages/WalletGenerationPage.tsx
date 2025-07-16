@@ -167,9 +167,7 @@ const WalletGenerationPage: React.FC = () => {
   const verifySeedPhrase = () => {
     setIsVerifying(true);
 
-    let isValid = true;
-
-    for (const { index, word } of verificationWords) {
+    let isValid = true;for (const { index, word } of verificationWords) {
       if (verificationInputs[index]?.toLowerCase() !== word.toLowerCase()) {
         isValid = false;
         break;

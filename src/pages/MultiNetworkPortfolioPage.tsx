@@ -67,7 +67,7 @@ const MultiNetworkPortfolioPage: React.FC<MultiNetworkPortfolioPageProps> = Reac
   }, [fetchDashboardData]);
 
   // Handle bridge transaction completion
-  const handleBridgeComplete = useCallback((transaction: any) => {
+  const handleBridgeComplete = useCallback((transaction: unknown) => {
     console.log('Bridge transaction completed:', transaction);
     // Refresh dashboard data to show updated balances
     fetchDashboardData();

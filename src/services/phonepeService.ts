@@ -371,7 +371,7 @@ class PhonePeService {
    */
   private async makeApiCall(
     endpoint: string, 
-    data: any = null, 
+    data: unknown = null, 
     method: 'GET' | 'POST' = 'POST',
     headers: Record<string, string> = {}
   ): Promise<any> {
@@ -399,7 +399,7 @@ class PhonePeService {
   /**
    * Process transaction update from webhook
    */
-  private async processTransactionUpdate(transactionData: any): Promise<void> {
+  private async processTransactionUpdate(transactionData: unknown): Promise<void> {
     try {
       // Update transaction status in database
       // Trigger real-time updates

@@ -22,7 +22,7 @@ export const NETWORKS = {
 
 // Create provider for a specific network
 export const getProvider = (network: 'sepolia' | 'ganache') => {
-  return new ethers.ethers.providers.JsonRpcProvider(NETWORKS[network].rpcUrl);
+  return new ethers.providers.JsonRpcProvider(NETWORKS[network].rpcUrl);
 };
 
 // Create wallet from private key
@@ -45,7 +45,7 @@ export const getBalance = async (address: string, network: 'sepolia' | 'ganache'
   try {
     const provider = getProvider(network);
     const balance = await provider.getBalance(address);
-    return ethers.ethers.utils.formatEther(balance);
+    return ethers.utils.formatEther(balance);
   } catch (error) {
     console.error('Error getting balance:', error);
     return '0';
@@ -64,7 +64,7 @@ export const sendTransaction = async (
     
     const tx = await wallet.sendTransaction({
       to: toAddress,
-      value: ethers.ethers.utils.parseEther(amount),
+      value: ethers.utils.parseEther(amount),
     });
     
     return tx.hash;

@@ -46,12 +46,9 @@ export const validateTypography = (): ValidationResult[] => {
   
   // Check headings for medium weight instead of bold
   const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  let boldHeadingsFound = 0;
-  let mediumWeightHeadingsFound = 0;
-  
-  headings.forEach(heading => {
+  const boldHeadingsFound = 0;const mediumWeightHeadingsFound = 0;headings.forEach(heading => {
     const computedStyle = window.getComputedStyle(heading);
-    const fontWeight = computedStyle.fontWeight;
+    let fontWeight = computedStyle.fontWeight;
     const fontFamily = computedStyle.fontFamily;
     
     if (fontWeight === '700' || fontWeight === 'bold') {
@@ -187,8 +184,7 @@ export const validateAmbientEffects = (): ValidationResult[] => {
   
   // Check for frosted glass effects on modals
   const modalElements = document.querySelectorAll('[role="dialog"], .modal');
-  let frostedGlassModals = 0;
-  modalElements.forEach(modal => {
+  const frostedGlassModals = 0;modalElements.forEach(modal => {
     const computedStyle = window.getComputedStyle(modal);
     if (computedStyle.backdropFilter && computedStyle.backdropFilter !== 'none') {
       frostedGlassModals++;
@@ -213,8 +209,7 @@ export const validatePerformance = async (): Promise<ValidationResult[]> => {
   
   // Check animation frame rate
   const fps = await new Promise<number>((resolve) => {
-    let frameCount = 0;
-    const startTime = performance.now();
+    const frameCount = 0;const startTime = performance.now();
     const duration = 1000; // Test for 1 second
     
     const countFrames = () => {

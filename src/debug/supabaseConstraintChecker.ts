@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface ConstraintCheckResult {
   checkName: string;
   passed: boolean;
-  details: any;
+  details: unknown;
   recommendation?: string;
 }
 
@@ -35,7 +35,7 @@ export const validatePhoneFormat = (phone: string): ConstraintCheckResult => {
   // Updated phone validation to match database constraint
   // Allow empty phone numbers or validate format
   const isEmptyPhone = !phone || phone.trim() === '';
-  const phoneRegex = /^[+]?[0-9\s\-\(\)]{5,20}$/;
+  const phoneRegex = /^[+]?[0-9\s\-()]{5,20}$/;
   const isValid = isEmptyPhone || phoneRegex.test(phone);
 
   return {
@@ -45,7 +45,7 @@ export const validatePhoneFormat = (phone: string): ConstraintCheckResult => {
       phone,
       isEmpty: isEmptyPhone,
       isValid,
-      constraint: 'phone = \'\' OR phone ~ \'^[+]?[0-9\\s\\-\\(\\)]{5,20}$\''
+      constraint: 'phone = \'\' OR phone ~ \'^[+]?[0-9\\s\\-()]{5,20}$\''
     },
     recommendation: isValid ? undefined : 'Phone must be empty or 5-20 characters containing only digits, spaces, hyphens, parentheses, and optional leading plus sign'
   };

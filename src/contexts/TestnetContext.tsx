@@ -120,17 +120,15 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Update wallet balances from blockchain
       const updatedWallets = await Promise.all(
         walletsData.map(async (wallet) => {
-          let balance = '0';
-
-          try {
+          let balance = '0';try {
             if (wallet.network === 'sepolia' || wallet.network === 'ganache') {
-              const provider = new ethers.providers.ethers.providers.JsonRpcProvider(
+              const provider = new ethers.providers.JsonRpcProvider(
                 wallet.network === 'sepolia'
                   ? 'https://eth-sepolia.g.alchemy.com/v2/demo'
                   : 'http://127.0.0.1:8545'
               );
               const ethBalance = await provider.getBalance(wallet.address);
-              balance = ethers.utils.ethers.utils.formatEther(ethBalance);
+              balance = ethers.utils.formatEther(ethBalance);
             } else if (wallet.network === 'solana-devnet') {
               // For Solana, we'll just use the stored balance for now
               // In a real implementation, we would fetch from Solana network
@@ -195,10 +193,7 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     try {
-      let address = '';
-      let privateKey = '';
-
-      // Generate wallet based on network
+      let address = '';let privateKey = '';// Generate wallet based on network
       if (network === 'sepolia' || network === 'ganache') {
         const wallet = ethers.Wallet.createRandom();
         address = wallet.address;
@@ -287,9 +282,7 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     try {
-      let address = '';
-
-      // Validate and import wallet based on network
+      let address = '';// Validate and import wallet based on network
       if (network === 'sepolia' || network === 'ganache') {
         try {
           const wallet = new ethers.Wallet(privateKey);
@@ -395,11 +388,9 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw new Error('Wallet not found');
       }
 
-      let txHash = '';
-
-      // Send transaction based on network
+      let txHash = '';// Send transaction based on network
       if (walletData.network === 'sepolia' || walletData.network === 'ganache') {
-        const provider = new ethers.providers.ethers.providers.JsonRpcProvider(
+        const provider = new ethers.providers.JsonRpcProvider(
           walletData.network === 'sepolia'
             ? 'https://eth-sepolia.g.alchemy.com/v2/demo'
             : 'http://127.0.0.1:8545'
@@ -409,7 +400,7 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         const tx = await wallet.sendTransaction({
           to,
-          value: ethers.utils.ethers.utils.parseEther(amount)
+          value: ethers.utils.parseEther(amount)
         });
 
         txHash = tx.hash;

@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface DatabaseVerificationResult {
   testName: string;
   success: boolean;
-  error?: any;
+  error?: unknown;
   details: {
     message: string;
     status?: string;
@@ -118,7 +118,7 @@ CREATE TRIGGER on_auth_user_created
       }
     };
 
-  } catch (exception: any) {
+  } catch (exception: unknown) {
     return {
       testName: 'Trigger Function Verification',
       success: false,
@@ -172,7 +172,7 @@ export async function verifyPhoneConstraint(): Promise<DatabaseVerificationResul
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS users_phone_format_check;
 ALTER TABLE public.users 
 ADD CONSTRAINT users_phone_format_check
-CHECK (phone = '' OR phone ~ '^[+]?[0-9\\s\\-\\(\\)]{5,20}$');`
+CHECK (phone = '' OR phone ~ '^[+]?[0-9\\s\\-()]{5,20}$');`
           }
         };
       }
@@ -210,7 +210,7 @@ CHECK (phone = '' OR phone ~ '^[+]?[0-9\\s\\-\\(\\)]{5,20}$');`
       }
     };
 
-  } catch (exception: any) {
+  } catch (exception: unknown) {
     return {
       testName: 'Phone Constraint Verification',
       success: false,
@@ -287,7 +287,7 @@ export async function verifySignupFlow(): Promise<DatabaseVerificationResult> {
       }
     };
 
-  } catch (exception: any) {
+  } catch (exception: unknown) {
     return {
       testName: 'Signup Flow Verification',
       success: false,
@@ -324,7 +324,7 @@ export async function runDatabaseMigrationVerification(): Promise<{
   results.push(await verifySignupFlow());
 
   const passed = results.filter(r => r.success).length;
-  const failed = results.length - passed;
+  let failed = results.length - passed;
   const allPassed = failed === 0;
 
   const criticalIssues: string[] = [];

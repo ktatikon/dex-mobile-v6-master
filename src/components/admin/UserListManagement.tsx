@@ -70,9 +70,7 @@ const UserListManagement: React.FC = () => {
       let query = supabase
         .from('users')
         .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false });
-
-      // Apply filters
+        .order('created_at', { ascending: false });// Apply filters
       if (filters.search) {
         query = query.or(`email.ilike.%${filters.search}%,full_name.ilike.%${filters.search}%`);
       }
@@ -101,7 +99,7 @@ const UserListManagement: React.FC = () => {
       setTotalUsers(count || 0);
 
       console.log(`✅ Successfully loaded ${data?.length || 0} users`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error fetching users:', error);
       toast({
         title: "Error Loading Users",
@@ -141,7 +139,7 @@ const UserListManagement: React.FC = () => {
       });
 
       fetchUsers(); // Refresh the list
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Update Failed",
         description: error.message,
@@ -165,7 +163,7 @@ const UserListManagement: React.FC = () => {
       });
 
       fetchUsers(); // Refresh the list
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Update Failed",
         description: error.message,

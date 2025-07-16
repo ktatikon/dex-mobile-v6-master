@@ -50,7 +50,7 @@ export interface TransactionWarning {
 export interface TransactionError {
   code: string;
   message: string;
-  details?: any;
+  details?: unknown;
   recoverable: boolean;
   retryable: boolean;
 }
@@ -242,7 +242,7 @@ export class UniswapV3TransactionService {
 
       await loadingOrchestrator.updateLoading('token_approval', 'Sending approval transaction');
 
-      const transactionHash = await blockchainService.sendTransaction(transactionData);
+      let transactionHash = await blockchainService.sendTransaction(transactionData);
       approval.transactionHash = transactionHash;
       approval.status = 'pending';
 
@@ -356,7 +356,7 @@ export class UniswapV3TransactionService {
 
   // ==================== TRANSACTION BUILDING ====================
 
-  private async buildSwapTransaction(request: TransactionRequest, quote: any): Promise<any> {
+  private async buildSwapTransaction(request: TransactionRequest, quote: unknown): Promise<any> {
     // Build Uniswap V3 exactInputSingle transaction data
     const deadline = Math.floor(Date.now() / 1000) + request.deadline;
     
@@ -423,7 +423,7 @@ export class UniswapV3TransactionService {
 
   private checkTransactionWarnings(
     request: TransactionRequest,
-    quote: any,
+    quote: unknown,
     warnings: TransactionWarning[]
   ): void {
     // High slippage warning
@@ -466,7 +466,7 @@ export class UniswapV3TransactionService {
     return minAmountOut.toString();
   }
 
-  private async estimateGas(transactionData: any, from: string): Promise<string> {
+  private async estimateGas(transactionData: unknown, from: string): Promise<string> {
     try {
       return await blockchainService.estimateGas({
         ...transactionData,
@@ -488,7 +488,7 @@ export class UniswapV3TransactionService {
     }
   }
 
-  private async parseSwapAmountOut(receipt: any): Promise<string> {
+  private async parseSwapAmountOut(receipt: unknown): Promise<string> {
     try {
       // Parse Transfer events to get actual amount out
       // This is a simplified implementation
@@ -501,7 +501,7 @@ export class UniswapV3TransactionService {
 
   // ==================== ENCODING METHODS ====================
 
-  private encodeExactInputSingle(params: any): string {
+  private encodeExactInputSingle(params: unknown): string {
     // Mock implementation - would use actual ABI encoding
     return `0x414bf389${this.encodeParameters(params)}`;
   }
@@ -516,7 +516,7 @@ export class UniswapV3TransactionService {
     return `0xdd62ed3e${owner.slice(2).padStart(64, '0')}${spender.slice(2).padStart(64, '0')}`;
   }
 
-  private encodeParameters(params: any): string {
+  private encodeParameters(params: unknown): string {
     // Mock implementation - would use actual ABI encoding
     return Object.values(params).map(v => String(v)).join('').slice(0, 64);
   }

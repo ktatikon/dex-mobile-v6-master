@@ -45,7 +45,7 @@ export interface SupportedNetwork {
   bridgeEnabled: boolean;
   defiEnabled: boolean;
   iconUrl?: string;
-  metadata?: any;
+  metadata?: unknown;
 }
 
 export interface BridgeProtocol {
@@ -64,7 +64,7 @@ export interface BridgeProtocol {
   securityScore: number;
   isActive: boolean;
   dailyVolumeLimit?: number;
-  metadata?: any;
+  metadata?: unknown;
 }
 
 export interface CrossChainTransaction {
@@ -273,8 +273,7 @@ class CrossChainService {
 
       for (const [protocolKey, protocolConfig] of realProtocols) {
         // Get contract address based on protocol type
-        let contractAddress = '';
-        if ('inbox' in protocolConfig) {
+        let contractAddress = '';if ('inbox' in protocolConfig) {
           contractAddress = protocolConfig.inbox;
         } else if ('rootChainManager' in protocolConfig) {
           contractAddress = protocolConfig.rootChainManager;
@@ -577,7 +576,7 @@ class CrossChainService {
 
       if (error) throw error;
 
-      const quotes: BridgeQuote[] = data?.map((route: any) => ({
+      const quotes: BridgeQuote[] = data?.map((route: unknown) => ({
         protocolName: route.protocol_name,
         estimatedFee: parseFloat(route.estimated_fee),
         estimatedTimeMinutes: route.estimated_time_minutes,
@@ -973,7 +972,7 @@ class CrossChainService {
   /**
    * Get mock bridge quotes for fallback mode
    */
-  private getMockBridgeQuotes(params: any): BridgeQuote[] {
+  private getMockBridgeQuotes(params: unknown): BridgeQuote[] {
     return [
       {
         protocolName: 'Polygon Bridge',
@@ -999,7 +998,7 @@ class CrossChainService {
   /**
    * Create mock bridge transaction for fallback mode
    */
-  private createMockBridgeTransaction(params: any): CrossChainTransaction {
+  private createMockBridgeTransaction(params: unknown): CrossChainTransaction {
     return {
       id: `mock-bridge-${Date.now()}`,
       userId: params.userId,
@@ -1137,7 +1136,7 @@ export const safeCrossChainService = {
     return crossChainService['getMockSupportedNetworks']();
   },
 
-  async getBridgeQuote(params: any) {
+  async getBridgeQuote(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableCrossChainBridge) {
         return await crossChainService.getBridgeQuote(params);
@@ -1150,7 +1149,7 @@ export const safeCrossChainService = {
     return crossChainService['getMockBridgeQuotes'](params);
   },
 
-  async executeBridgeTransaction(params: any) {
+  async executeBridgeTransaction(params: unknown) {
     try {
       if (phase4ConfigManager.getConfig().enableCrossChainBridge) {
         return await crossChainService.executeBridgeTransaction(params);

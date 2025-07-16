@@ -237,13 +237,11 @@ const ComprehensiveWalletManager: React.FC<ComprehensiveWalletManagerProps> = ({
       setShowHotWalletDialog(false);
       await loadWallets();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error connecting hot wallet:', error);
 
       // Enhanced error handling with specific messages
-      let errorMessage = "Failed to connect hot wallet";
-
-      if (error.message.includes('not found') || error.message.includes('not detected')) {
+      let errorMessage = "Failed to connect hot wallet";if (error.message.includes('not found') || error.message.includes('not detected')) {
         errorMessage = `${error.message} The download page has been opened in a new tab.`;
       } else if (error.message.includes('rejected')) {
         errorMessage = "Connection rejected by user. Please approve the connection request in your wallet.";
@@ -316,13 +314,11 @@ const ComprehensiveWalletManager: React.FC<ComprehensiveWalletManagerProps> = ({
         await loadWallets();
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Error connecting hardware wallet:', error);
 
       // Enhanced error handling with specific messages
-      let errorMessage = "Failed to connect hardware wallet";
-
-      if (error.message.includes('not supported')) {
+      let errorMessage = "Failed to connect hardware wallet";if (error.message.includes('not supported')) {
         errorMessage = `${device} is not supported yet. Please use a supported hardware wallet.`;
       } else if (error.message.includes('camera access') || error.message.includes('QR')) {
         errorMessage = `${error.message} Please ensure camera permissions are granted for QR scanning.`;
@@ -615,7 +611,7 @@ const ComprehensiveWalletManager: React.FC<ComprehensiveWalletManagerProps> = ({
 
             <div>
               <Label htmlFor="walletType">Wallet Type</Label>
-              <Select value={walletType} onValueChange={(value: any) => setWalletType(value)}>
+              <Select value={walletType} onValueChange={(value: unknown) => setWalletType(value)}>
                 <SelectTrigger className="bg-dex-secondary/20 border-dex-secondary/30 text-white">
                   <SelectValue />
                 </SelectTrigger>

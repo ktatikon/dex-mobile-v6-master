@@ -670,11 +670,11 @@ export class FiatCryptoConversionService {
     await new Promise(resolve => setTimeout(resolve, route.estimatedTime * 1000));
   }
 
-  private validateCryptoPrices = (data: any): boolean => {
+  private validateCryptoPrices = (data: unknown): boolean => {
     return data && typeof data === 'object' && Object.keys(data).length > 0;
   };
 
-  private validateFiatRates = (data: any): boolean => {
+  private validateFiatRates = (data: unknown): boolean => {
     return data && typeof data === 'object' && Object.keys(data).length > 0;
   };
 

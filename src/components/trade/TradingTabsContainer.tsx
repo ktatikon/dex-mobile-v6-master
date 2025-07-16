@@ -13,8 +13,8 @@ import { AdvancedTradingTab } from './AdvancedTradingTab';
 interface TradingTabsContainerProps {
   // Orderbook props
   selectedToken: Token | null;
-  orderBook: any;
-  recentTrades: any[];
+  orderBook: unknown;
+  recentTrades: unknown[];
   showRecentTrades: boolean;
   onToggleView: () => void;
   
