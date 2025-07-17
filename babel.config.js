@@ -1,17 +1,24 @@
-module.exports = function (api) {
-  api.cache(true);
-  return {
-    presets: ['babel-preset-expo'],
-    plugins: [
-      // Required for Tamagui
-      [
-        'transform-inline-environment-variables',
-        {
-          include: 'TAMAGUI_TARGET',
-        },
-      ],
-      // Required for Reanimated
-      'react-native-reanimated/plugin',
+module.exports = {
+  "presets": [
+    "babel-preset-expo"
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": [
+          "./src"
+        ],
+        "alias": {
+          "@": "./src",
+          "@/components": "./src/components",
+          "@/services": "./src/services",
+          "@/hooks": "./src/hooks",
+          "@/utils": "./src/utils",
+          "@/types": "./src/types"
+        }
+      }
     ],
-  };
+    "react-native-reanimated/plugin"
+  ]
 };

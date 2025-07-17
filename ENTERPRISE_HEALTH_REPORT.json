@@ -1,0 +1,291 @@
+{
+  "timestamp": "2025-07-16T07:30:31.189Z",
+  "overall_status": "FAILED",
+  "services": {
+    "Uniswap V3 Service": {
+      "name": "Uniswap V3 Service",
+      "file": "src/services/uniswapV3Service.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "DEX Swap Service": {
+      "name": "DEX Swap Service",
+      "file": "src/services/dexSwapService.ts",
+      "critical": true,
+      "status": "DEGRADED",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": false,
+        "typescript_compliant": true
+      },
+      "issues": [
+        "Some quality checks failed"
+      ],
+      "recommendations": [
+        "Integrate with loading orchestrator"
+      ]
+    },
+    "MEV Protection Service": {
+      "name": "MEV Protection Service",
+      "file": "src/services/mevProtectionService.ts",
+      "critical": true,
+      "status": "DEGRADED",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": false,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [
+        "Some quality checks failed"
+      ],
+      "recommendations": []
+    },
+    "Gas Optimization Service": {
+      "name": "Gas Optimization Service",
+      "file": "src/services/gasOptimizationService.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "TDS Compliance Service": {
+      "name": "TDS Compliance Service",
+      "file": "src/services/tdsComplianceService.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "KYC API Service": {
+      "name": "KYC API Service",
+      "file": "src/services/kycApiService.ts",
+      "critical": true,
+      "status": "DEGRADED",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": false,
+        "typescript_compliant": true
+      },
+      "issues": [
+        "Some quality checks failed"
+      ],
+      "recommendations": [
+        "Integrate with loading orchestrator"
+      ]
+    },
+    "AML Service": {
+      "name": "AML Service",
+      "file": "src/services/amlService.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "Fiat Wallet Service": {
+      "name": "Fiat Wallet Service",
+      "file": "src/services/fiatWalletService.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "PayPal Service": {
+      "name": "PayPal Service",
+      "file": "src/services/paypalService.ts",
+      "critical": false,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "PhonePe Service": {
+      "name": "PhonePe Service",
+      "file": "src/services/phonepeService.ts",
+      "critical": false,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "UPI Service": {
+      "name": "UPI Service",
+      "file": "src/services/upiService.ts",
+      "critical": false,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "Enterprise Service Integrator": {
+      "name": "Enterprise Service Integrator",
+      "file": "src/services/enterpriseServiceIntegrator.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "Loading Orchestrator": {
+      "name": "Loading Orchestrator",
+      "file": "src/services/enterprise/loadingOrchestrator.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "Real-time Data Manager": {
+      "name": "Real-time Data Manager",
+      "file": "src/services/enterprise/realTimeDataManager.ts",
+      "critical": true,
+      "status": "DEGRADED",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": false,
+        "typescript_compliant": true
+      },
+      "issues": [
+        "Some quality checks failed"
+      ],
+      "recommendations": [
+        "Integrate with loading orchestrator"
+      ]
+    },
+    "Blockchain Service": {
+      "name": "Blockchain Service",
+      "file": "src/services/blockchainService.ts",
+      "critical": true,
+      "status": "OPERATIONAL",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": true,
+        "typescript_compliant": true
+      },
+      "issues": [],
+      "recommendations": []
+    },
+    "Wallet Service": {
+      "name": "Wallet Service",
+      "file": "src/services/walletService.ts",
+      "critical": true,
+      "status": "DEGRADED",
+      "checks": {
+        "file_exists": true,
+        "has_class_export": true,
+        "has_initialize_method": true,
+        "has_error_handling": true,
+        "has_loading_integration": false,
+        "typescript_compliant": true
+      },
+      "issues": [
+        "Some quality checks failed"
+      ],
+      "recommendations": [
+        "Integrate with loading orchestrator"
+      ]
+    }
+  },
+  "summary": {
+    "total_services": 16,
+    "operational": 11,
+    "degraded": 5,
+    "failed": 0
+  },
+  "component_integration": {
+    "token_selector_reuse": true,
+    "enterprise_loading_patterns": true,
+    "zero_duplication_compliance": true
+  }
+}

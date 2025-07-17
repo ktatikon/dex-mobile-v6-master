@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
     },
     hmr: {
       port: process.env.HMR_PORT ? parseInt(process.env.HMR_PORT) : undefined,
-      host: 'localhost'
+      host: '0.0.0.0' // Allow HMR from network IP as well
     },
   },
   plugins: [

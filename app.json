@@ -1,30 +1,50 @@
 {
   "expo": {
-    "name": "DEX Mobile",
-    "slug": "dex-mobile",
-    "version": "1.0.0",
+    "name": "DEX Mobile v6",
+    "slug": "dex-mobile-v6",
+    "version": "6.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./public/icons/icon-512x512.png",
     "userInterfaceStyle": "dark",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./public/icons/splash-screen.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./public/icons/adaptive-icon.png",
+        "backgroundColor": "#B1420A"
+      },
+      "package": "com.techvitta.dexmobile",
+      "versionCode": 1,
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "USE_FINGERPRINT",
+        "USE_BIOMETRIC"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./public/favicon.ico",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-camera",
+      "expo-local-authentication",
+      "expo-secure-store"
+    ]
   }
 }

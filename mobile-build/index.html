@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V-DEX Mobile - Decentralized Exchange</title>
+    <meta name="description" content="V-DEX Mobile - Advanced decentralized exchange platform for trading, wallet management, and DeFi operations" />
+    <meta name="author" content="V-DEX" />
+
+    <meta property="og:title" content="V-DEX Mobile - Decentralized Exchange" />
+    <meta property="og:description" content="Advanced decentralized exchange platform for trading, wallet management, and DeFi operations" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/favicon.ico" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@vdex_mobile" />
+    <meta name="twitter:image" content="/favicon.ico" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FF3B30">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="V-DEX">
+    <link rel="apple-touch-icon" href="/favicon.ico">
+
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-DI8bmpuo.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/vendor-B26fRmtd.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-BXSSuLbp.js">
+    <link rel="modulepreload" crossorigin href="/assets/crypto-oqmhCI76.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BBmu21N4.css">
+  </head>
+
+  <body>
+    <div id="root">
+      <!-- Loading fallback -->
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; font-family: Arial, sans-serif;">
+        <div style="text-align: center;">
+          <div style="color: #FF3B30; font-size: 24px; margin-bottom: 10px;">🚀</div>
+          <div>Loading V-DEX Mobile...</div>
+          <div style="font-size: 12px; margin-top: 10px; opacity: 0.7;" id="loading-info"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Debug info in loading screen
+      document.getElementById('loading-info').textContent =
+        'Host: ' + window.location.host + ' | ' + new Date().toLocaleTimeString();
+
+      // Log loading progress
+      console.log('📄 HTML loaded');
+      console.log('🌐 Current URL:', window.location.href);
+    </script>
+
+    <!-- Load main app first, external scripts after -->
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script>
+      // Load external script with error handling
+      const script = document.createElement('script');
+      script.src = 'https://cdn.gpteng.co/gptengineer.js';
+      script.type = 'module';
+      script.async = true;
+      script.onerror = function() {
+        console.warn('External script failed to load, continuing without it');
+      };
+      document.head.appendChild(script);
+    </script>
+  </body>
+</html>

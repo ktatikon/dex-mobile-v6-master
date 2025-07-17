@@ -1,0 +1,31 @@
+{
+  "channel": "#dex-mobile-alerts",
+  "username": "DEX Mobile Monitor",
+  "icon_emoji": ":warning:",
+  "attachments": [
+    {
+      "color": "{{ if eq .Status \"firing\" }}danger{{ else }}good{{ end }}",
+      "title": "{{ .GroupLabels.alertname }}",
+      "text": "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}",
+      "fields": [
+        {
+          "title": "Environment",
+          "value": "Production",
+          "short": true
+        },
+        {
+          "title": "Severity",
+          "value": "{{ .GroupLabels.severity }}",
+          "short": true
+        }
+      ],
+      "actions": [
+        {
+          "type": "button",
+          "text": "View Dashboard",
+          "url": "https://monitoring.dex-mobile.com/dashboard"
+        }
+      ]
+    }
+  ]
+}
