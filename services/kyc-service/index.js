@@ -131,6 +131,7 @@ const aadhaarRoutes = require('./routes/aadhaar.routes');
 const panRoutes = require('./routes/pan.routes');
 const passportRoutes = require('./routes/passport.routes');
 const biometricRoutes = require('./routes/biometric.routes');
+const webhookRoutes = require('./routes/webhook.routes');
 
 // Apply routes
 app.use('/api/kyc', kycRoutes);
@@ -138,6 +139,7 @@ app.use('/api/kyc/aadhaar', strictLimiter, aadhaarRoutes);
 app.use('/api/kyc/pan', strictLimiter, panRoutes);
 app.use('/api/kyc/passport', strictLimiter, passportRoutes);
 app.use('/api/kyc/biometric', strictLimiter, biometricRoutes);
+app.use('/api/kyc/webhook', webhookRoutes); // No rate limiting for webhooks
 
 // Error handling middleware
 app.use((err, req, res, next) => {

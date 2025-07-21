@@ -37,22 +37,29 @@ class AadhaarController {
    */
   async verifyOTP(req, res) {
     try {
-      const { referenceId, otp, userId } = req.body;
-      
-      logger.kyc(userId, 'aadhaar_otp_verify', 'started', { referenceId });
-      
-      const result = await kycService.verifyAadhaarOtp(referenceId, otp, userId);
-      
+      const { referenceId, taskId, otp, userId } = req.body;
+
+      // Support both referenceId (legacy) and taskId (IDfy standard)
+      const actualTaskId = taskId || referenceId;
+
+      logger.kyc(userId, 'aadhaar_otp_verify', 'started', {
+        taskId: actualTaskId,
+        referenceId: actualTaskId // For backward compatibility
+      });
+
+      const result = await kycService.verifyAadhaarOtp(actualTaskId, otp, userId);
+
       logger.kyc(userId, 'aadhaar_otp_verify', 'completed', {
-        referenceId,
+        taskId: actualTaskId,
+        referenceId: actualTaskId, // For backward compatibility
         success: result.success
       });
-      
+
       res.json({
         success: true,
         data: result
       });
-      
+
     } catch (error) {
       logger.error('Aadhaar OTP verification failed:', error);
       res.status(500).json({

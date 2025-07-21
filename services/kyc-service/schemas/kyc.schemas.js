@@ -31,19 +31,27 @@ const aadhaarSchemas = {
   }),
 
   verifyOTP: Joi.object({
-    referenceId: referenceIdSchema,
+    referenceId: referenceIdSchema.optional(), // For backward compatibility
+    taskId: referenceIdSchema.optional(), // IDfy standard
     otp: Joi.string().length(6).pattern(/^\d{6}$/).required()
       .messages({
         'string.length': 'OTP must be 6 digits',
         'string.pattern.base': 'OTP must contain only numbers'
       }),
     userId: userIdSchema
-  }),
+  }).or('referenceId', 'taskId') // At least one must be present
+    .messages({
+      'object.missing': 'Either referenceId or taskId must be provided'
+    }),
 
   resendOTP: Joi.object({
-    referenceId: referenceIdSchema,
+    referenceId: referenceIdSchema.optional(), // For backward compatibility
+    taskId: referenceIdSchema.optional(), // IDfy standard
     userId: userIdSchema
-  }),
+  }).or('referenceId', 'taskId') // At least one must be present
+    .messages({
+      'object.missing': 'Either referenceId or taskId must be provided'
+    }),
 
   initiateBiometric: Joi.object({
     aadhaarNumber: Joi.string().pattern(aadhaarPattern).required(),

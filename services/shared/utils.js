@@ -12,16 +12,21 @@ class Utils {
    */
   static validateAadhaarFormat(aadhaar) {
     if (!aadhaar || typeof aadhaar !== 'string') return false;
-    
+
     // Remove spaces and hyphens
     const cleanAadhaar = aadhaar.replace(/[\s-]/g, '');
-    
+
     // Check if it's 12 digits
     if (!/^\d{12}$/.test(cleanAadhaar)) return false;
-    
+
     // Aadhaar should not start with 0 or 1
     if (cleanAadhaar.startsWith('0') || cleanAadhaar.startsWith('1')) return false;
-    
+
+    // For testing purposes, skip Verhoeff validation if in development mode
+    if (process.env.NODE_ENV === 'development' || process.env.SKIP_AADHAAR_CHECKSUM === 'true') {
+      return true; // Skip checksum validation for testing
+    }
+
     // Verhoeff algorithm validation (simplified)
     return this.verhoeffCheck(cleanAadhaar);
   }

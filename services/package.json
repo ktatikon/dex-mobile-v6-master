@@ -21,6 +21,7 @@
     "test": "npm run test:kyc && npm run test:aml",
     "test:kyc": "cd kyc-service && npm test",
     "test:aml": "cd aml-service && npm test",
+    "test:idfy": "cd kyc-service && node test-idfy-integration.js",
     "lint": "npm run lint:kyc && npm run lint:aml",
     "lint:kyc": "cd kyc-service && npm run lint",
     "lint:aml": "cd aml-service && npm run lint",
