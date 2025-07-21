@@ -1,0 +1,57 @@
+{
+  "name": "aml-service",
+  "version": "1.0.0",
+  "description": "Government-compliant AML service for Indian DEX application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "npm run validate && echo 'AML Service build completed successfully'",
+    "test": "jest",
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "validate": "node -c index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.0",
+    "joi": "^17.11.0",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "morgan": "^1.10.0",
+    "winston": "^3.11.0",
+    "bull": "^4.12.0",
+    "ioredis": "^5.3.2",
+    "body-parser": "^1.20.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.1",
+    "moment": "^2.29.4",
+
+    "node-cron": "^3.0.3",
+    "fuse.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.54.0"
+  },
+  "keywords": [
+    "aml",
+    "sanctions",
+    "pep",
+    "screening",
+    "compliance",
+    "india",
+    "rbi",
+    "fiu"
+  ],
+  "author": "DEX Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

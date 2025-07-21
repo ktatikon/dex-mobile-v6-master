@@ -288,11 +288,12 @@ services:
   # EXISTING SERVICES (KYC/AML)
   # =============================================================================
 
-  # KYC Service (existing)
+  # KYC Service (consolidated)
   kyc-service:
     build:
-      context: ./services/kyc-service
+      context: ./microservices/kyc-service
       dockerfile: Dockerfile
+      target: production
     container_name: dex-kyc-service
     restart: unless-stopped
     ports:
@@ -305,6 +306,7 @@ services:
       - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
       - SIGNZY_API_KEY=${SIGNZY_API_KEY}
       - UQUDO_API_KEY=${UQUDO_API_KEY}
+      - NSDL_API_KEY=${NSDL_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -312,12 +314,18 @@ services:
         condition: service_healthy
     networks:
       - dex-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # AML Service (existing)
+  # AML Service (consolidated)
   aml-service:
     build:
-      context: ./services/aml-service
+      context: ./microservices/aml-service
       dockerfile: Dockerfile
+      target: production
     container_name: dex-aml-service
     restart: unless-stopped
     ports:
@@ -336,14 +344,19 @@ services:
         condition: service_healthy
     networks:
       - dex-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Chart Data Service (existing)
-  chart-data-service:
+  # Chart API Service (consolidated)
+  chart-api-service:
     build:
-      context: ./chart-api-service
+      context: ./microservices/chart-api-service
       dockerfile: Dockerfile
       target: production
-    container_name: dex-chart-service
+    container_name: dex-chart-api-service
     restart: unless-stopped
     ports:
       - "4000:4000"
@@ -358,6 +371,38 @@ services:
         condition: service_healthy
     networks:
       - dex-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring Service (consolidated)
+  monitoring-service:
+    build:
+      context: ./microservices/monitoring-service
+      dockerfile: Dockerfile
+      target: production
+    container_name: dex-monitoring-service
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - HEALTH_CHECK_PORT=3001
+      - SERVICES_TO_MONITOR=kyc-service:4001,aml-service:4002,chart-api-service:4000,blockchain-service:5001
+    depends_on:
+      - kyc-service
+      - aml-service
+      - chart-api-service
+      - blockchain-service
+    networks:
+      - dex-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # =============================================================================
   # API GATEWAY & LOAD BALANCER
