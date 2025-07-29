@@ -1,0 +1,431 @@
+# EKS Deployment Configuration for DEX Mobile v6
+# Services: blockchain-service (High-scale, complex networking)
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DEX Mobile v6 - EKS Deployment for Blockchain Service'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+  
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID for deployment
+  
+  PrivateSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private subnet IDs for EKS cluster
+  
+  NodeInstanceType:
+    Type: String
+    Default: t3.medium
+    AllowedValues: [t3.small, t3.medium, t3.large, t3.xlarge, m5.large, m5.xlarge]
+    Description: EC2 instance type for EKS nodes
+  
+  MinNodes:
+    Type: Number
+    Default: 2
+    MinValue: 1
+    MaxValue: 10
+    Description: Minimum number of nodes in the cluster
+  
+  MaxNodes:
+    Type: Number
+    Default: 10
+    MinValue: 1
+    MaxValue: 50
+    Description: Maximum number of nodes in the cluster
+
+Resources:
+  # EKS Cluster Service Role
+  EKSClusterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: eks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-eks-cluster-role'
+
+  # EKS Node Group Role
+  EKSNodeGroupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      Policies:
+        - PolicyName: DEXBlockchainServicePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                  - logs:DescribeLogGroups
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeSecurityGroups
+                Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-eks-nodegroup-role'
+
+  # Security Group for EKS Cluster
+  EKSClusterSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EKS cluster control plane
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: !Ref EKSNodeSecurityGroup
+          Description: HTTPS from worker nodes
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: All outbound traffic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-eks-cluster-sg'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Security Group for EKS Nodes
+  EKSNodeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EKS worker nodes
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          SourceSecurityGroupId: !Ref EKSClusterSecurityGroup
+          Description: All ports from cluster control plane
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: !Ref EKSClusterSecurityGroup
+          Description: HTTPS from cluster control plane
+        - IpProtocol: tcp
+          FromPort: 5001
+          ToPort: 5001
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+          Description: Blockchain service port from ALB
+        - IpProtocol: -1
+          SourceSecurityGroupId: !Ref EKSNodeSecurityGroup
+          Description: All traffic between nodes
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: All outbound traffic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-eks-nodes-sg'
+        - Key: !Sub 'kubernetes.io/cluster/${Environment}-dex-eks-cluster'
+          Value: owned
+
+  # ALB Security Group
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Application Load Balancer
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP traffic
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS traffic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-eks-alb-sg'
+
+  # EKS Cluster
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: !Sub '${Environment}-dex-eks-cluster'
+      Version: '1.28'
+      RoleArn: !GetAtt EKSClusterRole.Arn
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref EKSClusterSecurityGroup
+        SubnetIds: !Ref PrivateSubnetIds
+        EndpointConfigPrivate: true
+        EndpointConfigPublic: true
+        PublicAccessCidrs: ['0.0.0.0/0']
+      Logging:
+        ClusterLogging:
+          EnabledTypes:
+            - Type: api
+            - Type: audit
+            - Type: authenticator
+            - Type: controllerManager
+            - Type: scheduler
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-eks-cluster'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # EKS Node Group
+  EKSNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    DependsOn: EKSCluster
+    Properties:
+      ClusterName: !Ref EKSCluster
+      NodegroupName: !Sub '${Environment}-dex-blockchain-nodes'
+      NodeRole: !GetAtt EKSNodeGroupRole.Arn
+      Subnets: !Ref PrivateSubnetIds
+      InstanceTypes:
+        - !Ref NodeInstanceType
+      AmiType: AL2_x86_64
+      CapacityType: ON_DEMAND
+      DiskSize: 50
+      ScalingConfig:
+        MinSize: !Ref MinNodes
+        MaxSize: !Ref MaxNodes
+        DesiredSize: !Ref MinNodes
+      UpdateConfig:
+        MaxUnavailablePercentage: 25
+      RemoteAccess:
+        Ec2SshKey: !Ref KeyPairName
+        SourceSecurityGroups:
+          - !Ref EKSNodeSecurityGroup
+      Labels:
+        Environment: !Ref Environment
+        Service: blockchain
+        NodeType: blockchain-worker
+      Tags:
+        Name: !Sub '${Environment}-dex-blockchain-nodes'
+        Environment: !Ref Environment
+        Service: blockchain
+        kubernetes.io/cluster/!Sub '${Environment}-dex-eks-cluster': owned
+
+  # CloudWatch Log Group for EKS
+  EKSLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/eks/${Environment}-dex-eks-cluster/cluster'
+      RetentionInDays: 30
+
+  # OIDC Identity Provider for EKS
+  EKSOIDCProvider:
+    Type: AWS::IAM::OIDCIdentityProvider
+    Properties:
+      Url: !GetAtt EKSCluster.OpenIdConnectIssuerUrl
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 9e99a48a9960b14926bb7f3b02e22da2b0ab7280
+
+  # Service Account Role for AWS Load Balancer Controller
+  AWSLoadBalancerControllerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref EKSOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                !Sub '${EKSCluster.OpenIdConnectIssuerUrl}:sub': 'system:serviceaccount:kube-system:aws-load-balancer-controller'
+                !Sub '${EKSCluster.OpenIdConnectIssuerUrl}:aud': 'sts.amazonaws.com'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+      Policies:
+        - PolicyName: AWSLoadBalancerControllerIAMPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:CreateServiceLinkedRole
+                  - ec2:DescribeAccountAttributes
+                  - ec2:DescribeAddresses
+                  - ec2:DescribeAvailabilityZones
+                  - ec2:DescribeInternetGateways
+                  - ec2:DescribeVpcs
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeInstances
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DescribeTags
+                  - ec2:GetCoipPoolUsage
+                  - ec2:DescribeCoipPools
+                  - elasticloadbalancing:DescribeLoadBalancers
+                  - elasticloadbalancing:DescribeLoadBalancerAttributes
+                  - elasticloadbalancing:DescribeListeners
+                  - elasticloadbalancing:DescribeListenerCertificates
+                  - elasticloadbalancing:DescribeSSLPolicies
+                  - elasticloadbalancing:DescribeRules
+                  - elasticloadbalancing:DescribeTargetGroups
+                  - elasticloadbalancing:DescribeTargetGroupAttributes
+                  - elasticloadbalancing:DescribeTargetHealth
+                  - elasticloadbalancing:DescribeTags
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - cognito-idp:DescribeUserPoolClient
+                  - acm:ListCertificates
+                  - acm:DescribeCertificate
+                  - iam:ListServerCertificates
+                  - iam:GetServerCertificate
+                  - waf-regional:GetWebACL
+                  - waf-regional:GetWebACLForResource
+                  - waf-regional:AssociateWebACL
+                  - waf-regional:DisassociateWebACL
+                  - wafv2:GetWebACL
+                  - wafv2:GetWebACLForResource
+                  - wafv2:AssociateWebACL
+                  - wafv2:DisassociateWebACL
+                  - shield:DescribeProtection
+                  - shield:GetSubscriptionState
+                  - shield:DescribeSubscription
+                  - shield:CreateProtection
+                  - shield:DeleteProtection
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:RevokeSecurityGroupIngress
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:CreateSecurityGroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:CreateTags
+                Resource: 'arn:aws:ec2:*:*:security-group/*'
+                Condition:
+                  StringEquals:
+                    'ec2:CreateAction': CreateSecurityGroup
+                  'Null':
+                    'aws:RequestedRegion': 'false'
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:CreateLoadBalancer
+                  - elasticloadbalancing:CreateTargetGroup
+                Resource: '*'
+                Condition:
+                  'Null':
+                    'aws:RequestedRegion': 'false'
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:CreateListener
+                  - elasticloadbalancing:DeleteListener
+                  - elasticloadbalancing:CreateRule
+                  - elasticloadbalancing:DeleteRule
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:AddTags
+                  - elasticloadbalancing:RemoveTags
+                Resource:
+                  - 'arn:aws:elasticloadbalancing:*:*:targetgroup/*/*'
+                  - 'arn:aws:elasticloadbalancing:*:*:loadbalancer/net/*/*'
+                  - 'arn:aws:elasticloadbalancing:*:*:loadbalancer/app/*/*'
+                Condition:
+                  'Null':
+                    'aws:RequestedRegion': 'false'
+                    'aws:ResourceTag/elbv2.k8s.aws/cluster': 'false'
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:ModifyLoadBalancerAttributes
+                  - elasticloadbalancing:SetIpAddressType
+                  - elasticloadbalancing:SetSecurityGroups
+                  - elasticloadbalancing:SetSubnets
+                  - elasticloadbalancing:DeleteLoadBalancer
+                  - elasticloadbalancing:ModifyTargetGroup
+                  - elasticloadbalancing:ModifyTargetGroupAttributes
+                  - elasticloadbalancing:DeleteTargetGroup
+                Resource: '*'
+                Condition:
+                  'Null':
+                    'aws:ResourceTag/elbv2.k8s.aws/cluster': 'false'
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:RegisterTargets
+                  - elasticloadbalancing:DeregisterTargets
+                Resource: 'arn:aws:elasticloadbalancing:*:*:targetgroup/*/*'
+              - Effect: Allow
+                Action:
+                  - elasticloadbalancing:SetWebAcl
+                  - elasticloadbalancing:ModifyListener
+                  - elasticloadbalancing:AddListenerCertificates
+                  - elasticloadbalancing:RemoveListenerCertificates
+                  - elasticloadbalancing:ModifyRule
+                Resource: '*'
+
+Outputs:
+  EKSClusterName:
+    Description: Name of the EKS cluster
+    Value: !Ref EKSCluster
+    Export:
+      Name: !Sub '${Environment}-dex-eks-cluster-name'
+  
+  EKSClusterEndpoint:
+    Description: EKS cluster endpoint
+    Value: !GetAtt EKSCluster.Endpoint
+    Export:
+      Name: !Sub '${Environment}-dex-eks-cluster-endpoint'
+  
+  EKSClusterArn:
+    Description: EKS cluster ARN
+    Value: !GetAtt EKSCluster.Arn
+    Export:
+      Name: !Sub '${Environment}-dex-eks-cluster-arn'
+  
+  EKSNodeGroupName:
+    Description: Name of the EKS node group
+    Value: !Ref EKSNodeGroup
+    Export:
+      Name: !Sub '${Environment}-dex-eks-nodegroup-name'
+  
+  AWSLoadBalancerControllerRoleArn:
+    Description: ARN of the AWS Load Balancer Controller IAM role
+    Value: !GetAtt AWSLoadBalancerControllerRole.Arn
+    Export:
+      Name: !Sub '${Environment}-dex-aws-load-balancer-controller-role-arn'

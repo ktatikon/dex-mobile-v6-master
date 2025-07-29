@@ -1,0 +1,501 @@
+# Compliance Infrastructure for DEX Mobile v6
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DEX Mobile v6 - CloudTrail, Config, and Compliance Infrastructure'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+  
+  OrganizationId:
+    Type: String
+    Default: ''
+    Description: AWS Organization ID (optional)
+  
+  ComplianceEmail:
+    Type: String
+    Description: Email address for compliance notifications
+    AllowedPattern: '^[^\s@]+@[^\s@]+\.[^\s@]+$'
+
+Resources:
+  # S3 Bucket for CloudTrail Logs
+  CloudTrailLogsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Environment}-dex-cloudtrail-logs-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref CloudTrailKMSKey
+            BucketKeyEnabled: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 90
+          - Id: TransitionToIA
+            Status: Enabled
+            TransitionInDays: 30
+            StorageClass: STANDARD_IA
+          - Id: TransitionToGlacier
+            Status: Enabled
+            TransitionInDays: 90
+            StorageClass: GLACIER
+          - Id: DeleteOldLogs
+            Status: Enabled
+            ExpirationInDays: 2555  # 7 years for compliance
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      NotificationConfiguration:
+        CloudWatchConfigurations:
+          - Event: s3:ObjectCreated:*
+            CloudWatchConfiguration:
+              LogGroupName: !Ref CloudTrailLogGroup
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-cloudtrail-logs'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: Compliance
+
+  # CloudTrail Logs Bucket Policy
+  CloudTrailLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CloudTrailLogsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AWSCloudTrailAclCheck
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action: s3:GetBucketAcl
+            Resource: !GetAtt CloudTrailLogsBucket.Arn
+            Condition:
+              StringEquals:
+                'AWS:SourceArn': !Sub 'arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/${Environment}-dex-cloudtrail'
+          - Sid: AWSCloudTrailWrite
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action: s3:PutObject
+            Resource: !Sub '${CloudTrailLogsBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                's3:x-amz-acl': bucket-owner-full-control
+                'AWS:SourceArn': !Sub 'arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/${Environment}-dex-cloudtrail'
+          - Sid: DenyInsecureConnections
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt CloudTrailLogsBucket.Arn
+              - !Sub '${CloudTrailLogsBucket.Arn}/*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': 'false'
+
+  # KMS Key for CloudTrail
+  CloudTrailKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for DEX Mobile CloudTrail encryption
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow CloudTrail to encrypt logs
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action:
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: '*'
+            Condition:
+              StringEquals:
+                'AWS:SourceArn': !Sub 'arn:aws:cloudtrail:${AWS::Region}:${AWS::AccountId}:trail/${Environment}-dex-cloudtrail'
+          - Sid: Allow CloudWatch Logs
+            Effect: Allow
+            Principal:
+              Service: !Sub 'logs.${AWS::Region}.amazonaws.com'
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: '*'
+            Condition:
+              ArnEquals:
+                'kms:EncryptionContext:aws:logs:arn': !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/cloudtrail/${Environment}-dex'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-cloudtrail-kms-key'
+        - Key: Environment
+          Value: !Ref Environment
+
+  CloudTrailKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub 'alias/${Environment}-dex-cloudtrail'
+      TargetKeyId: !Ref CloudTrailKMSKey
+
+  # CloudWatch Log Group for CloudTrail
+  CloudTrailLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/cloudtrail/${Environment}-dex'
+      RetentionInDays: 2555  # 7 years for compliance
+      KmsKeyId: !GetAtt CloudTrailKMSKey.Arn
+
+  # CloudTrail Log Stream
+  CloudTrailLogStream:
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: !Ref CloudTrailLogGroup
+      LogStreamName: !Sub '${Environment}-dex-cloudtrail-log-stream'
+
+  # IAM Role for CloudTrail CloudWatch Logs
+  CloudTrailLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudTrailLogsRolePolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:PutLogEvents
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                Resource: !GetAtt CloudTrailLogGroup.Arn
+
+  # CloudTrail
+  CloudTrail:
+    Type: AWS::CloudTrail::Trail
+    DependsOn: CloudTrailLogsBucketPolicy
+    Properties:
+      TrailName: !Sub '${Environment}-dex-cloudtrail'
+      S3BucketName: !Ref CloudTrailLogsBucket
+      S3KeyPrefix: !Sub '${Environment}-dex-logs'
+      IncludeGlobalServiceEvents: true
+      IsLogging: true
+      IsMultiRegionTrail: true
+      EnableLogFileValidation: true
+      KMSKeyId: !Ref CloudTrailKMSKey
+      CloudWatchLogsLogGroupArn: !GetAtt CloudTrailLogGroup.Arn
+      CloudWatchLogsRoleArn: !GetAtt CloudTrailLogsRole.Arn
+      EventSelectors:
+        - ReadWriteType: All
+          IncludeManagementEvents: true
+          DataResources:
+            - Type: AWS::S3::Object
+              Values: ['arn:aws:s3:::*/*']
+            - Type: AWS::S3::Bucket
+              Values: ['arn:aws:s3:::*']
+      InsightSelectors:
+        - InsightType: ApiCallRateInsight
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-cloudtrail'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Purpose
+          Value: Compliance
+
+  # S3 Bucket for AWS Config
+  ConfigBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Environment}-dex-config-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref ConfigKMSKey
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 90
+          - Id: DeleteOldConfigData
+            Status: Enabled
+            ExpirationInDays: 2555  # 7 years for compliance
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-config'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Config Bucket Policy
+  ConfigBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ConfigBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AWSConfigBucketPermissionsCheck
+            Effect: Allow
+            Principal:
+              Service: config.amazonaws.com
+            Action: s3:GetBucketAcl
+            Resource: !GetAtt ConfigBucket.Arn
+            Condition:
+              StringEquals:
+                'AWS:SourceAccount': !Ref AWS::AccountId
+          - Sid: AWSConfigBucketExistenceCheck
+            Effect: Allow
+            Principal:
+              Service: config.amazonaws.com
+            Action: s3:ListBucket
+            Resource: !GetAtt ConfigBucket.Arn
+            Condition:
+              StringEquals:
+                'AWS:SourceAccount': !Ref AWS::AccountId
+          - Sid: AWSConfigBucketDelivery
+            Effect: Allow
+            Principal:
+              Service: config.amazonaws.com
+            Action: s3:PutObject
+            Resource: !Sub '${ConfigBucket.Arn}/*'
+            Condition:
+              StringEquals:
+                's3:x-amz-acl': bucket-owner-full-control
+                'AWS:SourceAccount': !Ref AWS::AccountId
+
+  # KMS Key for Config
+  ConfigKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for DEX Mobile Config encryption
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow Config Service
+            Effect: Allow
+            Principal:
+              Service: config.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-config-kms-key'
+
+  ConfigKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub 'alias/${Environment}-dex-config'
+      TargetKeyId: !Ref ConfigKMSKey
+
+  # IAM Role for Config
+  ConfigRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: config.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/ConfigRole
+      Policies:
+        - PolicyName: ConfigDeliveryRolePolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketAcl
+                  - s3:ListBucket
+                Resource: !GetAtt ConfigBucket.Arn
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub '${ConfigBucket.Arn}/*'
+                Condition:
+                  StringEquals:
+                    's3:x-amz-acl': bucket-owner-full-control
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub '${ConfigBucket.Arn}/*'
+
+  # Config Configuration Recorder
+  ConfigRecorder:
+    Type: AWS::Config::ConfigurationRecorder
+    Properties:
+      Name: !Sub '${Environment}-dex-config-recorder'
+      RoleARN: !GetAtt ConfigRole.Arn
+      RecordingGroup:
+        AllSupported: true
+        IncludeGlobalResourceTypes: true
+        ResourceTypes: []
+
+  # Config Delivery Channel
+  ConfigDeliveryChannel:
+    Type: AWS::Config::DeliveryChannel
+    Properties:
+      Name: !Sub '${Environment}-dex-config-delivery-channel'
+      S3BucketName: !Ref ConfigBucket
+      S3KeyPrefix: !Sub '${Environment}-dex-config'
+      ConfigSnapshotDeliveryProperties:
+        DeliveryFrequency: Daily
+
+  # SNS Topic for Compliance Notifications
+  ComplianceTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${Environment}-dex-compliance-notifications'
+      DisplayName: DEX Mobile Compliance Notifications
+      KmsMasterKeyId: !Ref ConfigKMSKey
+
+  # SNS Subscription for Compliance Email
+  ComplianceEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      TopicArn: !Ref ComplianceTopic
+      Endpoint: !Ref ComplianceEmail
+
+  # Config Rules for Compliance
+  S3BucketPublicAccessProhibitedRule:
+    Type: AWS::Config::ConfigRule
+    DependsOn: ConfigRecorder
+    Properties:
+      ConfigRuleName: s3-bucket-public-access-prohibited
+      Description: Checks that S3 buckets do not allow public access
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_ACCESS_PROHIBITED
+
+  RootAccessKeyCheckRule:
+    Type: AWS::Config::ConfigRule
+    DependsOn: ConfigRecorder
+    Properties:
+      ConfigRuleName: root-access-key-check
+      Description: Checks whether the root user access key is available
+      Source:
+        Owner: AWS
+        SourceIdentifier: ROOT_ACCESS_KEY_CHECK
+
+  IAMPasswordPolicyRule:
+    Type: AWS::Config::ConfigRule
+    DependsOn: ConfigRecorder
+    Properties:
+      ConfigRuleName: iam-password-policy
+      Description: Checks whether the account password policy meets requirements
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_PASSWORD_POLICY
+      InputParameters: |
+        {
+          "RequireUppercaseCharacters": "true",
+          "RequireLowercaseCharacters": "true",
+          "RequireSymbols": "true",
+          "RequireNumbers": "true",
+          "MinimumPasswordLength": "14",
+          "PasswordReusePrevention": "24",
+          "MaxPasswordAge": "90"
+        }
+
+  # CloudWatch Alarms for Compliance Monitoring
+  UnauthorizedAPICallsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${Environment}-DEX-UnauthorizedAPICalls'
+      AlarmDescription: Alarm for unauthorized API calls
+      MetricName: UnauthorizedAPICalls
+      Namespace: CloudTrailMetrics
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref ComplianceTopic
+      TreatMissingData: notBreaching
+
+  RootUsageAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${Environment}-DEX-RootUsage'
+      AlarmDescription: Alarm for root account usage
+      MetricName: RootUsage
+      Namespace: CloudTrailMetrics
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref ComplianceTopic
+      TreatMissingData: notBreaching
+
+Outputs:
+  CloudTrailArn:
+    Description: CloudTrail ARN
+    Value: !GetAtt CloudTrail.Arn
+    Export:
+      Name: !Sub '${Environment}-dex-cloudtrail-arn'
+
+  CloudTrailLogGroupArn:
+    Description: CloudTrail CloudWatch Log Group ARN
+    Value: !GetAtt CloudTrailLogGroup.Arn
+    Export:
+      Name: !Sub '${Environment}-dex-cloudtrail-log-group-arn'
+
+  ConfigBucketName:
+    Description: Config S3 bucket name
+    Value: !Ref ConfigBucket
+    Export:
+      Name: !Sub '${Environment}-dex-config-bucket-name'
+
+  ComplianceTopicArn:
+    Description: Compliance SNS topic ARN
+    Value: !Ref ComplianceTopic
+    Export:
+      Name: !Sub '${Environment}-dex-compliance-topic-arn'
+
+  CloudTrailKMSKeyId:
+    Description: CloudTrail KMS Key ID
+    Value: !Ref CloudTrailKMSKey
+    Export:
+      Name: !Sub '${Environment}-dex-cloudtrail-kms-key-id'
+
+  ConfigKMSKeyId:
+    Description: Config KMS Key ID
+    Value: !Ref ConfigKMSKey
+    Export:
+      Name: !Sub '${Environment}-dex-config-kms-key-id'

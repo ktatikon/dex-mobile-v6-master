@@ -1,0 +1,405 @@
+# WAF Configuration for DEX Mobile v6
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DEX Mobile v6 - Web Application Firewall Configuration'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+  
+  ALBArn:
+    Type: String
+    Description: Application Load Balancer ARN to associate with WAF
+  
+  RateLimitPerMinute:
+    Type: Number
+    Default: 2000
+    MinValue: 100
+    MaxValue: 20000
+    Description: Rate limit per 5-minute period per IP
+
+Resources:
+  # WAF Web ACL
+  WebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Sub '${Environment}-dex-web-acl'
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      Description: WAF Web ACL for DEX Mobile application
+      Rules:
+        # Rate limiting rule
+        - Name: RateLimitRule
+          Priority: 1
+          Statement:
+            RateBasedStatement:
+              Limit: !Ref RateLimitPerMinute
+              AggregateKeyType: IP
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: RateLimitRule
+
+        # AWS Managed Rules - Core Rule Set
+        - Name: AWSManagedRulesCommonRuleSet
+          Priority: 2
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+              ExcludedRules:
+                - Name: SizeRestrictions_BODY
+                - Name: GenericRFI_BODY
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: CommonRuleSetMetric
+
+        # AWS Managed Rules - Known Bad Inputs
+        - Name: AWSManagedRulesKnownBadInputsRuleSet
+          Priority: 3
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: KnownBadInputsRuleSetMetric
+
+        # AWS Managed Rules - SQL Injection
+        - Name: AWSManagedRulesSQLiRuleSet
+          Priority: 4
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesSQLiRuleSet
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: SQLiRuleSetMetric
+
+        # AWS Managed Rules - Linux Operating System
+        - Name: AWSManagedRulesLinuxRuleSet
+          Priority: 5
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesLinuxRuleSet
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: LinuxRuleSetMetric
+
+        # Block requests from specific countries (if needed)
+        - Name: GeoBlockRule
+          Priority: 6
+          Statement:
+            GeoMatchStatement:
+              CountryCodes:
+                - CN  # China
+                - RU  # Russia
+                - KP  # North Korea
+                - IR  # Iran
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: GeoBlockRuleMetric
+
+        # Custom rule to block suspicious user agents
+        - Name: BlockSuspiciousUserAgents
+          Priority: 7
+          Statement:
+            ByteMatchStatement:
+              SearchString: 'bot'
+              FieldToMatch:
+                SingleHeader:
+                  Name: user-agent
+              TextTransformations:
+                - Priority: 0
+                  Type: LOWERCASE
+              PositionalConstraint: CONTAINS
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: SuspiciousUserAgentMetric
+
+        # Allow health check endpoints
+        - Name: AllowHealthChecks
+          Priority: 8
+          Statement:
+            ByteMatchStatement:
+              SearchString: '/health'
+              FieldToMatch:
+                UriPath: {}
+              TextTransformations:
+                - Priority: 0
+                  Type: LOWERCASE
+              PositionalConstraint: STARTS_WITH
+          Action:
+            Allow: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: HealthCheckAllowMetric
+
+        # Custom rule for API endpoints protection
+        - Name: APIEndpointProtection
+          Priority: 9
+          Statement:
+            AndStatement:
+              Statements:
+                - ByteMatchStatement:
+                    SearchString: '/api/'
+                    FieldToMatch:
+                      UriPath: {}
+                    TextTransformations:
+                      - Priority: 0
+                        Type: LOWERCASE
+                    PositionalConstraint: STARTS_WITH
+                - NotStatement:
+                    Statement:
+                      ByteMatchStatement:
+                        SearchString: 'application/json'
+                        FieldToMatch:
+                          SingleHeader:
+                            Name: content-type
+                        TextTransformations:
+                          - Priority: 0
+                            Type: LOWERCASE
+                        PositionalConstraint: CONTAINS
+          Action:
+            Block: {}
+          VisibilityConfig:
+            SampledRequestsEnabled: true
+            CloudWatchMetricsEnabled: true
+            MetricName: APIEndpointProtectionMetric
+
+      VisibilityConfig:
+        SampledRequestsEnabled: true
+        CloudWatchMetricsEnabled: true
+        MetricName: !Sub '${Environment}DEXWebACL'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-web-acl'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Associate WAF with ALB
+  WebACLAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn: !Ref ALBArn
+      WebACLArn: !GetAtt WebACL.Arn
+
+  # CloudWatch Log Group for WAF
+  WAFLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/wafv2/${Environment}-dex-web-acl'
+      RetentionInDays: 30
+
+  # WAF Logging Configuration
+  WAFLoggingConfiguration:
+    Type: AWS::WAFv2::LoggingConfiguration
+    Properties:
+      ResourceArn: !GetAtt WebACL.Arn
+      LogDestinationConfigs:
+        - !Sub '${WAFLogGroup.Arn}:*'
+      LoggingFilter:
+        DefaultBehavior: KEEP
+        Filters:
+          - Behavior: KEEP
+            Conditions:
+              - ActionCondition:
+                  Action: BLOCK
+            Requirement: MEETS_ANY
+          - Behavior: DROP
+            Conditions:
+              - ActionCondition:
+                  Action: ALLOW
+            Requirement: MEETS_ALL
+      RedactedFields:
+        - SingleHeader:
+            Name: authorization
+        - SingleHeader:
+            Name: cookie
+        - SingleHeader:
+            Name: x-api-key
+
+  # CloudWatch Dashboard for WAF Metrics
+  WAFDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub '${Environment}-DEX-WAF-Dashboard'
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/WAFV2", "AllowedRequests", "WebACL", "${WebACL}", "Region", "${AWS::Region}", "Rule", "ALL" ],
+                  [ ".", "BlockedRequests", ".", ".", ".", ".", ".", "." ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "WAF Requests Overview",
+                "period": 300
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "AWS/WAFV2", "BlockedRequests", "WebACL", "${WebACL}", "Region", "${AWS::Region}", "Rule", "RateLimitRule" ],
+                  [ "...", "AWSManagedRulesCommonRuleSet" ],
+                  [ "...", "AWSManagedRulesKnownBadInputsRuleSet" ],
+                  [ "...", "AWSManagedRulesSQLiRuleSet" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Blocked Requests by Rule",
+                "period": 300
+              }
+            },
+            {
+              "type": "log",
+              "x": 0,
+              "y": 6,
+              "width": 24,
+              "height": 6,
+              "properties": {
+                "query": "SOURCE '/aws/wafv2/${Environment}-dex-web-acl'\n| fields @timestamp, action, httpRequest.clientIp, httpRequest.uri, httpRequest.method\n| filter action = \"BLOCK\"\n| sort @timestamp desc\n| limit 100",
+                "region": "${AWS::Region}",
+                "title": "Recent Blocked Requests",
+                "view": "table"
+              }
+            }
+          ]
+        }
+
+  # CloudWatch Alarms for WAF
+  HighBlockedRequestsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${Environment}-DEX-WAF-HighBlockedRequests'
+      AlarmDescription: High number of blocked requests detected
+      MetricName: BlockedRequests
+      Namespace: AWS/WAFV2
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 1000
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: WebACL
+          Value: !Ref WebACL
+        - Name: Region
+          Value: !Ref AWS::Region
+        - Name: Rule
+          Value: ALL
+      AlarmActions:
+        - !Ref SNSTopicArn
+      TreatMissingData: notBreaching
+
+  RateLimitAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${Environment}-DEX-WAF-RateLimitTriggered'
+      AlarmDescription: Rate limit rule is being triggered frequently
+      MetricName: BlockedRequests
+      Namespace: AWS/WAFV2
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 100
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: WebACL
+          Value: !Ref WebACL
+        - Name: Region
+          Value: !Ref AWS::Region
+        - Name: Rule
+          Value: RateLimitRule
+      AlarmActions:
+        - !Ref SNSTopicArn
+      TreatMissingData: notBreaching
+
+  # SNS Topic for WAF Alerts
+  SNSTopicArn:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${Environment}-dex-waf-alerts'
+      DisplayName: DEX Mobile WAF Alerts
+      KmsMasterKeyId: alias/aws/sns
+
+  # SNS Topic Policy
+  SNSTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref SNSTopicArn
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudwatch.amazonaws.com
+            Action: sns:Publish
+            Resource: !Ref SNSTopicArn
+
+Outputs:
+  WebACLId:
+    Description: WAF Web ACL ID
+    Value: !GetAtt WebACL.Id
+    Export:
+      Name: !Sub '${Environment}-dex-web-acl-id'
+
+  WebACLArn:
+    Description: WAF Web ACL ARN
+    Value: !GetAtt WebACL.Arn
+    Export:
+      Name: !Sub '${Environment}-dex-web-acl-arn'
+
+  WAFLogGroupName:
+    Description: WAF CloudWatch Log Group Name
+    Value: !Ref WAFLogGroup
+    Export:
+      Name: !Sub '${Environment}-dex-waf-log-group'
+
+  WAFDashboardURL:
+    Description: CloudWatch Dashboard URL for WAF metrics
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=${Environment}-DEX-WAF-Dashboard'
+
+  SNSTopicArn:
+    Description: SNS Topic ARN for WAF alerts
+    Value: !Ref SNSTopicArn
+    Export:
+      Name: !Sub '${Environment}-dex-waf-sns-topic-arn'

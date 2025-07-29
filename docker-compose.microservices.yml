@@ -1,51 +1,74 @@
 version: '3.8'
 
+# =============================================================================
+# DEX MOBILE V6 - CONSOLIDATED MICROSERVICES
+# Production-ready Docker Compose for AWS deployment
+# =============================================================================
+
 networks:
   dex-network:
     driver: bridge
     ipam:
       config:
         - subnet: 172.20.0.0/16
+    labels:
+      - "com.dex.network=main"
+      - "com.dex.environment=${ENVIRONMENT:-production}"
 
 volumes:
   postgres_data:
     driver: local
+    labels:
+      - "com.dex.volume=database"
   redis_data:
     driver: local
-  elasticsearch_data:
-    driver: local
+    labels:
+      - "com.dex.volume=cache"
   prometheus_data:
     driver: local
+    labels:
+      - "com.dex.volume=monitoring"
   grafana_data:
     driver: local
+    labels:
+      - "com.dex.volume=monitoring"
+  logs_data:
+    driver: local
+    labels:
+      - "com.dex.volume=logs"
 
 services:
   # =============================================================================
-  # DATA LAYER
+  # INFRASTRUCTURE SERVICES
   # =============================================================================
-  
+
   # PostgreSQL Database (Supabase compatible)
   postgres:
     image: postgres:15-alpine
     container_name: dex-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: dex_mobile
-      POSTGRES_USER: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-dex_mobile}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
       POSTGRES_MULTIPLE_EXTENSIONS: uuid-ossp,pgcrypto
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d
+      - ./microservices/database:/docker-entrypoint-initdb.d
+      - logs_data:/var/log/postgresql
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - dex-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
+    labels:
+      - "com.dex.service=database"
+      - "com.dex.tier=infrastructure"
 
   # Redis Cache & Session Store
   redis:
@@ -55,8 +78,9 @@ services:
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
     volumes:
       - redis_data:/data
+      - ./microservices/chart-api-service/redis.conf:/usr/local/etc/redis/redis.conf:ro
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     networks:
       - dex-network
     healthcheck:
@@ -64,9 +88,13 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
+    labels:
+      - "com.dex.service=cache"
+      - "com.dex.tier=infrastructure"
 
   # =============================================================================
-  # CORE TRADING SERVICES
+  # CORE MICROSERVICES
   # =============================================================================
 
   # Blockchain Service - Multi-chain RPC management
@@ -75,20 +103,23 @@ services:
       context: ./microservices/blockchain-service
       dockerfile: Dockerfile
       target: production
+      args:
+        - NODE_ENV=production
     container_name: dex-blockchain-service
     restart: unless-stopped
     ports:
-      - "5001:5001"
+      - "${BLOCKCHAIN_SERVICE_PORT:-5001}:5001"
     environment:
       - NODE_ENV=production
       - PORT=5001
       - REDIS_URL=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-dex_mobile}
       - ETHEREUM_RPC_URL=${ETHEREUM_RPC_URL}
       - POLYGON_RPC_URL=${POLYGON_RPC_URL}
       - BSC_RPC_URL=${BSC_RPC_URL}
       - ARBITRUM_RPC_URL=${ARBITRUM_RPC_URL}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     depends_on:
       postgres:
         condition: service_healthy
@@ -96,217 +127,45 @@ services:
         condition: service_healthy
     networks:
       - dex-network
+    volumes:
+      - logs_data:/app/logs
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
+    labels:
+      - "com.dex.service=blockchain"
+      - "com.dex.tier=core"
+      - "com.dex.scalable=true"
 
-  # Trading Service - Uniswap V3 integration
-  trading-service:
-    build:
-      context: ./microservices/trading-service
-      dockerfile: Dockerfile
-      target: production
-    container_name: dex-trading-service
-    restart: unless-stopped
-    ports:
-      - "5002:5002"
-    environment:
-      - NODE_ENV=production
-      - PORT=5002
-      - REDIS_URL=redis://redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
-      - BLOCKCHAIN_SERVICE_URL=http://blockchain-service:5001
-      - UNISWAP_V3_SUBGRAPH_URL=${UNISWAP_V3_SUBGRAPH_URL}
-    depends_on:
-      blockchain-service:
-        condition: service_healthy
-    networks:
-      - dex-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Pool Service - Liquidity data management
-  pool-service:
-    build:
-      context: ./microservices/pool-service
-      dockerfile: Dockerfile
-      target: production
-    container_name: dex-pool-service
-    restart: unless-stopped
-    ports:
-      - "5003:5003"
-    environment:
-      - NODE_ENV=production
-      - PORT=5003
-      - REDIS_URL=redis://redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - BLOCKCHAIN_SERVICE_URL=http://blockchain-service:5001
-      - UNISWAP_V3_SUBGRAPH_URL=${UNISWAP_V3_SUBGRAPH_URL}
-    depends_on:
-      blockchain-service:
-        condition: service_healthy
-    networks:
-      - dex-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Quote Service - Price calculations
-  quote-service:
-    build:
-      context: ./microservices/quote-service
-      dockerfile: Dockerfile
-      target: production
-    container_name: dex-quote-service
-    restart: unless-stopped
-    ports:
-      - "5004:5004"
-    environment:
-      - NODE_ENV=production
-      - PORT=5004
-      - REDIS_URL=redis://redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - COINGECKO_API_KEY=${COINGECKO_API_KEY}
-      - BLOCKCHAIN_SERVICE_URL=http://blockchain-service:5001
-    depends_on:
-      blockchain-service:
-        condition: service_healthy
-    networks:
-      - dex-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5004/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # =============================================================================
-  # WALLET & SECURITY SERVICES
-  # =============================================================================
-
-  # Wallet Service - Multi-wallet support
-  wallet-service:
-    build:
-      context: ./microservices/wallet-service
-      dockerfile: Dockerfile
-      target: production
-    container_name: dex-wallet-service
-    restart: unless-stopped
-    ports:
-      - "5005:5005"
-    environment:
-      - NODE_ENV=production
-      - PORT=5005
-      - REDIS_URL=redis://redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - BLOCKCHAIN_SERVICE_URL=http://blockchain-service:5001
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - dex-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5005/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Auth Service - JWT/OAuth authentication
-  auth-service:
-    build:
-      context: ./microservices/auth-service
-      dockerfile: Dockerfile
-      target: production
-    container_name: dex-auth-service
-    restart: unless-stopped
-    ports:
-      - "5006:5006"
-    environment:
-      - NODE_ENV=production
-      - PORT=5006
-      - REDIS_URL=redis://redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - dex-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5006/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Security Service - Encryption/MFA
-  security-service:
-    build:
-      context: ./microservices/security-service
-      dockerfile: Dockerfile
-      target: production
-    container_name: dex-security-service
-    restart: unless-stopped
-    ports:
-      - "5007:5007"
-    environment:
-      - NODE_ENV=production
-      - PORT=5007
-      - REDIS_URL=redis://redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - MFA_SECRET_KEY=${MFA_SECRET_KEY}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - dex-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5007/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # =============================================================================
-  # EXISTING SERVICES (KYC/AML)
-  # =============================================================================
-
-  # KYC Service (consolidated)
+  # KYC Service - Know Your Customer verification
   kyc-service:
     build:
       context: ./microservices/kyc-service
       dockerfile: Dockerfile
       target: production
+      args:
+        - NODE_ENV=production
     container_name: dex-kyc-service
     restart: unless-stopped
     ports:
-      - "4001:4001"
+      - "${KYC_SERVICE_PORT:-4001}:4001"
     environment:
       - NODE_ENV=production
       - PORT=4001
       - REDIS_URL=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
-      - SIGNZY_API_KEY=${SIGNZY_API_KEY}
-      - UQUDO_API_KEY=${UQUDO_API_KEY}
-      - NSDL_API_KEY=${NSDL_API_KEY}
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-dex_mobile}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - IDFY_API_KEY=${IDFY_API_KEY}
+      - IDFY_BASE_URL=${IDFY_BASE_URL:-https://eve.idfy.com/v3.0/api}
+      - IDFY_ACCOUNT_ID=${IDFY_ACCOUNT_ID}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     depends_on:
       postgres:
         condition: service_healthy
@@ -314,29 +173,44 @@ services:
         condition: service_healthy
     networks:
       - dex-network
+    volumes:
+      - logs_data:/app/logs
+      - ./microservices/shared:/app/shared:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 45s
+    labels:
+      - "com.dex.service=kyc"
+      - "com.dex.tier=compliance"
+      - "com.dex.scalable=true"
 
-  # AML Service (consolidated)
+  # AML Service - Anti-Money Laundering compliance
   aml-service:
     build:
       context: ./microservices/aml-service
       dockerfile: Dockerfile
       target: production
+      args:
+        - NODE_ENV=production
     container_name: dex-aml-service
     restart: unless-stopped
     ports:
-      - "4002:4002"
+      - "${AML_SERVICE_PORT:-4002}:4002"
     environment:
       - NODE_ENV=production
       - PORT=4002
       - REDIS_URL=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
-      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/dex_mobile
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-dex_mobile}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
       - SIGNZY_API_KEY=${SIGNZY_API_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
     depends_on:
       postgres:
         condition: service_healthy
@@ -344,96 +218,165 @@ services:
         condition: service_healthy
     networks:
       - dex-network
+    volumes:
+      - logs_data:/app/logs
+      - ./microservices/shared:/app/shared:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 45s
+    labels:
+      - "com.dex.service=aml"
+      - "com.dex.tier=compliance"
+      - "com.dex.scalable=true"
 
-  # Chart API Service (consolidated)
+  # Chart API Service - Market data and charting
   chart-api-service:
     build:
       context: ./microservices/chart-api-service
       dockerfile: Dockerfile
       target: production
+      args:
+        - NODE_ENV=production
     container_name: dex-chart-api-service
     restart: unless-stopped
     ports:
-      - "4000:4000"
+      - "${CHART_API_SERVICE_PORT:-4000}:4000"
     environment:
       - NODE_ENV=production
       - PORT=4000
+      - API_VERSION=v1
       - REDIS_URL=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
+      - REDIS_DB=0
+      - REDIS_KEY_PREFIX=chart_api:
+      - CACHE_TTL_SECONDS=300
+      - CACHE_MAX_SIZE=1000
+      - COINGECKO_BASE_URL=https://api.coingecko.com/api/v3
       - COINGECKO_API_KEY=${COINGECKO_API_KEY}
+      - COINGECKO_RATE_LIMIT_PER_MINUTE=50
+      - COINGECKO_TIMEOUT_MS=10000
+      - CIRCUIT_BREAKER_THRESHOLD=5
+      - CIRCUIT_BREAKER_TIMEOUT_MS=60000
+      - QUEUE_CONCURRENCY=5
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX_REQUESTS=100
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000,http://localhost:3001}
     depends_on:
       redis:
         condition: service_healthy
     networks:
       - dex-network
+    volumes:
+      - logs_data:/app/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/v1/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
+    labels:
+      - "com.dex.service=chart-api"
+      - "com.dex.tier=api"
+      - "com.dex.scalable=true"
 
-  # Monitoring Service (consolidated)
+  # Monitoring Service - System health and performance monitoring
   monitoring-service:
     build:
       context: ./microservices/monitoring-service
       dockerfile: Dockerfile
       target: production
+      args:
+        - NODE_ENV=production
     container_name: dex-monitoring-service
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "${MONITORING_SERVICE_PORT:-3001}:3001"
     environment:
       - NODE_ENV=production
       - HEALTH_CHECK_PORT=3001
       - SERVICES_TO_MONITOR=kyc-service:4001,aml-service:4002,chart-api-service:4000,blockchain-service:5001
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-dex_mobile}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL}
     depends_on:
       - kyc-service
       - aml-service
       - chart-api-service
       - blockchain-service
+      - postgres
+      - redis
     networks:
       - dex-network
+    volumes:
+      - logs_data:/app/logs
+      - ./microservices/monitoring-service/dashboards:/app/dashboards:ro
+      - ./microservices/monitoring-service/alerts:/app/alerts:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
+    labels:
+      - "com.dex.service=monitoring"
+      - "com.dex.tier=observability"
+      - "com.dex.scalable=false"
 
   # =============================================================================
-  # API GATEWAY & LOAD BALANCER
+  # OBSERVABILITY STACK
   # =============================================================================
 
-  # Nginx API Gateway
-  api-gateway:
-    image: nginx:alpine
-    container_name: dex-api-gateway
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dex-prometheus
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - blockchain-service
-      - trading-service
-      - pool-service
-      - quote-service
-      - wallet-service
-      - auth-service
-      - security-service
-      - kyc-service
-      - aml-service
-      - chart-data-service
+      - prometheus_data:/prometheus
+      - ./aws/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
     networks:
       - dex-network
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    labels:
+      - "com.dex.service=prometheus"
+      - "com.dex.tier=observability"
+    profiles:
+      - monitoring
+
+  # Grafana - Monitoring dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dex-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./aws/monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - dex-network
+    labels:
+      - "com.dex.service=grafana"
+      - "com.dex.tier=observability"
+    profiles:
+      - monitoring

@@ -1,0 +1,510 @@
+# ECS Deployment Configuration for DEX Mobile v6
+# Services: kyc-service, aml-service, chart-api-service
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DEX Mobile v6 - ECS Deployment for Core Services'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+  
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID for deployment
+  
+  PrivateSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private subnet IDs for ECS services
+  
+  PublicSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Public subnet IDs for ALB
+  
+  ECRRepositoryURI:
+    Type: String
+    Description: ECR repository URI for container images
+  
+  DatabaseEndpoint:
+    Type: String
+    Description: RDS PostgreSQL endpoint
+  
+  RedisEndpoint:
+    Type: String
+    Description: ElastiCache Redis endpoint
+
+Resources:
+  # ECS Cluster
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub '${Environment}-dex-cluster'
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      DefaultCapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+        - CapacityProvider: FARGATE_SPOT
+          Weight: 4
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-cluster'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Security Groups
+  ECSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS services
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 4000
+          ToPort: 4002
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+          Description: Service ports
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: All outbound traffic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-ecs-sg'
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Application Load Balancer
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: HTTP traffic
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: HTTPS traffic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-alb-sg'
+
+  # IAM Roles
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: DEXSecretsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  ECSTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DEXServicePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  # CloudWatch Log Groups
+  KYCLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/${Environment}-dex-kyc-service'
+      RetentionInDays: 30
+
+  AMLLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/${Environment}-dex-aml-service'
+      RetentionInDays: 30
+
+  ChartAPILogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/${Environment}-dex-chart-api-service'
+      RetentionInDays: 30
+
+  # Task Definitions
+  KYCTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${Environment}-dex-kyc-service'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 1024
+      Memory: 2048
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      TaskRoleArn: !Ref ECSTaskRole
+      ContainerDefinitions:
+        - Name: kyc-service
+          Image: !Sub '${ECRRepositoryURI}/kyc-service:latest'
+          PortMappings:
+            - ContainerPort: 4001
+              Protocol: tcp
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: PORT
+              Value: '4001'
+            - Name: POSTGRES_URL
+              Value: !Sub 'postgresql://postgres:${DatabasePassword}@${DatabaseEndpoint}:5432/dex_mobile'
+            - Name: REDIS_URL
+              Value: !Sub 'redis://${RedisEndpoint}:6379'
+            - Name: LOG_LEVEL
+              Value: info
+          Secrets:
+            - Name: SUPABASE_SERVICE_ROLE_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-supabase:SUPABASE_SERVICE_ROLE_KEY::'
+            - Name: IDFY_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-idfy:IDFY_API_KEY::'
+            - Name: ENCRYPTION_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-encryption:ENCRYPTION_KEY::'
+            - Name: JWT_SECRET
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-jwt:JWT_SECRET::'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref KYCLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          HealthCheck:
+            Command:
+              - CMD-SHELL
+              - curl -f http://localhost:4001/health || exit 1
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 60
+
+  AMLTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${Environment}-dex-aml-service'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 1024
+      Memory: 2048
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      TaskRoleArn: !Ref ECSTaskRole
+      ContainerDefinitions:
+        - Name: aml-service
+          Image: !Sub '${ECRRepositoryURI}/aml-service:latest'
+          PortMappings:
+            - ContainerPort: 4002
+              Protocol: tcp
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: PORT
+              Value: '4002'
+            - Name: POSTGRES_URL
+              Value: !Sub 'postgresql://postgres:${DatabasePassword}@${DatabaseEndpoint}:5432/dex_mobile'
+            - Name: REDIS_URL
+              Value: !Sub 'redis://${RedisEndpoint}:6379'
+            - Name: LOG_LEVEL
+              Value: info
+          Secrets:
+            - Name: SUPABASE_SERVICE_ROLE_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-supabase:SUPABASE_SERVICE_ROLE_KEY::'
+            - Name: SIGNZY_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-signzy:SIGNZY_API_KEY::'
+            - Name: ENCRYPTION_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-encryption:ENCRYPTION_KEY::'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref AMLLogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          HealthCheck:
+            Command:
+              - CMD-SHELL
+              - curl -f http://localhost:4002/health || exit 1
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+
+  ChartAPITaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${Environment}-dex-chart-api-service'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 512
+      Memory: 1024
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      TaskRoleArn: !Ref ECSTaskRole
+      ContainerDefinitions:
+        - Name: chart-api-service
+          Image: !Sub '${ECRRepositoryURI}/chart-api-service:latest'
+          PortMappings:
+            - ContainerPort: 4000
+              Protocol: tcp
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: PORT
+              Value: '4000'
+            - Name: REDIS_URL
+              Value: !Sub 'redis://${RedisEndpoint}:6379'
+            - Name: LOG_LEVEL
+              Value: info
+          Secrets:
+            - Name: COINGECKO_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-coingecko:COINGECKO_API_KEY::'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref ChartAPILogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          HealthCheck:
+            Command:
+              - CMD-SHELL
+              - node -e "require('http').get('http://localhost:4000/api/v1/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+
+  # ECS Services
+  KYCService:
+    Type: AWS::ECS::Service
+    DependsOn: KYCTargetGroup
+    Properties:
+      ServiceName: !Sub '${Environment}-dex-kyc-service'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref KYCTaskDefinition
+      DesiredCount: 2
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+          Subnets: !Ref PrivateSubnetIds
+          AssignPublicIp: DISABLED
+      LoadBalancers:
+        - ContainerName: kyc-service
+          ContainerPort: 4001
+          TargetGroupArn: !Ref KYCTargetGroup
+      HealthCheckGracePeriodSeconds: 60
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-kyc-service'
+        - Key: Environment
+          Value: !Ref Environment
+
+  AMLService:
+    Type: AWS::ECS::Service
+    DependsOn: AMLTargetGroup
+    Properties:
+      ServiceName: !Sub '${Environment}-dex-aml-service'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref AMLTaskDefinition
+      DesiredCount: 2
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+          Subnets: !Ref PrivateSubnetIds
+          AssignPublicIp: DISABLED
+      LoadBalancers:
+        - ContainerName: aml-service
+          ContainerPort: 4002
+          TargetGroupArn: !Ref AMLTargetGroup
+      HealthCheckGracePeriodSeconds: 60
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-aml-service'
+
+  ChartAPIService:
+    Type: AWS::ECS::Service
+    DependsOn: ChartAPITargetGroup
+    Properties:
+      ServiceName: !Sub '${Environment}-dex-chart-api-service'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref ChartAPITaskDefinition
+      DesiredCount: 3
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - !Ref ECSSecurityGroup
+          Subnets: !Ref PrivateSubnetIds
+          AssignPublicIp: DISABLED
+      LoadBalancers:
+        - ContainerName: chart-api-service
+          ContainerPort: 4000
+          TargetGroupArn: !Ref ChartAPITargetGroup
+      HealthCheckGracePeriodSeconds: 30
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-chart-api-service'
+
+  # Application Load Balancer
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub '${Environment}-dex-alb'
+      Type: application
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+      Subnets: !Ref PublicSubnetIds
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-alb'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Target Groups
+  KYCTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub '${Environment}-dex-kyc-tg'
+      Port: 4001
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      TargetType: ip
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  AMLTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub '${Environment}-dex-aml-tg'
+      Port: 4002
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      TargetType: ip
+      HealthCheckPath: /health
+      HealthCheckIntervalSeconds: 30
+
+  ChartAPITargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub '${Environment}-dex-chart-api-tg'
+      Port: 4000
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      TargetType: ip
+      HealthCheckPath: /api/v1/health
+      HealthCheckIntervalSeconds: 30
+
+  # ALB Listeners
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            StatusCode: 404
+            ContentType: text/plain
+            MessageBody: Not Found
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  # Listener Rules
+  KYCListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref KYCTargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values: ['/api/kyc/*']
+      ListenerArn: !Ref ALBListener
+      Priority: 100
+
+  AMLListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref AMLTargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values: ['/api/aml/*']
+      ListenerArn: !Ref ALBListener
+      Priority: 200
+
+  ChartAPIListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref ChartAPITargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values: ['/api/v1/chart/*']
+      ListenerArn: !Ref ALBListener
+      Priority: 300
+
+Outputs:
+  ECSClusterName:
+    Description: Name of the ECS cluster
+    Value: !Ref ECSCluster
+    Export:
+      Name: !Sub '${Environment}-dex-ecs-cluster'
+  
+  ApplicationLoadBalancerDNS:
+    Description: DNS name of the Application Load Balancer
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+    Export:
+      Name: !Sub '${Environment}-dex-alb-dns'

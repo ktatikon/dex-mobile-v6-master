@@ -1,0 +1,455 @@
+# Database Infrastructure for DEX Mobile v6
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DEX Mobile v6 - RDS PostgreSQL and ElastiCache Redis Infrastructure'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+  
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID for database deployment
+  
+  DatabaseSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Database subnet IDs
+  
+  PrivateSubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private subnet IDs for ElastiCache
+  
+  DatabaseInstanceClass:
+    Type: String
+    Default: db.t3.medium
+    AllowedValues: [db.t3.micro, db.t3.small, db.t3.medium, db.t3.large, db.t3.xlarge, db.r5.large, db.r5.xlarge]
+    Description: RDS instance class
+  
+  DatabaseAllocatedStorage:
+    Type: Number
+    Default: 100
+    MinValue: 20
+    MaxValue: 1000
+    Description: Database allocated storage in GB
+  
+  RedisNodeType:
+    Type: String
+    Default: cache.t3.micro
+    AllowedValues: [cache.t3.micro, cache.t3.small, cache.t3.medium, cache.t3.large, cache.r5.large]
+    Description: ElastiCache Redis node type
+  
+  DatabaseName:
+    Type: String
+    Default: dex_mobile
+    Description: Database name
+  
+  DatabaseUsername:
+    Type: String
+    Default: postgres
+    Description: Database master username
+  
+  BackupRetentionPeriod:
+    Type: Number
+    Default: 7
+    MinValue: 1
+    MaxValue: 35
+    Description: Database backup retention period in days
+
+Resources:
+  # Database Security Group
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDS PostgreSQL database
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+          Description: PostgreSQL access from application services
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: All outbound traffic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-sg'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Application Security Group (for services accessing database)
+  ApplicationSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for application services
+      VpcId: !Ref VPCId
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          DestinationSecurityGroupId: !Ref DatabaseSecurityGroup
+          Description: PostgreSQL access to database
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          DestinationSecurityGroupId: !Ref RedisSecurityGroup
+          Description: Redis access to cache
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+          Description: All outbound traffic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-application-sg'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Redis Security Group
+  RedisSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ElastiCache Redis
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+          Description: Redis access from application services
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-redis-sg'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Database Subnet Group
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: !Sub '${Environment}-dex-database-subnet-group'
+      DBSubnetGroupDescription: Subnet group for DEX Mobile database
+      SubnetIds: !Ref DatabaseSubnetIds
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-subnet-group'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Database Parameter Group
+  DatabaseParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Family: postgres15
+      Description: Parameter group for DEX Mobile PostgreSQL database
+      Parameters:
+        shared_preload_libraries: 'pg_stat_statements'
+        log_statement: 'all'
+        log_min_duration_statement: 1000
+        max_connections: 200
+        work_mem: '4MB'
+        maintenance_work_mem: '64MB'
+        effective_cache_size: '1GB'
+        random_page_cost: 1.1
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-parameter-group'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # RDS PostgreSQL Database
+  Database:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    Properties:
+      DBInstanceIdentifier: !Sub '${Environment}-dex-postgres'
+      DBName: !Ref DatabaseName
+      DBInstanceClass: !Ref DatabaseInstanceClass
+      Engine: postgres
+      EngineVersion: '15.4'
+      MasterUsername: !Ref DatabaseUsername
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${DatabaseSecret}:SecretString:password}}'
+      AllocatedStorage: !Ref DatabaseAllocatedStorage
+      StorageType: gp3
+      StorageEncrypted: true
+      KmsKeyId: !Ref DatabaseKMSKey
+      VPCSecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      DBSubnetGroupName: !Ref DatabaseSubnetGroup
+      DBParameterGroupName: !Ref DatabaseParameterGroup
+      BackupRetentionPeriod: !Ref BackupRetentionPeriod
+      PreferredBackupWindow: '03:00-04:00'
+      PreferredMaintenanceWindow: 'sun:04:00-sun:05:00'
+      MultiAZ: !If [IsProduction, true, false]
+      PubliclyAccessible: false
+      DeletionProtection: !If [IsProduction, true, false]
+      EnablePerformanceInsights: true
+      PerformanceInsightsRetentionPeriod: 7
+      PerformanceInsightsKMSKeyId: !Ref DatabaseKMSKey
+      MonitoringInterval: 60
+      MonitoringRoleArn: !GetAtt DatabaseMonitoringRole.Arn
+      EnableCloudwatchLogsExports:
+        - postgresql
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-postgres'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Service
+          Value: database
+
+  # Database Secret
+  DatabaseSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${Environment}-dex-database-credentials'
+      Description: Database credentials for DEX Mobile
+      GenerateSecretString:
+        SecretStringTemplate: !Sub '{"username": "${DatabaseUsername}"}'
+        GenerateStringKey: 'password'
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\'
+      KmsKeyId: !Ref DatabaseKMSKey
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-secret'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Database Secret Attachment
+  DatabaseSecretAttachment:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId: !Ref DatabaseSecret
+      TargetId: !Ref Database
+      TargetType: AWS::RDS::DBInstance
+
+  # Database KMS Key
+  DatabaseKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for DEX Mobile database encryption
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow RDS Service
+            Effect: Allow
+            Principal:
+              Service: rds.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-kms-key'
+        - Key: Environment
+          Value: !Ref Environment
+
+  DatabaseKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub 'alias/${Environment}-dex-database'
+      TargetKeyId: !Ref DatabaseKMSKey
+
+  # Database Monitoring Role
+  DatabaseMonitoringRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: monitoring.rds.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-monitoring-role'
+
+  # ElastiCache Subnet Group
+  RedisSubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      CacheSubnetGroupName: !Sub '${Environment}-dex-redis-subnet-group'
+      Description: Subnet group for DEX Mobile Redis cache
+      SubnetIds: !Ref PrivateSubnetIds
+
+  # ElastiCache Parameter Group
+  RedisParameterGroup:
+    Type: AWS::ElastiCache::ParameterGroup
+    Properties:
+      CacheParameterGroupFamily: redis7.x
+      Description: Parameter group for DEX Mobile Redis cache
+      Properties:
+        maxmemory-policy: allkeys-lru
+        timeout: 300
+        tcp-keepalive: 60
+
+  # ElastiCache Redis Cluster
+  RedisCluster:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupId: !Sub '${Environment}-dex-redis'
+      Description: Redis cluster for DEX Mobile
+      NodeType: !Ref RedisNodeType
+      Engine: redis
+      EngineVersion: '7.0'
+      NumCacheClusters: !If [IsProduction, 3, 2]
+      Port: 6379
+      CacheParameterGroupName: !Ref RedisParameterGroup
+      CacheSubnetGroupName: !Ref RedisSubnetGroup
+      SecurityGroupIds:
+        - !Ref RedisSecurityGroup
+      AtRestEncryptionEnabled: true
+      TransitEncryptionEnabled: true
+      KmsKeyId: !Ref RedisKMSKey
+      AuthToken: !Sub '{{resolve:secretsmanager:${RedisSecret}:SecretString:password}}'
+      AutomaticFailoverEnabled: !If [IsProduction, true, false]
+      MultiAZEnabled: !If [IsProduction, true, false]
+      PreferredMaintenanceWindow: 'sun:05:00-sun:06:00'
+      SnapshotRetentionLimit: !If [IsProduction, 7, 1]
+      SnapshotWindow: '02:00-03:00'
+      LogDeliveryConfigurations:
+        - DestinationType: cloudwatch-logs
+          DestinationDetails:
+            LogGroup: !Ref RedisLogGroup
+          LogFormat: json
+          LogType: slow-log
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-redis'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Service
+          Value: cache
+
+  # Redis Secret
+  RedisSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${Environment}-dex-redis-credentials'
+      Description: Redis credentials for DEX Mobile
+      GenerateSecretString:
+        PasswordLength: 32
+        ExcludeCharacters: '"@/\'
+        GenerateStringKey: 'password'
+        SecretStringTemplate: '{}'
+      KmsKeyId: !Ref RedisKMSKey
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-redis-secret'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Redis KMS Key
+  RedisKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for DEX Mobile Redis encryption
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow ElastiCache Service
+            Effect: Allow
+            Principal:
+              Service: elasticache.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-redis-kms-key'
+        - Key: Environment
+          Value: !Ref Environment
+
+  RedisKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub 'alias/${Environment}-dex-redis'
+      TargetKeyId: !Ref RedisKMSKey
+
+  # CloudWatch Log Group for Redis
+  RedisLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/elasticache/${Environment}-dex-redis'
+      RetentionInDays: 30
+
+Conditions:
+  IsProduction: !Equals [!Ref Environment, production]
+
+Outputs:
+  DatabaseEndpoint:
+    Description: RDS PostgreSQL endpoint
+    Value: !GetAtt Database.Endpoint.Address
+    Export:
+      Name: !Sub '${Environment}-dex-database-endpoint'
+
+  DatabasePort:
+    Description: RDS PostgreSQL port
+    Value: !GetAtt Database.Endpoint.Port
+    Export:
+      Name: !Sub '${Environment}-dex-database-port'
+
+  DatabaseName:
+    Description: Database name
+    Value: !Ref DatabaseName
+    Export:
+      Name: !Sub '${Environment}-dex-database-name'
+
+  DatabaseSecretArn:
+    Description: Database secret ARN
+    Value: !Ref DatabaseSecret
+    Export:
+      Name: !Sub '${Environment}-dex-database-secret-arn'
+
+  RedisEndpoint:
+    Description: ElastiCache Redis endpoint
+    Value: !GetAtt RedisCluster.RedisEndpoint.Address
+    Export:
+      Name: !Sub '${Environment}-dex-redis-endpoint'
+
+  RedisPort:
+    Description: ElastiCache Redis port
+    Value: !GetAtt RedisCluster.RedisEndpoint.Port
+    Export:
+      Name: !Sub '${Environment}-dex-redis-port'
+
+  RedisSecretArn:
+    Description: Redis secret ARN
+    Value: !Ref RedisSecret
+    Export:
+      Name: !Sub '${Environment}-dex-redis-secret-arn'
+
+  ApplicationSecurityGroupId:
+    Description: Application security group ID
+    Value: !Ref ApplicationSecurityGroup
+    Export:
+      Name: !Sub '${Environment}-dex-application-sg-id'
+
+  DatabaseSecurityGroupId:
+    Description: Database security group ID
+    Value: !Ref DatabaseSecurityGroup
+    Export:
+      Name: !Sub '${Environment}-dex-database-sg-id'
+
+  RedisSecurityGroupId:
+    Description: Redis security group ID
+    Value: !Ref RedisSecurityGroup
+    Export:
+      Name: !Sub '${Environment}-dex-redis-sg-id'

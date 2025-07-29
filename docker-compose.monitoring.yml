@@ -1,0 +1,317 @@
+# Docker Compose for Monitoring Stack (EC2 Deployment)
+version: '3.8'
+
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+volumes:
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+
+services:
+  # Prometheus - Metrics collection and storage
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: dex-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=50GB'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--log.level=info'
+    volumes:
+      - prometheus_data:/prometheus
+      - ./aws/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./aws/monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.dex.service=prometheus"
+      - "com.dex.tier=monitoring"
+
+  # Grafana - Visualization and dashboards
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: dex-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - GF_USERS_AUTO_ASSIGN_ORG=true
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Viewer
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_LOG_LEVEL=info
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./aws/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./aws/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      - "com.dex.service=grafana"
+      - "com.dex.tier=monitoring"
+
+  # Alertmanager - Alert routing and management
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    container_name: dex-alertmanager
+    restart: unless-stopped
+    ports:
+      - "${ALERTMANAGER_PORT:-9093}:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--log.level=info'
+    volumes:
+      - alertmanager_data:/alertmanager
+      - ./aws/monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "com.dex.service=alertmanager"
+      - "com.dex.tier=monitoring"
+
+  # Node Exporter - System metrics
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: dex-node-exporter
+    restart: unless-stopped
+    ports:
+      - "${NODE_EXPORTER_PORT:-9100}:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.systemd'
+      - '--collector.processes'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring
+    labels:
+      - "com.dex.service=node-exporter"
+      - "com.dex.tier=monitoring"
+
+  # cAdvisor - Container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: dex-cadvisor
+    restart: unless-stopped
+    ports:
+      - "${CADVISOR_PORT:-8080}:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    networks:
+      - monitoring
+    privileged: true
+    labels:
+      - "com.dex.service=cadvisor"
+      - "com.dex.tier=monitoring"
+
+  # Redis Exporter - Redis metrics
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.52.0
+    container_name: dex-redis-exporter
+    restart: unless-stopped
+    ports:
+      - "${REDIS_EXPORTER_PORT:-9121}:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
+    networks:
+      - monitoring
+    depends_on:
+      - redis
+    labels:
+      - "com.dex.service=redis-exporter"
+      - "com.dex.tier=monitoring"
+
+  # Postgres Exporter - PostgreSQL metrics
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.13.2
+    container_name: dex-postgres-exporter
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_EXPORTER_PORT:-9187}:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-dex_mobile}?sslmode=disable
+      - PG_EXPORTER_EXTEND_QUERY_PATH=/etc/postgres_exporter/queries.yaml
+    volumes:
+      - ./aws/monitoring/postgres_queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+    networks:
+      - monitoring
+    depends_on:
+      - postgres
+    labels:
+      - "com.dex.service=postgres-exporter"
+      - "com.dex.tier=monitoring"
+
+  # CloudWatch Exporter - AWS CloudWatch metrics
+  cloudwatch-exporter:
+    image: prom/cloudwatch-exporter:v0.15.5
+    container_name: dex-cloudwatch-exporter
+    restart: unless-stopped
+    ports:
+      - "${CLOUDWATCH_EXPORTER_PORT:-9106}:9106"
+    environment:
+      - AWS_REGION=${AWS_REGION:-us-west-2}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./aws/monitoring/cloudwatch_config.yml:/config/config.yml:ro
+    command:
+      - '-config.file=/config/config.yml'
+    networks:
+      - monitoring
+    labels:
+      - "com.dex.service=cloudwatch-exporter"
+      - "com.dex.tier=monitoring"
+
+  # Loki - Log aggregation
+  loki:
+    image: grafana/loki:2.8.0
+    container_name: dex-loki
+    restart: unless-stopped
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./aws/monitoring/loki-config.yaml:/etc/loki/local-config.yaml:ro
+    networks:
+      - monitoring
+    labels:
+      - "com.dex.service=loki"
+      - "com.dex.tier=monitoring"
+
+  # Promtail - Log collection
+  promtail:
+    image: grafana/promtail:2.8.0
+    container_name: dex-promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./aws/monitoring/promtail-config.yaml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+    labels:
+      - "com.dex.service=promtail"
+      - "com.dex.tier=monitoring"
+
+  # Jaeger - Distributed tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.47
+    container_name: dex-jaeger
+    restart: unless-stopped
+    ports:
+      - "${JAEGER_UI_PORT:-16686}:16686"
+      - "${JAEGER_COLLECTOR_PORT:-14268}:14268"
+      - "${JAEGER_AGENT_PORT:-6831}:6831/udp"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - SPAN_STORAGE_TYPE=memory
+    networks:
+      - monitoring
+    labels:
+      - "com.dex.service=jaeger"
+      - "com.dex.tier=monitoring"
+
+  # Monitoring Service - Custom health checks and business metrics
+  monitoring-service:
+    build:
+      context: ./microservices/monitoring-service
+      dockerfile: Dockerfile
+      target: production
+    container_name: dex-monitoring-service
+    restart: unless-stopped
+    ports:
+      - "${MONITORING_SERVICE_PORT:-3001}:3001"
+    environment:
+      - NODE_ENV=production
+      - HEALTH_CHECK_PORT=3001
+      - SERVICES_TO_MONITOR=kyc-service:4001,aml-service:4002,chart-api-service:4000,blockchain-service:5001
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-dex_mobile}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_password}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GRAFANA_URL=http://grafana:3000
+      - ALERT_WEBHOOK_URL=${ALERT_WEBHOOK_URL}
+    volumes:
+      - ./microservices/monitoring-service/dashboards:/app/dashboards:ro
+      - ./microservices/monitoring-service/alerts:/app/alerts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+      - grafana
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "com.dex.service=monitoring-service"
+      - "com.dex.tier=monitoring"
+
+# External network connection to main application network
+networks:
+  default:
+    external:
+      name: dex-network

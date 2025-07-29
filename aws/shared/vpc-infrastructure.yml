@@ -1,0 +1,421 @@
+# VPC Infrastructure for DEX Mobile v6
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DEX Mobile v6 - VPC and Networking Infrastructure'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+
+  VPCCidr:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: CIDR block for VPC
+
+  AvailabilityZones:
+    Type: CommaDelimitedList
+    Default: "us-west-2a,us-west-2b,us-west-2c"
+    Description: List of Availability Zones
+
+Resources:
+  # VPC
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VPCCidr
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-vpc'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-igw'
+        - Key: Environment
+          Value: !Ref Environment
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  # Public Subnets
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.1.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-public-subnet-1'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Public
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.2.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-public-subnet-2'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Public
+
+  PublicSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [2, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.3.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-public-subnet-3'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Public
+
+  # Private Subnets
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.10.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-private-subnet-1'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Private
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.20.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-private-subnet-2'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Private
+
+  PrivateSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [2, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.30.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-private-subnet-3'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Private
+
+  # Database Subnets
+  DatabaseSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.100.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-subnet-1'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Database
+
+  DatabaseSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !Ref AvailabilityZones]
+      CidrBlock: !Sub
+        - '${VPCCidrPrefix}.200.0/24'
+        - VPCCidrPrefix: !Select [0, !Split ['.', !Select [0, !Split ['/', !Ref VPCCidr]]]]
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-subnet-2'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Type
+          Value: Database
+
+  # NAT Gateways
+  NatGateway1EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-nat-eip-1'
+
+  NatGateway2EIP:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-nat-eip-2'
+
+  NatGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway1EIP.AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-nat-gateway-1'
+
+  NatGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGateway2EIP.AllocationId
+      SubnetId: !Ref PublicSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-nat-gateway-2'
+
+  # Route Tables
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-public-routes'
+        - Key: Environment
+          Value: !Ref Environment
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  PublicSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet3
+
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-private-routes-1'
+        - Key: Environment
+          Value: !Ref Environment
+
+  DefaultPrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet3
+
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-private-routes-2'
+        - Key: Environment
+          Value: !Ref Environment
+
+  DefaultPrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref PrivateSubnet2
+
+  # Database Route Table
+  DatabaseRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-database-routes'
+        - Key: Environment
+          Value: !Ref Environment
+
+  DatabaseSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DatabaseRouteTable
+      SubnetId: !Ref DatabaseSubnet1
+
+  DatabaseSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DatabaseRouteTable
+      SubnetId: !Ref DatabaseSubnet2
+
+  # VPC Endpoints for AWS Services
+  S3VPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcEndpointType: Gateway
+      RouteTableIds:
+        - !Ref PrivateRouteTable1
+        - !Ref PrivateRouteTable2
+        - !Ref DatabaseRouteTable
+
+  ECRVPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ecr.dkr'
+      VpcEndpointType: Interface
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      SecurityGroupIds:
+        - !Ref VPCEndpointSecurityGroup
+
+  VPCEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for VPC endpoints
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: !Ref VPCCidr
+          Description: HTTPS from VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-vpc-endpoint-sg'
+
+Outputs:
+  VPCId:
+    Description: VPC ID
+    Value: !Ref VPC
+    Export:
+      Name: !Sub '${Environment}-dex-vpc-id'
+
+  PublicSubnetIds:
+    Description: Public subnet IDs
+    Value: !Join [',', [!Ref PublicSubnet1, !Ref PublicSubnet2, !Ref PublicSubnet3]]
+    Export:
+      Name: !Sub '${Environment}-dex-public-subnet-ids'
+
+  PrivateSubnetIds:
+    Description: Private subnet IDs
+    Value: !Join [',', [!Ref PrivateSubnet1, !Ref PrivateSubnet2, !Ref PrivateSubnet3]]
+    Export:
+      Name: !Sub '${Environment}-dex-private-subnet-ids'
+
+  DatabaseSubnetIds:
+    Description: Database subnet IDs
+    Value: !Join [',', [!Ref DatabaseSubnet1, !Ref DatabaseSubnet2]]
+    Export:
+      Name: !Sub '${Environment}-dex-database-subnet-ids'
+
+  VPCCidr:
+    Description: VPC CIDR block
+    Value: !Ref VPCCidr
+    Export:
+      Name: !Sub '${Environment}-dex-vpc-cidr'
+
+  NatGateway1Id:
+    Description: NAT Gateway 1 ID
+    Value: !Ref NatGateway1
+    Export:
+      Name: !Sub '${Environment}-dex-nat-gateway-1-id'
+
+  NatGateway2Id:
+    Description: NAT Gateway 2 ID
+    Value: !Ref NatGateway2
+    Export:
+      Name: !Sub '${Environment}-dex-nat-gateway-2-id'
+
+  InternetGatewayId:
+    Description: Internet Gateway ID
+    Value: !Ref InternetGateway
+    Export:
+      Name: !Sub '${Environment}-dex-internet-gateway-id'

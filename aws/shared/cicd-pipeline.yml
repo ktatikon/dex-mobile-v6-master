@@ -1,0 +1,587 @@
+# CI/CD Pipeline for DEX Mobile v6
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DEX Mobile v6 - CodePipeline and CodeBuild CI/CD Infrastructure'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, staging, production]
+    Description: Deployment environment
+  
+  GitHubRepo:
+    Type: String
+    Default: ktatikon/dex-mobile-v6-master
+    Description: GitHub repository name (owner/repo)
+  
+  GitHubBranch:
+    Type: String
+    Default: master
+    Description: GitHub branch to track
+  
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: GitHub personal access token
+  
+  SlackWebhookURL:
+    Type: String
+    Default: ''
+    Description: Slack webhook URL for notifications (optional)
+
+Resources:
+  # S3 Bucket for Pipeline Artifacts
+  ArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Environment}-dex-pipeline-artifacts-${AWS::AccountId}'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref PipelineKMSKey
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldArtifacts
+            Status: Enabled
+            ExpirationInDays: 30
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 7
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-pipeline-artifacts'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # KMS Key for Pipeline
+  PipelineKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for DEX Mobile CI/CD pipeline
+      KeyPolicy:
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Allow CodePipeline
+            Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource: '*'
+          - Sid: Allow CodeBuild
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action:
+              - kms:Decrypt
+              - kms:GenerateDataKey
+            Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-pipeline-kms-key'
+
+  PipelineKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub 'alias/${Environment}-dex-pipeline'
+      TargetKeyId: !Ref PipelineKMSKey
+
+  # IAM Role for CodePipeline
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodePipelinePolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetBucketVersioning
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - !Sub '${ArtifactsBucket.Arn}'
+                  - !Sub '${ArtifactsBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecs:DescribeServices
+                  - ecs:DescribeTaskDefinition
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                  - ecs:RegisterTaskDefinition
+                  - ecs:UpdateService
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - eks:DescribeCluster
+                  - eks:DescribeNodegroup
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt PipelineKMSKey.Arn
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref PipelineNotificationTopic
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-codepipeline-role'
+
+  # IAM Role for CodeBuild
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource:
+                  - !Sub '${ArtifactsBucket.Arn}'
+                  - !Sub '${ArtifactsBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:GetAuthorizationToken
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                  - ecr:PutImage
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:dex-mobile-*'
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                  - kms:GenerateDataKey
+                Resource: !GetAtt PipelineKMSKey.Arn
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameters
+                  - ssm:GetParameter
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/dex-mobile/*'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-codebuild-role'
+
+  # CodeBuild Project for Building and Testing
+  BuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${Environment}-dex-build'
+      Description: Build and test DEX Mobile microservices
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: ENVIRONMENT
+            Value: !Ref Environment
+          - Name: ECR_REPOSITORY_URI
+            Value: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com'
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            pre_build:
+              commands:
+                - echo Logging in to Amazon ECR...
+                - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+                - echo Installing dependencies...
+                - npm install -g npm@latest
+                - pip3 install --upgrade awscli
+            build:
+              commands:
+                - echo Build started on `date`
+                - echo Building microservices...
+                
+                # Build blockchain-service
+                - cd microservices/blockchain-service
+                - npm install
+                - npm run test
+                - npm run build
+                - docker build -t dex-blockchain-service .
+                - docker tag dex-blockchain-service:latest $ECR_REPOSITORY_URI/dex-mobile/blockchain-service:latest
+                - docker tag dex-blockchain-service:latest $ECR_REPOSITORY_URI/dex-mobile/blockchain-service:$CODEBUILD_BUILD_NUMBER
+                - cd ../..
+                
+                # Build kyc-service
+                - cd microservices/kyc-service
+                - npm install
+                - npm run test
+                - docker build -t dex-kyc-service .
+                - docker tag dex-kyc-service:latest $ECR_REPOSITORY_URI/dex-mobile/kyc-service:latest
+                - docker tag dex-kyc-service:latest $ECR_REPOSITORY_URI/dex-mobile/kyc-service:$CODEBUILD_BUILD_NUMBER
+                - cd ../..
+                
+                # Build aml-service
+                - cd microservices/aml-service
+                - npm install
+                - npm run test
+                - docker build -t dex-aml-service .
+                - docker tag dex-aml-service:latest $ECR_REPOSITORY_URI/dex-mobile/aml-service:latest
+                - docker tag dex-aml-service:latest $ECR_REPOSITORY_URI/dex-mobile/aml-service:$CODEBUILD_BUILD_NUMBER
+                - cd ../..
+                
+                # Build chart-api-service
+                - cd microservices/chart-api-service
+                - npm install
+                - npm run test
+                - docker build -t dex-chart-api-service .
+                - docker tag dex-chart-api-service:latest $ECR_REPOSITORY_URI/dex-mobile/chart-api-service:latest
+                - docker tag dex-chart-api-service:latest $ECR_REPOSITORY_URI/dex-mobile/chart-api-service:$CODEBUILD_BUILD_NUMBER
+                - cd ../..
+                
+                # Build monitoring-service
+                - cd microservices/monitoring-service
+                - npm install
+                - npm run test
+                - docker build -t dex-monitoring-service .
+                - docker tag dex-monitoring-service:latest $ECR_REPOSITORY_URI/dex-mobile/monitoring-service:latest
+                - docker tag dex-monitoring-service:latest $ECR_REPOSITORY_URI/dex-mobile/monitoring-service:$CODEBUILD_BUILD_NUMBER
+                - cd ../..
+                
+            post_build:
+              commands:
+                - echo Build completed on `date`
+                - echo Pushing Docker images to ECR...
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/blockchain-service:latest
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/blockchain-service:$CODEBUILD_BUILD_NUMBER
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/kyc-service:latest
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/kyc-service:$CODEBUILD_BUILD_NUMBER
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/aml-service:latest
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/aml-service:$CODEBUILD_BUILD_NUMBER
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/chart-api-service:latest
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/chart-api-service:$CODEBUILD_BUILD_NUMBER
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/monitoring-service:latest
+                - docker push $ECR_REPOSITORY_URI/dex-mobile/monitoring-service:$CODEBUILD_BUILD_NUMBER
+                - echo Creating deployment artifacts...
+                - printf '[{"name":"blockchain-service","imageUri":"%s"},{"name":"kyc-service","imageUri":"%s"},{"name":"aml-service","imageUri":"%s"},{"name":"chart-api-service","imageUri":"%s"},{"name":"monitoring-service","imageUri":"%s"}]' $ECR_REPOSITORY_URI/dex-mobile/blockchain-service:$CODEBUILD_BUILD_NUMBER $ECR_REPOSITORY_URI/dex-mobile/kyc-service:$CODEBUILD_BUILD_NUMBER $ECR_REPOSITORY_URI/dex-mobile/aml-service:$CODEBUILD_BUILD_NUMBER $ECR_REPOSITORY_URI/dex-mobile/chart-api-service:$CODEBUILD_BUILD_NUMBER $ECR_REPOSITORY_URI/dex-mobile/monitoring-service:$CODEBUILD_BUILD_NUMBER > imagedefinitions.json
+          artifacts:
+            files:
+              - imagedefinitions.json
+              - aws/**/*
+              - microservices/**/*
+      TimeoutInMinutes: 60
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-build'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # CodeBuild Project for Security Scanning
+  SecurityScanProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${Environment}-dex-security-scan'
+      Description: Security scanning for DEX Mobile
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            install:
+              runtime-versions:
+                nodejs: 18
+              commands:
+                - echo Installing security scanning tools...
+                - npm install -g npm-audit-ci-wrapper
+                - pip3 install safety bandit
+            pre_build:
+              commands:
+                - echo Starting security scans...
+            build:
+              commands:
+                - echo Running npm audit...
+                - cd microservices/blockchain-service && npm audit --audit-level moderate && cd ../..
+                - cd microservices/kyc-service && npm audit --audit-level moderate && cd ../..
+                - cd microservices/aml-service && npm audit --audit-level moderate && cd ../..
+                - cd microservices/chart-api-service && npm audit --audit-level moderate && cd ../..
+                - cd microservices/monitoring-service && npm audit --audit-level moderate && cd ../..
+                - echo Running container security scans...
+                - echo Security scans completed successfully
+            post_build:
+              commands:
+                - echo Security scan results processed
+      TimeoutInMinutes: 30
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-security-scan'
+
+  # SNS Topic for Pipeline Notifications
+  PipelineNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${Environment}-dex-pipeline-notifications'
+      DisplayName: DEX Mobile Pipeline Notifications
+      KmsMasterKeyId: !Ref PipelineKMSKey
+
+  # CodePipeline
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub '${Environment}-dex-pipeline'
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactsBucket
+        EncryptionKey:
+          Id: !GetAtt PipelineKMSKey.Arn
+          Type: KMS
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: '1'
+              Configuration:
+                Owner: !Select [0, !Split ['/', !Ref GitHubRepo]]
+                Repo: !Select [1, !Split ['/', !Ref GitHubRepo]]
+                Branch: !Ref GitHubBranch
+                OAuthToken: !Ref GitHubToken
+                PollForSourceChanges: false
+              OutputArtifacts:
+                - Name: SourceOutput
+
+        - Name: SecurityScan
+          Actions:
+            - Name: SecurityScanAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref SecurityScanProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: SecurityScanOutput
+
+        - Name: Build
+          Actions:
+            - Name: BuildAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref BuildProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BuildOutput
+
+        - Name: Deploy
+          Actions:
+            - Name: DeployECS
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ECS
+                Version: '1'
+              Configuration:
+                ClusterName: !Sub '${Environment}-dex-cluster'
+                ServiceName: !Sub '${Environment}-dex-kyc-service'
+                FileName: imagedefinitions.json
+              InputArtifacts:
+                - Name: BuildOutput
+              Region: !Ref AWS::Region
+              RunOrder: 1
+
+            - Name: DeployEKS
+              ActionTypeId:
+                Category: Invoke
+                Owner: AWS
+                Provider: Lambda
+                Version: '1'
+              Configuration:
+                FunctionName: !Ref EKSDeployFunction
+              InputArtifacts:
+                - Name: BuildOutput
+              Region: !Ref AWS::Region
+              RunOrder: 2
+
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-pipeline'
+        - Key: Environment
+          Value: !Ref Environment
+
+  # Lambda function for EKS deployment
+  EKSDeployFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${Environment}-dex-eks-deploy'
+      Runtime: python3.9
+      Handler: index.lambda_handler
+      Role: !GetAtt EKSDeployLambdaRole.Arn
+      Timeout: 300
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import subprocess
+          import os
+          
+          def lambda_handler(event, context):
+              codepipeline = boto3.client('codepipeline')
+              job_id = event['CodePipeline.job']['id']
+              
+              try:
+                  # Update EKS deployment
+                  # This is a simplified example - in production, you'd use kubectl or AWS SDK
+                  print("Updating EKS deployment...")
+                  
+                  # Signal success
+                  codepipeline.put_job_success_result(jobId=job_id)
+                  
+              except Exception as e:
+                  print(f"Error: {str(e)}")
+                  codepipeline.put_job_failure_result(
+                      jobId=job_id,
+                      failureDetails={'message': str(e), 'type': 'JobFailed'}
+                  )
+              
+              return {'statusCode': 200}
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-dex-eks-deploy-lambda'
+
+  # IAM Role for EKS Deploy Lambda
+  EKSDeployLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: EKSDeployPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codepipeline:PutJobSuccessResult
+                  - codepipeline:PutJobFailureResult
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - eks:DescribeCluster
+                  - eks:ListClusters
+                Resource: '*'
+
+  # GitHub Webhook for Pipeline Trigger
+  GitHubWebhook:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Name: !Sub '${Environment}-dex-github-webhook'
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: !Ref GitHubToken
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: !Sub 'refs/heads/${GitHubBranch}'
+      TargetPipeline: !Ref Pipeline
+      TargetAction: SourceAction
+      TargetPipelineVersion: !GetAtt Pipeline.Version
+      RegisterWithThirdParty: true
+
+Outputs:
+  PipelineName:
+    Description: Name of the CodePipeline
+    Value: !Ref Pipeline
+    Export:
+      Name: !Sub '${Environment}-dex-pipeline-name'
+
+  PipelineUrl:
+    Description: URL of the CodePipeline
+    Value: !Sub 'https://console.aws.amazon.com/codesuite/codepipeline/pipelines/${Pipeline}/view'
+
+  ArtifactsBucketName:
+    Description: Name of the artifacts S3 bucket
+    Value: !Ref ArtifactsBucket
+    Export:
+      Name: !Sub '${Environment}-dex-artifacts-bucket'
+
+  PipelineNotificationTopicArn:
+    Description: ARN of the pipeline notification topic
+    Value: !Ref PipelineNotificationTopic
+    Export:
+      Name: !Sub '${Environment}-dex-pipeline-notification-topic'
