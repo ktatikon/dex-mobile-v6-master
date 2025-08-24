@@ -1,0 +1,201 @@
+{"timestamp":"2025-07-15T11:39:33.724Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T11:39:33.738Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T11:39:33.740Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T11:39:33.851Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T11:39:33.857Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T11:39:33.859Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T11:39:33.860Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T11:39:33.880Z","level":"info","message":"Cron jobs scheduled successfully"}
+{"timestamp":"2025-07-15T11:39:33.882Z","level":"info","message":"✅ AML service running on port 4002"}
+{"timestamp":"2025-07-15T11:39:33.883Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T11:39:33.884Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T11:39:55.698Z","level":"info","message":"::1 - - [15/Jul/2025:11:39:55 +0000] \"GET /health HTTP/1.1\" 200 142 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:46:53.818Z","level":"info","message":"::1 - - [15/Jul/2025:11:46:53 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:52:33.997Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T11:52:34.003Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T11:52:34.004Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T11:52:34.007Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T11:52:34.008Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T11:52:34.009Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T11:52:34.009Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T11:52:34.022Z","level":"info","message":"Cron jobs scheduled successfully"}
+{"timestamp":"2025-07-15T11:52:34.023Z","level":"info","message":"✅ AML service running on port 4002"}
+{"timestamp":"2025-07-15T11:52:34.024Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4002"}
+{"timestamp":"2025-07-15T11:52:34.024Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T11:52:34.024Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T11:53:24.022Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:53:24 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.381Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.580Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/check"}
+{"timestamp":"2025-07-15T11:54:25.581Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.612Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/check"}
+{"timestamp":"2025-07-15T11:54:25.613Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"POST /api/aml/pep/check HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.644Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/assess"}
+{"timestamp":"2025-07-15T11:54:25.645Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"POST /api/aml/risk/assess HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.675Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/status/550e8400-e29b-41d4-a716-446655440000"}
+{"timestamp":"2025-07-15T11:54:25.675Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"GET /api/aml/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.886Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:11:54:25 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:58:14.799Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T11:58:14.803Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T11:58:14.804Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T11:58:14.807Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T11:58:14.808Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T11:58:14.808Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T11:58:14.809Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T11:58:14.813Z","level":"info","message":"Cron jobs scheduled successfully"}
+{"timestamp":"2025-07-15T11:58:14.815Z","level":"info","message":"✅ AML service running on port 4002"}
+{"timestamp":"2025-07-15T11:58:14.815Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4002"}
+{"timestamp":"2025-07-15T11:58:14.815Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T11:58:14.815Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T11:59:11.063Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:59:11 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:59:46.295Z","level":"warn","message":"AML screening validation failed","endpoint":"/check","errors":[{"field":"personalInfo","message":"Personal information is required for AML screening"}]}
+{"timestamp":"2025-07-15T11:59:46.298Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:59:46 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 400 159 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:00:25.120Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:00:25.123Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:00:25.124Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:00:25.127Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T12:00:25.127Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T12:00:25.128Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T12:00:25.129Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T12:00:25.132Z","level":"info","message":"Cron jobs scheduled successfully"}
+{"timestamp":"2025-07-15T12:00:25.134Z","level":"info","message":"✅ AML service running on port 4002"}
+{"timestamp":"2025-07-15T12:00:25.135Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4002"}
+{"timestamp":"2025-07-15T12:00:25.135Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T12:00:25.135Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T12:00:57.430Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check","name":"Jo****oe","country":"IN","lists":["UN","OFAC","RBI","FIU_INDIA"]}
+{"timestamp":"2025-07-15T12:00:57.431Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check"}
+{"timestamp":"2025-07-15T12:00:59.557Z","level":"error","message":"Sanctions check failed: Maximum call stack size exceeded","stack":"RangeError: Maximum call stack size exceeded\n    at Function.entries (<anonymous>)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:77:39)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)\n    at maskObject (/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/services/shared/logger.js:83:23)"}
+{"timestamp":"2025-07-15T12:00:59.560Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:00:59 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 500 59 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:02:34.928Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:02:34.931Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:02:34.932Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:02:34.936Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T12:02:34.938Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T12:02:34.939Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T12:02:34.940Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T12:02:34.943Z","level":"info","message":"Cron jobs scheduled successfully"}
+{"timestamp":"2025-07-15T12:02:34.945Z","level":"info","message":"✅ AML service running on port 4002"}
+{"timestamp":"2025-07-15T12:02:34.946Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4002"}
+{"timestamp":"2025-07-15T12:02:34.946Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T12:02:34.946Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T12:02:59.413Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check","name":"Jo****oe","country":"IN","lists":["UN","OFAC","RBI","FIU_INDIA"]}
+{"timestamp":"2025-07-15T12:02:59.414Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check"}
+{"timestamp":"2025-07-15T12:02:59.514Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:02:59.515Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:02:59.520Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:02:59 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 200 182 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:22.653Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:03:22 +0000] \"GET /health HTTP/1.1\" 200 141 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.349Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.677Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check","name":"Jo****oe","country":"IN","lists":["UN","OFAC","RBI","FIU_INDIA"]}
+{"timestamp":"2025-07-15T12:03:33.678Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check"}
+{"timestamp":"2025-07-15T12:03:33.780Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:03:33.781Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:03:33.782Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 200 182 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.848Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check","name":"Jo****oe","includeAssociates":false,"includeFamily":false}
+{"timestamp":"2025-07-15T12:03:33.848Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check"}
+{"timestamp":"2025-07-15T12:03:33.949Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:03:33.950Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:03:33.951Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"POST /api/aml/pep/check HTTP/1.1\" 200 130 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:34.014Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"started","amlCheckType":"risk_assessment","riskModel":"advanced"}
+{"timestamp":"2025-07-15T12:03:34.015Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"completed","amlCheckType":"risk_assessment","riskScore":0.25641933871102895,"riskLevel":"LOW"}
+{"timestamp":"2025-07-15T12:03:34.016Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:34 +0000] \"POST /api/aml/risk/assess HTTP/1.1\" 200 394 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:34.079Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:34 +0000] \"GET /api/aml/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 168 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:34.280Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:03:34 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:46.820Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:46 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.215Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check","name":"Jo****oe","country":"IN","lists":["UN","OFAC","RBI","FIU_INDIA"]}
+{"timestamp":"2025-07-15T12:15:47.218Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check"}
+{"timestamp":"2025-07-15T12:15:47.320Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:15:47.321Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:15:47.329Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:47 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 200 182 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.404Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check","name":"Jo****oe","includeAssociates":false,"includeFamily":false}
+{"timestamp":"2025-07-15T12:15:47.410Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check"}
+{"timestamp":"2025-07-15T12:15:47.511Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:15:47.512Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:15:47.522Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:47 +0000] \"POST /api/aml/pep/check HTTP/1.1\" 200 130 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.680Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"started","amlCheckType":"risk_assessment","riskModel":"advanced"}
+{"timestamp":"2025-07-15T12:15:47.681Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"completed","amlCheckType":"risk_assessment","riskScore":0.41940633247015713,"riskLevel":"MEDIUM"}
+{"timestamp":"2025-07-15T12:15:47.685Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:47 +0000] \"POST /api/aml/risk/assess HTTP/1.1\" 200 397 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.770Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:47 +0000] \"GET /api/aml/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 168 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.927Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:15:47 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:33:58.916Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:33:58.919Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:33:58.920Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:33:58.923Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T12:33:58.924Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T12:33:58.925Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T12:33:58.925Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T12:33:58.931Z","level":"info","message":"Cron jobs scheduled successfully"}
+{"timestamp":"2025-07-15T12:33:58.933Z","level":"info","message":"✅ AML service running on port 4002"}
+{"timestamp":"2025-07-15T12:33:58.933Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4002"}
+{"timestamp":"2025-07-15T12:33:58.934Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T12:33:58.934Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T12:34:25.381Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:34:25 +0000] \"GET /api/aml/adverse-media/sources HTTP/1.1\" 200 648 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:42:37.318Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:42:37 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:42:56.456Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:42:56 +0000] \"GET /api/aml/adverse-media/categories HTTP/1.1\" 200 1187 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:13.059Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:13 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:22.544Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:22 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:22.890Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check","name":"Jo****oe","country":"IN","lists":["UN","OFAC","RBI","FIU_INDIA"]}
+{"timestamp":"2025-07-15T12:47:22.891Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check"}
+{"timestamp":"2025-07-15T12:47:22.991Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:47:22.992Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:47:22.993Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:22 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 200 182 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:23.050Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check","name":"Jo****oe","includeAssociates":false,"includeFamily":false}
+{"timestamp":"2025-07-15T12:47:23.050Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check"}
+{"timestamp":"2025-07-15T12:47:23.151Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:47:23.152Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:47:23.153Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:23 +0000] \"POST /api/aml/pep/check HTTP/1.1\" 200 130 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:23.204Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"started","amlCheckType":"risk_assessment","riskModel":"advanced"}
+{"timestamp":"2025-07-15T12:47:23.204Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"completed","amlCheckType":"risk_assessment","riskScore":0.2724633135252952,"riskLevel":"LOW"}
+{"timestamp":"2025-07-15T12:47:23.205Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:23 +0000] \"POST /api/aml/risk/assess HTTP/1.1\" 200 393 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:23.265Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:23 +0000] \"GET /api/aml/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 168 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:23.436Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:47:23 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:31.837Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:31 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:32.745Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check","name":"Jo****oe","country":"IN","lists":["UN","OFAC","RBI","FIU_INDIA"]}
+{"timestamp":"2025-07-15T12:47:32.746Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"started","amlCheckType":"sanctions_check"}
+{"timestamp":"2025-07-15T12:47:32.846Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:47:32.851Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_SANCTIONS_CHECK","status":"completed","amlCheckType":"sanctions_check","matches":0,"riskScore":0.1}
+{"timestamp":"2025-07-15T12:47:32.853Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:32 +0000] \"POST /api/aml/sanctions/check HTTP/1.1\" 200 182 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:32.942Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check","name":"Jo****oe","includeAssociates":false,"includeFamily":false}
+{"timestamp":"2025-07-15T12:47:32.942Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"started","amlCheckType":"pep_check"}
+{"timestamp":"2025-07-15T12:47:33.044Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:47:33.045Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_PEP_CHECK","status":"completed","amlCheckType":"pep_check","matches":0,"riskScore":0.2}
+{"timestamp":"2025-07-15T12:47:33.048Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:33 +0000] \"POST /api/aml/pep/check HTTP/1.1\" 200 130 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:33.155Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"started","amlCheckType":"risk_assessment","riskModel":"advanced"}
+{"timestamp":"2025-07-15T12:47:33.155Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"completed","amlCheckType":"risk_assessment","riskScore":0.05878218345003483,"riskLevel":"LOW"}
+{"timestamp":"2025-07-15T12:47:33.159Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:33 +0000] \"POST /api/aml/risk/assess HTTP/1.1\" 200 394 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:33.253Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:33 +0000] \"GET /api/aml/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 168 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:33.650Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:47:33 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:50:05.132Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:50:05.135Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:50:05.136Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:50:05.251Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T12:50:19.075Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:50:19.079Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:50:19.080Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:50:19.082Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T12:50:40.794Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:50:40.798Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:50:40.799Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:50:40.803Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T12:50:40.807Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T12:51:19.712Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:51:19.717Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:51:19.719Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:51:19.748Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T12:51:41.305Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:51:41.309Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:51:41.310Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:51:41.312Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T12:51:41.314Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T12:51:41.315Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T12:51:41.315Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T12:51:41.318Z","level":"info","message":"Cron jobs scheduled successfully"}
+{"timestamp":"2025-07-15T12:51:41.320Z","level":"info","message":"✅ AML service running on port 4002"}
+{"timestamp":"2025-07-15T12:51:41.321Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4002"}
+{"timestamp":"2025-07-15T12:51:41.321Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T12:51:41.322Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T12:52:07.823Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:52:07 +0000] \"GET /api/aml/risk/engine/health HTTP/1.1\" 200 180 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:52:27.625Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:52:27 +0000] \"GET /api/aml/risk/engine/health HTTP/1.1\" 200 180 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:52:40.187Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"started","amlCheckType":"risk_assessment","assessmentType":"comprehensive"}
+{"timestamp":"2025-07-15T12:52:40.188Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"started","amlCheckType":"risk_assessment","assessmentType":"comprehensive"}
+{"timestamp":"2025-07-15T12:52:40.191Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"completed","amlCheckType":"risk_assessment","overallScore":0.035,"riskLevel":"LOW"}
+{"timestamp":"2025-07-15T12:52:40.191Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"AML_RISK_ASSESSMENT","status":"completed","amlCheckType":"risk_assessment","riskScore":0.035,"riskLevel":"LOW"}
+{"timestamp":"2025-07-15T12:52:40.192Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:52:40 +0000] \"POST /api/aml/risk/assess HTTP/1.1\" 200 1958 \"-\" \"curl/8.7.1\""}

@@ -1,0 +1,18 @@
+{"timestamp":"2025-07-21T04:10:31.998Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753071031867","error":"Invalid Aadhaar number format"}
+{"timestamp":"2025-07-21T04:10:32.900Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753071031867","error":"IDfy API returned status 404: Unknown error"}
+{"timestamp":"2025-07-21T04:10:32.954Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753071031867","error":"IDfy API returned status 404: Unknown error"}
+{"timestamp":"2025-07-21T04:13:13.796Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753071193759","error":"Invalid Aadhaar number format"}
+{"timestamp":"2025-07-21T04:13:14.155Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753071193759","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-21T04:13:14.298Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753071193759","error":"IDfy API returned status 400: Malformed Request"}
+{"timestamp":"2025-07-21T04:33:38.656Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753072418388","error":"IDfy API returned status 404: Bad Request"}
+{"timestamp":"2025-07-21T04:33:38.788Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753072418388","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-21T04:33:38.903Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753072418388","error":"IDfy API returned status 400: Malformed Request"}
+{"timestamp":"2025-07-21T04:35:48.480Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753072548259","error":"IDfy API returned status 404: Bad Request"}
+{"timestamp":"2025-07-21T04:35:48.600Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753072548259","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-21T04:35:48.707Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753072548259","error":"IDfy API returned status 400: Malformed Request"}
+{"timestamp":"2025-07-23T08:00:42.358Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753257638572","error":"IDfy API returned status 404: Bad Request"}
+{"timestamp":"2025-07-23T08:00:42.665Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753257638572","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-23T08:00:42.787Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753257638572","error":"IDfy API returned status 400: Malformed Request"}
+{"timestamp":"2025-07-23T08:04:43.272Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753257876145","error":"IDfy API returned status 404: Bad Request"}
+{"timestamp":"2025-07-23T08:04:43.407Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753257876145","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-23T08:04:43.515Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753257876145","error":"IDfy API returned status 400: Malformed Request"}

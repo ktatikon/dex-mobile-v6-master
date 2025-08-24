@@ -1,0 +1,156 @@
+version: '3.8'
+
+services:
+  # Redis for caching and queues
+  redis:
+    image: redis:7-alpine
+    container_name: redis-kyc-aml
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # KYC Service
+  kyc-service:
+    build:
+      context: ./kyc-service
+      dockerfile: Dockerfile
+    container_name: kyc-service
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ENV=production
+      - KYC_SERVICE_PORT=4001
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./logs:/app/logs
+      - ./kyc-service:/app
+      - /app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - kyc-aml-network
+
+  # AML Service
+  aml-service:
+    build:
+      context: ./aml-service
+      dockerfile: Dockerfile
+    container_name: aml-service
+    ports:
+      - "4002:4002"
+    environment:
+      - NODE_ENV=production
+      - AML_SERVICE_PORT=4002
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./logs:/app/logs
+      - ./aml-service:/app
+      - /app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - kyc-aml-network
+
+  # Nginx Load Balancer (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-kyc-aml
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - kyc-service
+      - aml-service
+    restart: unless-stopped
+    networks:
+      - kyc-aml-network
+
+  # Redis Commander (Development only)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    profiles:
+      - development
+    networks:
+      - kyc-aml-network
+
+  # Prometheus for monitoring (Optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-kyc-aml
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    profiles:
+      - monitoring
+    networks:
+      - kyc-aml-network
+
+  # Grafana for visualization (Optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-kyc-aml
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    profiles:
+      - monitoring
+    networks:
+      - kyc-aml-network
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  kyc-aml-network:
+    driver: bridge

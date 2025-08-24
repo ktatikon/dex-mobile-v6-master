@@ -1,0 +1,171 @@
+{"timestamp":"2025-07-15T11:38:44.171Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T11:38:44.198Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T11:38:44.200Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T11:38:44.282Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T11:38:44.283Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T11:38:44.284Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T11:38:44.284Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T11:38:44.298Z","level":"info","message":"✅ KYC service running on port 4001"}
+{"timestamp":"2025-07-15T11:38:44.300Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T11:38:44.305Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T11:39:07.667Z","level":"info","message":"::1 - - [15/Jul/2025:11:39:07 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:46:43.952Z","level":"info","message":"::1 - - [15/Jul/2025:11:46:43 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:52:29.239Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T11:52:29.250Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T11:52:29.250Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T11:52:29.264Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T11:52:29.267Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T11:52:29.268Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T11:52:29.268Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T11:52:29.273Z","level":"info","message":"✅ KYC service running on port 4001"}
+{"timestamp":"2025-07-15T11:52:29.273Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4001"}
+{"timestamp":"2025-07-15T11:52:29.273Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T11:52:29.274Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T11:53:17.119Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:53:17 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.326Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.440Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/validate"}
+{"timestamp":"2025-07-15T11:54:25.441Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.474Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/validate"}
+{"timestamp":"2025-07-15T11:54:25.475Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"POST /api/kyc/pan/validate HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.504Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/validate"}
+{"timestamp":"2025-07-15T11:54:25.505Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"POST /api/kyc/passport/validate HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.534Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/status/550e8400-e29b-41d4-a716-446655440000"}
+{"timestamp":"2025-07-15T11:54:25.534Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.732Z","level":"warn","message":"No authentication provided","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/status/550e8400-e29b-41d4-a716-446655440000"}
+{"timestamp":"2025-07-15T11:54:25.733Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:54:25 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 401 51 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:54:25.822Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:11:54:25 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:56:27.403Z","level":"warn","message":"Invalid API key attempt","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/validate"}
+{"timestamp":"2025-07-15T11:56:27.407Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:56:27 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 403 65 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:58:10.373Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T11:58:10.554Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T11:58:10.555Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T11:58:10.649Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T11:58:10.656Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T11:58:10.657Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T11:58:10.658Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T11:58:10.695Z","level":"info","message":"✅ KYC service running on port 4001"}
+{"timestamp":"2025-07-15T11:58:10.695Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4001"}
+{"timestamp":"2025-07-15T11:58:10.696Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T11:58:10.697Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T11:59:04.004Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:59:04 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:59:17.675Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:59:17 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 200 107 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:59:25.810Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:59:25 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 200 107 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T11:59:34.176Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:11:59:34 +0000] \"POST /api/kyc/pan/validate HTTP/1.1\" 200 94 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:15.423Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:03:15 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.266Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"GET /health HTTP/1.1\" 200 143 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.416Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 200 107 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.487Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"POST /api/kyc/pan/validate HTTP/1.1\" 200 94 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.547Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"POST /api/kyc/passport/validate HTTP/1.1\" 429 92 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:33.601Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","status":"initiated","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:03:33.616Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:03:33.619Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:33 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 197 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:34.137Z","level":"warn","message":"No authentication provided","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/status/550e8400-e29b-41d4-a716-446655440000"}
+{"timestamp":"2025-07-15T12:03:34.138Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:03:34 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 401 51 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:03:34.204Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:03:34 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:46.560Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:46 +0000] \"GET /health HTTP/1.1\" 200 145 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:46.908Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:46 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 200 107 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:46.966Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:46 +0000] \"POST /api/kyc/pan/validate HTTP/1.1\" 200 94 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.064Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:47 +0000] \"POST /api/kyc/passport/validate HTTP/1.1\" 200 130 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.116Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","status":"initiated","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:15:47.141Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:15:47.142Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:47 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 197 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.819Z","level":"warn","message":"No authentication provided","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/status/550e8400-e29b-41d4-a716-446655440000"}
+{"timestamp":"2025-07-15T12:15:47.820Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:15:47 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 401 51 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:15:47.871Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:15:47 +0000] \"GET /health HTTP/1.1\" 200 145 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:28:59.691Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:28:59.694Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:28:59.695Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:28:59.704Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-15T12:28:59.705Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-15T12:28:59.706Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-15T12:28:59.706Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-15T12:28:59.711Z","level":"info","message":"✅ KYC service running on port 4001"}
+{"timestamp":"2025-07-15T12:28:59.711Z","level":"info","message":"🌐 Accessible on local network at http://0.0.0.0:4001"}
+{"timestamp":"2025-07-15T12:28:59.712Z","level":"info","message":"Environment: development"}
+{"timestamp":"2025-07-15T12:28:59.712Z","level":"info","message":"Redis: Connected"}
+{"timestamp":"2025-07-15T12:29:23.812Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:29:23 +0000] \"GET /api/kyc/biometric/config HTTP/1.1\" 200 851 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:42:25.649Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:42:25 +0000] \"GET /health HTTP/1.1\" 200 144 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:42:48.998Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:42:48 +0000] \"GET /api/kyc/biometric/config HTTP/1.1\" 200 851 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:13.023Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:13 +0000] \"GET /health HTTP/1.1\" 200 145 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:22.477Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:22 +0000] \"GET /health HTTP/1.1\" 200 145 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:22.646Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:22 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 200 107 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:22.692Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:22 +0000] \"POST /api/kyc/pan/validate HTTP/1.1\" 200 94 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:22.739Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:22 +0000] \"POST /api/kyc/passport/validate HTTP/1.1\" 200 130 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:22.786Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","status":"initiated","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:47:22.795Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:47:22.796Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:22 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 197 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:23.315Z","level":"warn","message":"No authentication provided","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/status/550e8400-e29b-41d4-a716-446655440000"}
+{"timestamp":"2025-07-15T12:47:23.317Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:23 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 401 51 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:23.385Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:47:23 +0000] \"GET /health HTTP/1.1\" 200 145 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:31.704Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:31 +0000] \"GET /health HTTP/1.1\" 200 145 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:32.017Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:32 +0000] \"POST /api/kyc/aadhaar/validate HTTP/1.1\" 200 107 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:32.108Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:32 +0000] \"POST /api/kyc/pan/validate HTTP/1.1\" 429 92 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:32.175Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:32 +0000] \"POST /api/kyc/passport/validate HTTP/1.1\" 429 92 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:32.376Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","status":"initiated","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:47:32.420Z","level":"info","message":"AUDIT_LOG","userId":"550e8400-e29b-41d4-a716-446655440000","operation":"KYC_STATUS_CHECK","kycStep":"status_check"}
+{"timestamp":"2025-07-15T12:47:32.430Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:32 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 200 197 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:33.403Z","level":"warn","message":"No authentication provided","ip":"127.0.0.1","userAgent":"curl/8.7.1","endpoint":"/status/550e8400-e29b-41d4-a716-446655440000"}
+{"timestamp":"2025-07-15T12:47:33.404Z","level":"info","message":"127.0.0.1 - - [15/Jul/2025:12:47:33 +0000] \"GET /api/kyc/status/550e8400-e29b-41d4-a716-446655440000 HTTP/1.1\" 401 51 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:47:33.495Z","level":"info","message":"192.168.1.4 - - [15/Jul/2025:12:47:33 +0000] \"GET /health HTTP/1.1\" 200 145 \"-\" \"curl/8.7.1\""}
+{"timestamp":"2025-07-15T12:50:05.153Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-15T12:50:05.158Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-15T12:50:05.159Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-15T12:50:05.251Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-21T04:10:31.887Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-21T04:10:31.890Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-21T04:10:31.891Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-21T04:10:31.963Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-21T04:10:31.964Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-21T04:10:31.965Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-21T04:10:31.965Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-21T04:10:31.997Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753071031867","operation":"KYC_AADHAAR_OTP_INIT","status":"started","kycStep":"aadhaar_otp_init","aadhaar":"12********12"}
+{"timestamp":"2025-07-21T04:10:31.998Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753071031867","error":"Invalid Aadhaar number format"}
+{"timestamp":"2025-07-21T04:10:31.999Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753071031867","operation":"KYC_PAN_VERIFY","status":"started","kycStep":"pan_verify","pan":"AB******4F"}
+{"timestamp":"2025-07-21T04:10:32.900Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753071031867","error":"IDfy API returned status 404: Unknown error"}
+{"timestamp":"2025-07-21T04:10:32.901Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753071031867","operation":"KYC_PASSPORT_VERIFY","status":"started","kycStep":"passport_verify","passport":"A1****67"}
+{"timestamp":"2025-07-21T04:10:32.954Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753071031867","error":"IDfy API returned status 404: Unknown error"}
+{"timestamp":"2025-07-21T04:13:13.777Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-21T04:13:13.780Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-21T04:13:13.781Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-21T04:13:13.784Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-21T04:13:13.784Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-21T04:13:13.785Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-21T04:13:13.785Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-21T04:13:13.795Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753071193759","operation":"KYC_AADHAAR_OTP_INIT","status":"started","kycStep":"aadhaar_otp_init","aadhaar":"23********23"}
+{"timestamp":"2025-07-21T04:13:13.796Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753071193759","error":"Invalid Aadhaar number format"}
+{"timestamp":"2025-07-21T04:13:13.797Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753071193759","operation":"KYC_PAN_VERIFY","status":"started","kycStep":"pan_verify","pan":"AB******4F"}
+{"timestamp":"2025-07-21T04:13:14.155Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753071193759","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-21T04:13:14.157Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753071193759","operation":"KYC_PASSPORT_VERIFY","status":"started","kycStep":"passport_verify","passport":"A1****67"}
+{"timestamp":"2025-07-21T04:13:14.298Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753071193759","error":"IDfy API returned status 400: Malformed Request"}
+{"timestamp":"2025-07-21T04:13:14.303Z","level":"warn","message":"Redis main client connection closed"}
+{"timestamp":"2025-07-21T04:13:14.307Z","level":"warn","message":"Redis subscriber client connection closed"}
+{"timestamp":"2025-07-21T04:33:38.405Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-21T04:33:38.408Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-21T04:33:38.409Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-21T04:33:38.412Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-21T04:33:38.413Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-21T04:33:38.414Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-21T04:33:38.414Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-21T04:33:38.441Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753072418388","operation":"KYC_AADHAAR_OTP_INIT","status":"started","kycStep":"aadhaar_otp_init","aadhaar":"23********23"}
+{"timestamp":"2025-07-21T04:33:38.656Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753072418388","error":"IDfy API returned status 404: Bad Request"}
+{"timestamp":"2025-07-21T04:33:38.657Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753072418388","operation":"KYC_PAN_VERIFY","status":"started","kycStep":"pan_verify","pan":"AB******4F"}
+{"timestamp":"2025-07-21T04:33:38.788Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753072418388","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-21T04:33:38.789Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753072418388","operation":"KYC_PASSPORT_VERIFY","status":"started","kycStep":"passport_verify","passport":"A1****67"}
+{"timestamp":"2025-07-21T04:33:38.903Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753072418388","error":"IDfy API returned status 400: Malformed Request"}
+{"timestamp":"2025-07-21T04:33:38.908Z","level":"warn","message":"Redis main client connection closed"}
+{"timestamp":"2025-07-21T04:33:38.910Z","level":"info","message":"Redis connections closed"}
+{"timestamp":"2025-07-21T04:35:48.273Z","level":"info","message":"Redis subscriber client connected"}
+{"timestamp":"2025-07-21T04:35:48.276Z","level":"info","message":"Redis main client connected"}
+{"timestamp":"2025-07-21T04:35:48.277Z","level":"info","message":"Redis publisher client connected"}
+{"timestamp":"2025-07-21T04:35:48.280Z","level":"info","message":"Redis subscriber client ready"}
+{"timestamp":"2025-07-21T04:35:48.280Z","level":"info","message":"Redis main client ready"}
+{"timestamp":"2025-07-21T04:35:48.281Z","level":"info","message":"Redis publisher client ready"}
+{"timestamp":"2025-07-21T04:35:48.282Z","level":"info","message":"✅ Redis connections established successfully"}
+{"timestamp":"2025-07-21T04:35:48.290Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753072548259","operation":"KYC_AADHAAR_OTP_INIT","status":"started","kycStep":"aadhaar_otp_init","aadhaar":"23********23"}
+{"timestamp":"2025-07-21T04:35:48.480Z","level":"error","message":"Aadhaar OTP initiation failed:","userId":"test-user-1753072548259","error":"IDfy API returned status 404: Bad Request"}
+{"timestamp":"2025-07-21T04:35:48.481Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753072548259","operation":"KYC_PAN_VERIFY","status":"started","kycStep":"pan_verify","pan":"AB******4F"}
+{"timestamp":"2025-07-21T04:35:48.600Z","level":"error","message":"PAN verification failed:","userId":"test-user-1753072548259","error":"IDfy API returned status 400: Malformed request"}
+{"timestamp":"2025-07-21T04:35:48.601Z","level":"info","message":"AUDIT_LOG","userId":"test-user-1753072548259","operation":"KYC_PASSPORT_VERIFY","status":"started","kycStep":"passport_verify","passport":"A1****67"}
+{"timestamp":"2025-07-21T04:35:48.707Z","level":"error","message":"Passport verification failed:","userId":"test-user-1753072548259","error":"IDfy API returned status 400: Malformed Request"}
+{"timestamp":"2025-07-21T04:35:48.709Z","level":"warn","message":"Redis main client connection closed"}
+{"timestamp":"2025-07-21T04:35:48.710Z","level":"info","message":"Redis connections closed"}

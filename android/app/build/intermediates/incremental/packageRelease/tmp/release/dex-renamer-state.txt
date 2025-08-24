@@ -1,0 +1,4 @@
+#Thu Jul 10 10:44:16 IST 2025
+base.0=/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/android/app/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

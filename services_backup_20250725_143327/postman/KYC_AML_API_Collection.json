@@ -1,0 +1,525 @@
+{
+  "info": {
+    "name": "KYC/AML Microservices API",
+    "description": "Comprehensive API collection for KYC/AML microservices with Indian compliance features",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{API_KEY}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "KYC_BASE_URL",
+      "value": "http://localhost:4001",
+      "type": "string"
+    },
+    {
+      "key": "AML_BASE_URL",
+      "value": "http://localhost:4002",
+      "type": "string"
+    },
+    {
+      "key": "API_KEY",
+      "value": "super_secure_admin_key_change_in_production",
+      "type": "string"
+    },
+    {
+      "key": "TEST_USER_ID",
+      "value": "550e8400-e29b-41d4-a716-446655440000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Checks",
+      "item": [
+        {
+          "name": "KYC Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{KYC_BASE_URL}}/health",
+              "host": ["{{KYC_BASE_URL}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AML Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{AML_BASE_URL}}/health",
+              "host": ["{{AML_BASE_URL}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "KYC Service",
+      "item": [
+        {
+          "name": "User Status",
+          "item": [
+            {
+              "name": "Get KYC Status",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/status/{{TEST_USER_ID}}",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "status", "{{TEST_USER_ID}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get KYC Progress",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/progress/{{TEST_USER_ID}}",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "progress", "{{TEST_USER_ID}}"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Aadhaar Verification",
+          "item": [
+            {
+              "name": "Validate Aadhaar Format",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"aadhaarNumber\": \"234567890123\"\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/aadhaar/validate",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "aadhaar", "validate"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Initiate Aadhaar OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"aadhaarNumber\": \"234567890123\",\n  \"userId\": \"{{TEST_USER_ID}}\",\n  \"consent\": true\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/aadhaar/otp/initiate",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "aadhaar", "otp", "initiate"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Aadhaar OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"referenceId\": \"REF123456\",\n  \"otp\": \"123456\",\n  \"userId\": \"{{TEST_USER_ID}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/aadhaar/otp/verify",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "aadhaar", "otp", "verify"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Resend Aadhaar OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"referenceId\": \"REF123456\",\n  \"userId\": \"{{TEST_USER_ID}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/aadhaar/otp/resend",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "aadhaar", "otp", "resend"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PAN Verification",
+          "item": [
+            {
+              "name": "Validate PAN Format",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"panNumber\": \"ABCDE1234F\"\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/pan/validate",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "pan", "validate"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify PAN with NSDL",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"panNumber\": \"ABCDE1234F\",\n  \"userId\": \"{{TEST_USER_ID}}\",\n  \"name\": \"John Doe\"\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/pan/verify",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "pan", "verify"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Passport Verification",
+          "item": [
+            {
+              "name": "Validate Passport Format",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"passportNumber\": \"M1234567\",\n  \"dateOfBirth\": \"1990-01-01\"\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/passport/validate",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "passport", "validate"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Passport",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"passportNumber\": \"M1234567\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"userId\": \"{{TEST_USER_ID}}\",\n  \"name\": \"John Doe\"\n}"
+                },
+                "url": {
+                  "raw": "{{KYC_BASE_URL}}/api/kyc/passport/verify",
+                  "host": ["{{KYC_BASE_URL}}"],
+                  "path": ["api", "kyc", "passport", "verify"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AML Service",
+      "item": [
+        {
+          "name": "User Status",
+          "item": [
+            {
+              "name": "Get AML Status",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/status/{{TEST_USER_ID}}",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "status", "{{TEST_USER_ID}}"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Sanctions Screening",
+          "item": [
+            {
+              "name": "Check Sanctions Lists",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullName\": \"John Doe\",\n  \"country\": \"IN\",\n  \"userId\": \"{{TEST_USER_ID}}\",\n  \"lists\": [\"UN\", \"OFAC\", \"RBI\", \"FIU_INDIA\"]\n}"
+                },
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/sanctions/check",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "sanctions", "check"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Sanctions Lists",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/sanctions/lists",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "sanctions", "lists"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "PEP Screening",
+          "item": [
+            {
+              "name": "Check PEP Lists",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"personalInfo\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"country\": \"IN\",\n    \"dateOfBirth\": \"1990-01-01\"\n  },\n  \"userId\": \"{{TEST_USER_ID}}\",\n  \"includeAssociates\": false,\n  \"includeFamily\": false\n}"
+                },
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/pep/check",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "pep", "check"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get PEP Lists",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/pep/lists",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "pep", "lists"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Risk Assessment",
+          "item": [
+            {
+              "name": "Assess Risk",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"{{TEST_USER_ID}}\",\n  \"riskFactors\": {\n    \"transactionVolume\": 0.3,\n    \"transactionFrequency\": 0.2,\n    \"geographicRisk\": 0.15,\n    \"industryRisk\": 0.1,\n    \"customerType\": \"individual\"\n  },\n  \"includeHistoricalData\": true,\n  \"riskModel\": \"advanced\"\n}"
+                },
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/risk/assess",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "risk", "assess"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Risk Score",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/risk/score/{{TEST_USER_ID}}",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "risk", "score", "{{TEST_USER_ID}}"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Risk History",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{AML_BASE_URL}}/api/aml/risk/history/{{TEST_USER_ID}}",
+                  "host": ["{{AML_BASE_URL}}"],
+                  "path": ["api", "aml", "risk", "history", "{{TEST_USER_ID}}"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Queue Management",
+      "item": [
+        {
+          "name": "Queue Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{KYC_BASE_URL}}/api/admin/queues/stats",
+              "host": ["{{KYC_BASE_URL}}"],
+              "path": ["api", "admin", "queues", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Queue Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{AML_BASE_URL}}/api/admin/queues/health",
+              "host": ["{{AML_BASE_URL}}"],
+              "path": ["api", "admin", "queues", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for requests",
+          "pm.globals.set('timestamp', new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response validation",
+          "pm.test('Status code is 200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('Response has success field', function () {",
+          "    const jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('success');",
+          "});",
+          "",
+          "pm.test('Response time is less than 10 seconds', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+          "});"
+        ]
+      }
+    }
+  ]
+}

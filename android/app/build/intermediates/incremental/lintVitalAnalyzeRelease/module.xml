@@ -1,0 +1,18 @@
+<lint-module
+    format="1"
+    dir="/Users/krishnadeepaktatikonda/Desktop/Projects/dex-mobile-v6-master/android/app"
+    name=":app"
+    type="APP"
+    maven="android:app:"
+    agpVersion="8.0.0"
+    buildFolder="build"
+    bootClassPath="/usr/local/share/android-commandlinetools/platforms/android-34/android.jar:/usr/local/share/android-commandlinetools/build-tools/30.0.3/core-lambda-stubs.jar"
+    javaSourceLevel="17"
+    compileTarget="android-34">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

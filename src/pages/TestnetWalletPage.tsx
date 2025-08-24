@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,11 +24,14 @@ const TestnetWalletPage: React.FC = () => {
     transactions,
     loading,
     error,
+    myWallet,
     createWallet,
+    createMyWallet,
     importWallet,
     sendTransaction,
     requestTestTokens,
     refreshWalletData,
+    estimateTransactionFee,
   } = useTestnet();
 
   const [showCreateWalletDialog, setShowCreateWalletDialog] = useState(false);
@@ -47,6 +50,13 @@ const TestnetWalletPage: React.FC = () => {
   const formattedLastUpdated = lastUpdated
     ? new Date(lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : '';
+
+  // Auto-create "My Wallet" when component mounts or network changes
+  useEffect(() => {
+    if (!myWallet && !loading) {
+      createMyWallet(activeNetwork);
+    }
+  }, [activeNetwork, myWallet, loading, createMyWallet]);
 
   const handleRefresh = async () => {
     await refreshWalletData();
@@ -205,6 +215,103 @@ const TestnetWalletPage: React.FC = () => {
             </Button>
           </div>
         </div>
+      </Card>
+
+      {/* My Wallet Section */}
+      <Card className="p-6 mb-6 bg-dex-dark text-white border-dex-secondary/30 shadow-lg shadow-dex-secondary/10 backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Beaker className="h-5 w-5 text-dex-primary" />
+            <h3 className="text-lg font-semibold">My Wallet - {activeNetwork.charAt(0).toUpperCase() + activeNetwork.slice(1)}</h3>
+          </div>
+          {myWallet && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(
+                activeNetwork === 'sepolia'
+                  ? `https://sepolia.etherscan.io/address/${myWallet.address}`
+                  : '#',
+                '_blank'
+              )}
+              className="border-dex-secondary/30 text-gray-400 hover:text-white"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Explorer
+            </Button>
+          )}
+        </div>
+
+        {myWallet ? (
+          <div className="space-y-4">
+            {/* Balance Display */}
+            <div className="text-center">
+              <p className="text-sm text-gray-400 mb-1">Balance</p>
+              <p className="text-3xl font-bold text-white">
+                {parseFloat(myWallet.balance).toFixed(4)} ETH
+              </p>
+              <p className="text-sm text-gray-400">
+                ≈ ${(parseFloat(myWallet.balance) * 2000).toFixed(2)}
+              </p>
+            </div>
+
+            {/* Address Display */}
+            <div className="bg-dex-secondary/20 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-400 mb-1">Wallet Address</p>
+                  <p className="text-white font-mono text-sm">{formatAddress(myWallet.address)}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(myWallet.address);
+                    // You could add a toast here
+                  }}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                onClick={() => {
+                  setSelectedWalletId(myWallet.id);
+                  setShowSendDialog(true);
+                }}
+                className="bg-dex-primary hover:bg-dex-primary/80 text-black font-medium"
+                disabled={parseFloat(myWallet.balance) === 0}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Send
+              </Button>
+              <Button
+                onClick={() => requestTestTokens(myWallet.id)}
+                variant="outline"
+                className="border-dex-primary text-dex-primary hover:bg-dex-primary hover:text-black"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Get Test ETH
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <Beaker className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-400 mb-4">No "My Wallet" found for {activeNetwork}</p>
+            <Button
+              onClick={() => createMyWallet(activeNetwork)}
+              className="bg-dex-primary hover:bg-dex-primary/80 text-black"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create My Wallet
+            </Button>
+          </div>
+        )}
       </Card>
 
       <Tabs defaultValue="wallets" className="w-full">

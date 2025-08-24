@@ -1,10 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
 import { ethers } from 'ethers';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  getProviderWithRetry,
+  getBalance,
+  isValidAddress
+} from '@/services/ethersService';
+import { TestnetErrorHandler } from '@/services/testnetErrorHandler';
+import { testnetWalletManager } from '@/services/testnetWalletManager';
 
 // Define types
 export type TestnetNetwork = 'sepolia' | 'ganache' | 'solana-devnet';
@@ -30,7 +37,9 @@ export interface TestnetTransaction {
   network: TestnetNetwork;
 }
 
+// Enhanced interface with all services
 interface TestnetContextType {
+  // Core properties
   activeNetwork: TestnetNetwork;
   setActiveNetwork: (network: TestnetNetwork) => void;
   wallets: TestnetWallet[];
@@ -39,11 +48,48 @@ interface TestnetContextType {
   error: Error | null;
   hasTestnetAccess: boolean;
   isAdminLoading: boolean;
+  myWallet: TestnetWallet | null;
+
+  // Enhanced wallet management
   createWallet: (name: string, network: TestnetNetwork) => Promise<TestnetWallet | null>;
+  createMyWallet: (network: TestnetNetwork) => Promise<TestnetWallet | null>;
   importWallet: (privateKey: string, name: string, network: TestnetNetwork) => Promise<TestnetWallet | null>;
+  exportWallet: (walletId: string) => Promise<any>;
+  setPrimaryWallet: (walletId: string) => Promise<boolean>;
+  archiveWallet: (walletId: string, archive?: boolean) => Promise<boolean>;
+
+  // Enhanced transaction management
   sendTransaction: (to: string, amount: string, walletId: string) => Promise<string | null>;
   requestTestTokens: (walletId: string) => Promise<boolean>;
+  estimateTransactionFee: (fromAddress: string, toAddress: string, amount: string) => Promise<string>;
+
+  // Enhanced services
   refreshWalletData: () => Promise<void>;
+
+  // Network management
+  availableNetworks: any[];
+  networkHealth: Record<string, string>;
+  switchNetwork: (network: string) => Promise<boolean>;
+
+  // Gas management
+  currentGasPrices: any;
+  getGasOptimization: (currentGasPrice: string, gasLimit: string) => Promise<any>;
+
+  // Contract management
+  userContracts: any[];
+  deployERC20Token: (walletId: string, name: string, symbol: string, supply: string) => Promise<any>;
+  addContract: (address: string, name: string, abi?: any[]) => Promise<any>;
+  getERC20TokenInfo: (tokenAddress: string) => Promise<any>;
+
+  // Address book
+  addressBook: any[];
+  addAddress: (address: string, label: string, notes?: string) => Promise<any>;
+  searchAddresses: (query: string) => Promise<any[]>;
+
+  // Real-time monitoring
+  startRealTimeMonitoring: () => void;
+  stopRealTimeMonitoring: () => void;
+  isMonitoringActive: boolean;
 }
 
 const TestnetContext = createContext<TestnetContextType>({} as TestnetContextType);
@@ -54,28 +100,27 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const { user } = useAuth();
   const { isAdmin, isLoading: isAdminLoading, hasPermission } = useAdmin();
   const { toast } = useToast();
+  // Core state
   const [activeNetwork, setActiveNetwork] = useState<TestnetNetwork>('sepolia');
   const [wallets, setWallets] = useState<TestnetWallet[]>([]);
   const [transactions, setTransactions] = useState<TestnetTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [myWallet, setMyWallet] = useState<TestnetWallet | null>(null);
+
+  // Enhanced state
+  const [availableNetworks, setAvailableNetworks] = useState<any[]>([]);
+  const [networkHealth, setNetworkHealth] = useState<Record<string, string>>({});
+  const [currentGasPrices, setCurrentGasPrices] = useState<any>(null);
+  const [userContracts, setUserContracts] = useState<any[]>([]);
+  const [addressBook, setAddressBook] = useState<any[]>([]);
+  const [isMonitoringActive, setIsMonitoringActive] = useState(false);
 
   // Check if user has testnet access
   const hasTestnetAccess = isAdmin && hasPermission('report_viewer');
 
-  // Fetch wallet data when user, network, or admin status changes
-  useEffect(() => {
-    if (user && hasTestnetAccess) {
-      refreshWalletData();
-    } else {
-      setWallets([]);
-      setTransactions([]);
-      setLoading(false);
-    }
-  }, [user, activeNetwork, hasTestnetAccess]);
-
   // Refresh wallet data
-  const refreshWalletData = async () => {
+  const refreshWalletData = useCallback(async () => {
     if (!user || !hasTestnetAccess) return;
 
     setLoading(true);
@@ -117,34 +162,43 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw new Error(`Error fetching transactions: ${transactionsError.message}`);
       }
 
-      // Update wallet balances from blockchain
+      // Update wallet balances from blockchain using enhanced service
       const updatedWallets = await Promise.all(
         walletsData.map(async (wallet) => {
-          let balance = '0';try {
+          let balance = '0';
+          try {
             if (wallet.network === 'sepolia' || wallet.network === 'ganache') {
-              const provider = new ethers.providers.JsonRpcProvider(
-                wallet.network === 'sepolia'
-                  ? 'https://eth-sepolia.g.alchemy.com/v2/demo'
-                  : 'http://127.0.0.1:8545'
-              );
-              const ethBalance = await provider.getBalance(wallet.address);
-              balance = ethers.utils.formatEther(ethBalance);
+              balance = await getBalance(wallet.address, wallet.network as 'sepolia' | 'ganache');
+
+              // Update balance in database
+              await supabase
+                .from('testnet_wallets')
+                .update({ balance, updated_at: new Date().toISOString() })
+                .eq('id', wallet.id);
             } else if (wallet.network === 'solana-devnet') {
               // For Solana, we'll just use the stored balance for now
-              // In a real implementation, we would fetch from Solana network
               balance = wallet.balance || '0';
             }
           } catch (err) {
-            console.error(`Error fetching balance for wallet ${wallet.id}:`, err);
+            TestnetErrorHandler.logError(err, `fetchBalance-${wallet.id}`);
+            // Use stored balance as fallback
+            balance = wallet.balance || '0';
           }
 
-          return {
+          const walletData = {
             id: wallet.id,
             name: wallet.name,
             network: wallet.network as TestnetNetwork,
             address: wallet.address,
             balance
           };
+
+          // Set myWallet if this is "My Wallet"
+          if (wallet.name === 'My Wallet') {
+            setMyWallet(walletData);
+          }
+
+          return walletData;
         })
       );
 
@@ -170,7 +224,129 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, activeNetwork, hasTestnetAccess]);
+
+  // Fetch wallet data when user, network, or admin status changes
+  useEffect(() => {
+    if (user && hasTestnetAccess) {
+      refreshWalletData();
+    } else {
+      setWallets([]);
+      setTransactions([]);
+      setLoading(false);
+    }
+  }, [user, activeNetwork, hasTestnetAccess, refreshWalletData]);
+
+  // Enhanced service methods
+  const loadEnhancedData = useCallback(async () => {
+    if (!user || !hasTestnetAccess) return;
+
+    try {
+      // Load available networks
+      const networks = await testnetNetworkManager.getNetworks(true);
+      setAvailableNetworks(networks);
+
+      // Load network health
+      const healthStatus: Record<string, string> = {};
+      for (const network of networks) {
+        try {
+          const health = await testnetNetworkManager.checkNetworkHealth(network.id);
+          healthStatus[network.name] = health.isConnected ? 'healthy' : 'down';
+        } catch {
+          healthStatus[network.name] = 'unknown';
+        }
+      }
+      setNetworkHealth(healthStatus);
+
+      // Load gas data
+      try {
+        const gasData = await testnetGasManager.getCurrentGasPrices(activeNetwork);
+        setCurrentGasPrices(gasData);
+      } catch (error) {
+        console.error('Failed to load gas data:', error);
+      }
+
+      // Load user contracts if wallet exists
+      if (myWallet) {
+        try {
+          const contracts = await testnetContractManager.getUserContracts(user.id);
+          setUserContracts(contracts);
+        } catch (error) {
+          console.error('Failed to load contracts:', error);
+        }
+
+        // Load address book
+        try {
+          const addresses = await testnetAddressManager.getAddressBook(user.id, activeNetwork);
+          setAddressBook(addresses);
+        } catch (error) {
+          console.error('Failed to load address book:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load enhanced data:', error);
+    }
+  }, [user, hasTestnetAccess, activeNetwork, myWallet]);
+
+  // Start real-time monitoring
+  const startRealTimeMonitoring = useCallback(() => {
+    if (isMonitoringActive) return;
+
+    try {
+      // Start network health monitoring
+      testnetNetworkManager.startHealthMonitoring();
+
+      // Start gas price tracking
+      testnetGasManager.startGasTracking(['Sepolia']);
+
+      setIsMonitoringActive(true);
+
+      toast({
+        title: "Real-time Monitoring Started",
+        description: "Network health and gas price monitoring are now active",
+      });
+    } catch (error) {
+      console.error('Failed to start monitoring:', error);
+      toast({
+        title: "Monitoring Error",
+        description: "Failed to start real-time monitoring",
+        variant: "destructive",
+      });
+    }
+  }, [isMonitoringActive, toast]);
+
+  // Stop real-time monitoring
+  const stopRealTimeMonitoring = useCallback(() => {
+    if (!isMonitoringActive) return;
+
+    try {
+      testnetNetworkManager.stopHealthMonitoring();
+      testnetGasManager.stopGasTracking();
+      setIsMonitoringActive(false);
+
+      toast({
+        title: "Monitoring Stopped",
+        description: "Real-time monitoring has been disabled",
+      });
+    } catch (error) {
+      console.error('Failed to stop monitoring:', error);
+    }
+  }, [isMonitoringActive, toast]);
+
+  // Load enhanced data when dependencies change
+  useEffect(() => {
+    if (user && hasTestnetAccess) {
+      loadEnhancedData();
+    }
+  }, [user, hasTestnetAccess, activeNetwork, myWallet, loadEnhancedData]);
+
+  // Auto-refresh enhanced data
+  useEffect(() => {
+    if (isMonitoringActive) {
+      const interval = setInterval(loadEnhancedData, 30000); // 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isMonitoringActive, loadEnhancedData]);
 
   // Create a new wallet
   const createWallet = async (name: string, network: TestnetNetwork): Promise<TestnetWallet | null> => {
@@ -553,9 +729,292 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  // Enhanced "My Wallet" creation using new service
+  const createMyWallet = async (network: TestnetNetwork): Promise<TestnetWallet | null> => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to create My Wallet",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    if (!hasTestnetAccess) {
+      toast({
+        title: "Access Denied",
+        description: "Testnet functionality is restricted to administrators only",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    try {
+      // Use enhanced wallet manager for secure wallet creation
+      const enhancedWallet = await testnetWalletManager.createWallet(user.id, {
+        name: 'My Wallet',
+        network: network,
+        walletType: 'generated',
+        isPrimary: true
+      });
+
+      if (enhancedWallet) {
+        // Convert to legacy format for compatibility
+        const walletData = {
+          id: enhancedWallet.id,
+          name: enhancedWallet.name,
+          network: enhancedWallet.network as TestnetNetwork,
+          address: enhancedWallet.address,
+          balance: enhancedWallet.balance,
+        };
+        setMyWallet(walletData);
+
+        toast({
+          title: "Wallet Created",
+          description: `"My Wallet" created successfully on ${network}`,
+        });
+
+        return walletData;
+      }
+
+      return null;
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'createMyWallet');
+      const errorInfo = TestnetErrorHandler.getUserFriendlyMessage(error);
+      toast({
+        title: errorInfo.title,
+        description: errorInfo.description,
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  // Estimate transaction fee
+  const estimateTransactionFee = async (
+    fromAddress: string,
+    toAddress: string,
+    amount: string
+  ): Promise<string> => {
+    try {
+      if (!isValidAddress(toAddress)) {
+        throw new Error('Invalid recipient address');
+      }
+
+      const provider = await getProviderWithRetry(activeNetwork as 'sepolia' | 'ganache');
+      const gasPrice = await provider.getGasPrice();
+      const gasEstimate = await provider.estimateGas({
+        from: fromAddress,
+        to: toAddress,
+        value: ethers.utils.parseEther(amount),
+      });
+
+      const fee = gasPrice.mul(gasEstimate);
+      return ethers.utils.formatEther(fee);
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'estimateTransactionFee');
+      return '0.001'; // Default estimate
+    }
+  };
+
+  // Enhanced wallet management methods
+  const exportWallet = async (walletId: string) => {
+    if (!user) return null;
+    try {
+      return await testnetWalletManager.exportWallet(user.id, walletId);
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'exportWallet');
+      toast({
+        title: "Export Failed",
+        description: "Failed to export wallet",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const setPrimaryWallet = async (walletId: string): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const success = await testnetWalletManager.setPrimaryWallet(user.id, walletId);
+      if (success) {
+        await refreshWalletData();
+        toast({
+          title: "Primary Wallet Updated",
+          description: "Primary wallet has been changed",
+        });
+      }
+      return success;
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'setPrimaryWallet');
+      toast({
+        title: "Update Failed",
+        description: "Failed to update primary wallet",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  const archiveWallet = async (walletId: string, archive: boolean = true): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const success = await testnetWalletManager.archiveWallet(user.id, walletId, archive);
+      if (success) {
+        await refreshWalletData();
+        toast({
+          title: archive ? "Wallet Archived" : "Wallet Restored",
+          description: `Wallet has been ${archive ? 'archived' : 'restored'}`,
+        });
+      }
+      return success;
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'archiveWallet');
+      toast({
+        title: "Operation Failed",
+        description: `Failed to ${archive ? 'archive' : 'restore'} wallet`,
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  // Enhanced network management
+  const switchNetwork = async (network: string): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const result = await testnetNetworkManager.switchNetwork(user.id, network);
+      if (result.success) {
+        setActiveNetwork(network as TestnetNetwork);
+        await loadEnhancedData();
+        toast({
+          title: "Network Switched",
+          description: `Successfully switched to ${network}`,
+        });
+        return true;
+      } else {
+        toast({
+          title: "Network Switch Failed",
+          description: result.error,
+          variant: "destructive",
+        });
+        return false;
+      }
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'switchNetwork');
+      toast({
+        title: "Switch Failed",
+        description: "Failed to switch network",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  // Enhanced gas management
+  const getGasOptimization = async (currentGasPrice: string, gasLimit: string) => {
+    try {
+      return await testnetGasManager.getGasOptimization(activeNetwork, currentGasPrice, gasLimit);
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'getGasOptimization');
+      return null;
+    }
+  };
+
+  // Enhanced contract management
+  const deployERC20Token = async (walletId: string, name: string, symbol: string, supply: string) => {
+    if (!user) return null;
+    try {
+      const result = await testnetContractManager.deployERC20Token(
+        user.id, walletId, activeNetwork, name, symbol, supply
+      );
+      await loadEnhancedData();
+      toast({
+        title: "Token Deployed",
+        description: `${name} (${symbol}) has been deployed successfully`,
+      });
+      return result;
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'deployERC20Token');
+      toast({
+        title: "Deployment Failed",
+        description: "Failed to deploy ERC-20 token",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const addContract = async (address: string, name: string, abi?: any[]) => {
+    if (!user) return null;
+    try {
+      const contract = await testnetContractManager.addContract(
+        user.id, activeNetwork, address, name, abi
+      );
+      await loadEnhancedData();
+      toast({
+        title: "Contract Added",
+        description: `"${name}" has been added to your contracts`,
+      });
+      return contract;
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'addContract');
+      toast({
+        title: "Add Failed",
+        description: "Failed to add contract",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const getERC20TokenInfo = async (tokenAddress: string) => {
+    try {
+      return await testnetContractManager.getERC20TokenInfo(activeNetwork, tokenAddress);
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'getERC20TokenInfo');
+      return null;
+    }
+  };
+
+  // Enhanced address book management
+  const addAddress = async (address: string, label: string, notes?: string) => {
+    if (!user) return null;
+    try {
+      const addressEntry = await testnetAddressManager.addAddress(
+        user.id, activeNetwork, address, label, notes
+      );
+      await loadEnhancedData();
+      toast({
+        title: "Address Added",
+        description: `"${label}" has been added to your address book`,
+      });
+      return addressEntry;
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'addAddress');
+      toast({
+        title: "Add Failed",
+        description: "Failed to add address",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const searchAddresses = async (query: string) => {
+    if (!user) return [];
+    try {
+      return await testnetAddressManager.searchAddresses(user.id, query, activeNetwork);
+    } catch (error) {
+      TestnetErrorHandler.logError(error, 'searchAddresses');
+      return [];
+    }
+  };
+
   return (
     <TestnetContext.Provider
       value={{
+        // Core properties
         activeNetwork,
         setActiveNetwork,
         wallets,
@@ -564,11 +1023,48 @@ export const TestnetProvider: React.FC<{ children: React.ReactNode }> = ({ child
         error,
         hasTestnetAccess,
         isAdminLoading,
+        myWallet,
+
+        // Enhanced wallet management
         createWallet,
+        createMyWallet,
         importWallet,
+        exportWallet,
+        setPrimaryWallet,
+        archiveWallet,
+
+        // Enhanced transaction management
         sendTransaction,
         requestTestTokens,
+        estimateTransactionFee,
+
+        // Enhanced services
         refreshWalletData,
+
+        // Network management
+        availableNetworks,
+        networkHealth,
+        switchNetwork,
+
+        // Gas management
+        currentGasPrices,
+        getGasOptimization,
+
+        // Contract management
+        userContracts,
+        deployERC20Token,
+        addContract,
+        getERC20TokenInfo,
+
+        // Address book
+        addressBook,
+        addAddress,
+        searchAddresses,
+
+        // Real-time monitoring
+        startRealTimeMonitoring,
+        stopRealTimeMonitoring,
+        isMonitoringActive,
       }}
     >
       {children}

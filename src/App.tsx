@@ -39,6 +39,7 @@ import WalletDashboardPageWithErrorBoundary from "./pages/WalletDashboardPageWit
 import WalletSettingsPage from "./pages/WalletSettingsPage";
 import WalletImportPage from "./pages/WalletImportPage";
 import TestnetWalletPageWithErrorBoundary from "./pages/TestnetWalletPageWithErrorBoundary";
+import EnhancedTestnetWalletPage from "./components/testnet/EnhancedTestnetWalletPage";
 import ActivityPage from "./pages/ActivityPage";
 import BuyPage from "./pages/BuyPage";
 import SellPage from "./pages/SellPage";
@@ -579,7 +580,7 @@ const App = () => {
                       />
                       <div className="pt-16 pb-20">
                         <div className="container mx-auto px-4 mb-4">
-                          <TestnetWalletPageWithErrorBoundary />
+                          <EnhancedTestnetWalletPage />
                         </div>
                         <DexNavigation />
                       </div>
@@ -587,6 +588,7 @@ const App = () => {
                   </PrivateRoute>
                 }
               />
+
               <Route
                 path="/security"
                 element={
